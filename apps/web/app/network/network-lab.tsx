@@ -41,6 +41,7 @@ export function NetworkLab() {
   const [integrity, setIntegrity] = useState<{valid:boolean;checkedEvents:number;firstBadSequence:number|null;reason:string|null}|null>(null);
   const [causalEdges, setCausalEdges] = useState<Array<{from:string;to:string;relation:string}>>([]);
   const [forensicTimeline, setForensicTimeline] = useState<any[]>([]);
+  const [remediating, setRemediating] = useState<string | null>(null);
 
   const selected = useMemo(() => agents.find((agent) => agent.id === selectedId) ?? agents[0], [agents, selectedId]);
   const affected = agents.filter((agent) => agent.status !== "healthy").length;
@@ -99,6 +100,11 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
     if (!incidentId) return;
     const res=await fetch("/api/laboratory/recovery",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId})});
     if(!res.ok) return; const data=await res.json(); setRecovery(data); setPhase("recovering");
+  }
+
+  async function runRemediation(actionType:string,target:string) {
+    if(!incidentId||remediating) return; setRemediating(actionType);
+    try { const res=await fetch("/api/laboratory/remediate",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId,actionType,target})}); if(!res.ok) return; const data=await res.json(); setRecovery((r:any)=>({...r,restart_checks:data.restartChecks,restartChecks:data.restartChecks,safe_to_restart:data.safeToRestart})); const stateRes=await fetch("/api/laboratory/state"); if(stateRes.ok){const state=await stateRes.json(); setForensicTimeline(state.forensicTimeline??[]);} } finally { setRemediating(null); }
   }
 
   async function updateRestartCheck(key:string,value:boolean) {
@@ -192,7 +198,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
         {phase === "recovering" && recovery ? <section className="activityPanel" id="recovery">
           <div className="activityHead"><div><strong>Safe restart assessment</strong><span>Recovery is separate from containment</span></div><span className="recording">HUMAN GATED</span></div>
           <div className="events">
-            {Object.entries(recovery.restart_checks ?? recovery.restartChecks ?? {}).map(([key,value]) => <label className="event" key={key}><input type="checkbox" checked={Boolean(value)} disabled={key!=="humanApproved"} onChange={(e)=>key==="humanApproved"&&updateRestartCheck(key,e.target.checked)} /><p>{key.replace(/([A-Z])/g," $1")}<small>{key==="humanApproved" ? "Owner/Admin approval" : "Verified by Nodra remediation evidence"}</small></p></label>)}
+            {Object.entries(recovery.restart_checks ?? recovery.restartChecks ?? {}).map(([key,value]) => { const actions:any={originPatched:["patch_origin","research-origin"],credentialsRotated:["rotate_credentials","simulated-credentials"],memoryReviewed:["review_memory","research-state"],pendingJobsReviewed:["cancel_pending_jobs","delegated-jobs"]}; const action=actions[key]; return <div className="event" key={key}><input type="checkbox" checked={Boolean(value)} readOnly disabled={key!=="humanApproved"} onChange={(e)=>key==="humanApproved"&&updateRestartCheck(key,e.target.checked)} /><p><strong>{key.replace(/([A-Z])/g," $1")}</strong><small>{key==="humanApproved" ? "Owner/Admin approval" : Boolean(value) ? "Verified by successful Nodra laboratory remediation evidence" : "Waiting for Nodra remediation evidence"}</small></p>{action&&!value ? <button className="ghostBtn" disabled={Boolean(remediating)} onClick={()=>runRemediation(action[0],action[1])}>{remediating===action[0] ? "Running…" : "Remediate"}</button> : null}</div>; })}
             {(recovery.steps ?? []).map((step:any)=><div className="event" key={step.id ?? step.title}><span className="eventKind recovery">recovery</span><p><strong>{step.title}</strong> — {step.reason}</p></div>)}
           </div>
         </section> : null}
