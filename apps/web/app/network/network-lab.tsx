@@ -39,6 +39,7 @@ export function NetworkLab() {
   const [loading, setLoading] = useState(true);
   const [recovery, setRecovery] = useState<any>(null);
   const [integrity, setIntegrity] = useState<{valid:boolean;checkedEvents:number;firstBadSequence:number|null;reason:string|null}|null>(null);
+  const [causalEdges, setCausalEdges] = useState<Array<{from:string;to:string;relation:string}>>([]);
 
   const selected = useMemo(() => agents.find((agent) => agent.id === selectedId) ?? agents[0], [agents, selectedId]);
   const affected = agents.filter((agent) => agent.status !== "healthy").length;
@@ -49,6 +50,7 @@ export function NetworkLab() {
       const state = await res.json();
       if (state.agents?.length) setAgents((current) => current.map((agent) => { const saved=state.agents.find((a:any)=>a.external_id===agent.id); return saved ? {...agent,status:saved.status === "at_risk" ? "at-risk" : saved.status} : agent; }));
       if (state.integrity) setIntegrity(state.integrity);
+      if (state.causalEdges) setCausalEdges(state.causalEdges.map((edge:any)=>({from:edge.from?.external_id,to:edge.to?.external_id,relation:edge.relation})).filter((edge:any)=>edge.from&&edge.to));
       if (state.incident) { setIncidentId(state.incident.id); setPhase(state.incident.state === "resolved" ? "resolved" : state.incident.state === "recovering" ? "recovering" : state.incident.state === "contained" ? "contained" : "incident"); setRecovery(state.recovery ?? null); }
       if (state.events?.length) setEvents([...baseEvents,...state.events.map((e:any)=>({time:new Date(e.occurred_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),kind:e.decision==="deny"?"blocked":"system",text:`${e.event_type}${e.action ? ` · ${e.action}` : ""}${e.payload?.reason ? ` — ${e.payload.reason}` : ""}`}))]);
     }).finally(()=>setLoading(false));
@@ -63,6 +65,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
     setPhase("incident");
     setAgents((current) => current.map((agent) => result.affectedAgentIds.includes(agent.id) ? { ...agent, status: "at-risk" } : agent));
     setSelectedId("research");
+    const refreshed=await fetch("/api/laboratory/state"); if(refreshed.ok){const state=await refreshed.json(); setCausalEdges((state.causalEdges??[]).map((edge:any)=>({from:edge.from?.external_id,to:edge.to?.external_id,relation:edge.relation})).filter((edge:any)=>edge.from&&edge.to));}
     setEvents((current) => [
       ...current,
       { time: "00:08", kind: "risk", text: "Research consumed untrusted sandbox content." },
@@ -111,6 +114,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
     setIncidentId(null);
     setRecovery(null);
     setIntegrity(null);
+    setCausalEdges([]);
   }
 
   return (
@@ -146,11 +150,8 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
             </div>
             <div className="canvas">
               <svg className="edges" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M500 120 L180 310" className={phase === "ready" ? "" : "dangerEdge"} />
-                <path d="M500 120 L390 430" className={phase === "incident" ? "dangerEdge" : ""} />
-                <path d="M500 120 L620 430" />
-                <path d="M500 120 L820 310" />
-                <path d="M180 310 L390 430" className={phase === "incident" ? "dangerEdge dashed" : "dashed"} />
+                {causalEdges.map((edge,index)=>{ const from=agents.find(a=>a.id===edge.from); const to=agents.find(a=>a.id===edge.to); if(!from||!to) return null; const x1=from.x*10,y1=from.y*6,x2=to.x*10,y2=to.y*6; const affectedEdge=from.status!=="healthy"||to.status!=="healthy"; return <path key={edge.from+"-"+edge.to+"-"+index} d={`M${x1} ${y1} L${x2} ${y2}`} className={(affectedEdge?"dangerEdge ":"")+(edge.relation==="influenced"?"dashed":"")} />; })}
+                {causalEdges.length===0 ? agents.filter(a=>a.id!=="manager").map((agent,index)=><path key={"baseline-"+agent.id} d={`M500 90 L${agent.x*10} ${agent.y*6}`} className={index===0&&phase!=="ready"?"dangerEdge":""} />) : null}
               </svg>
               <div className="humanNode">Human authority</div>
               {agents.map((agent) => (
