@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { simulateIncident } from "../../../../lib/laboratory";
-import { ensureLabAgents, eventHash } from "../../../../lib/persistence";
+import { ensureLabAgents } from "../../../../lib/persistence";
 
 export async function POST() {
   const ctx=await ensureLabAgents();
@@ -14,8 +14,6 @@ export async function POST() {
   }).select("id").single();
   if(error||!incident) return NextResponse.json({error:"incident_persistence_failed"},{status:500});
 
-  const {data:previous}=await ctx.supabase.from("security_events").select("sequence_no,event_hash").eq("workspace_id",ctx.workspaceId).order("sequence_no",{ascending:false}).limit(1).maybeSingle();
-  let sequence=Number(previous?.sequence_no??0); let prevHash=previous?.event_hash??null;
   const records=[
     {agent_id:research,event_type:"untrusted-content",action:"read",decision:"allow",payload:{source:"sandbox-browser",observable:true}},
     {agent_id:research,event_type:"delegation-influence",action:"influence",decision:"allow",payload:{to:"manager",observable:true}},
@@ -24,12 +22,12 @@ export async function POST() {
   ];
   const ids:string[]=[];
   for(const rec of records){
-    sequence+=1;
-    const base={workspace_id:ctx.workspaceId,incident_id:incident.id,...rec,sequence_no:sequence,prev_hash:prevHash};
-    const event_hash=eventHash(base);
-    const {data:e,error:eerr}=await ctx.supabase.from("security_events").insert({...base,event_hash}).select("id").single();
+    const {data:e,error:eerr}=await ctx.supabase.rpc("append_security_event",{
+      p_workspace_id:ctx.workspaceId,p_incident_id:incident.id,p_agent_id:rec.agent_id,p_event_type:rec.event_type,
+      p_action:rec.action,p_decision:rec.decision,p_payload:rec.payload
+    });
     if(eerr||!e) return NextResponse.json({error:"evidence_persistence_failed"},{status:500});
-    ids.push(e.id); prevHash=event_hash;
+    ids.push(e.id);
   }
 
   const {error:edgeError}=await ctx.supabase.from("causal_edges").insert([
