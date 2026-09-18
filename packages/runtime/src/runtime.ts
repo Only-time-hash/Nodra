@@ -14,3 +14,5 @@ export function calculateBlastRadius(originAgentId: string, edges: CausalEdge[])
 }
 
 export { NodraGateway, type ToolHandler, type GatewayResult } from "./gateway";
+
+export { ObservableNodraGateway, createObservableGateway, type GatewayObserver } from "./observable-gateway";
