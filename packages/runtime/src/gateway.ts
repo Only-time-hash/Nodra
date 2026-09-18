@@ -5,7 +5,7 @@ export type ToolHandler<T=unknown> = (input:unknown)=>Promise<T>;
 export type GatewayResult<T=unknown> = { event:RecordedEvent; executed:boolean; output?:T };
 
 export class NodraGateway {
-  constructor(private rules:PolicyRule[], private tools:Record<string,ToolHandler>={}) {}
+  private rules:PolicyRule[];\n  private tools:Record<string,ToolHandler>;\n  constructor(rules:PolicyRule[], tools:Record<string,ToolHandler>={}) { this.rules=rules; this.tools=tools; }
   register(resourceId:string, handler:ToolHandler){ this.tools[resourceId]=handler; return this; }
   async execute<T=unknown>(request:LabRequest,input:unknown={}):Promise<GatewayResult<T>>{
     const event=intercept(request,this.rules);
