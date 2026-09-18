@@ -40,6 +40,7 @@ export function NetworkLab() {
   const [recovery, setRecovery] = useState<any>(null);
   const [integrity, setIntegrity] = useState<{valid:boolean;checkedEvents:number;firstBadSequence:number|null;reason:string|null}|null>(null);
   const [causalEdges, setCausalEdges] = useState<Array<{from:string;to:string;relation:string}>>([]);
+  const [forensicTimeline, setForensicTimeline] = useState<any[]>([]);
 
   const selected = useMemo(() => agents.find((agent) => agent.id === selectedId) ?? agents[0], [agents, selectedId]);
   const affected = agents.filter((agent) => agent.status !== "healthy").length;
@@ -52,6 +53,7 @@ export function NetworkLab() {
       if (state.agents?.length) setAgents((current) => current.map((agent) => { const saved=state.agents.find((a:any)=>a.external_id===agent.id); return saved ? {...agent,status:saved.status === "at_risk" ? "at-risk" : saved.status} : agent; }));
       if (state.integrity) setIntegrity(state.integrity);
       if (state.causalEdges) setCausalEdges(state.causalEdges.map((edge:any)=>({from:edge.from?.external_id,to:edge.to?.external_id,relation:edge.relation})).filter((edge:any)=>edge.from&&edge.to));
+      if (state.forensicTimeline) setForensicTimeline(state.forensicTimeline);
       if (state.incident) { setIncidentId(state.incident.id); setPhase(state.incident.state === "resolved" ? "resolved" : state.incident.state === "recovering" ? "recovering" : state.incident.state === "contained" ? "contained" : "incident"); setRecovery(state.recovery ?? null); }
       if (state.events?.length) setEvents([...baseEvents,...state.events.map((e:any)=>({time:new Date(e.occurred_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),kind:e.decision==="deny"?"blocked":"system",text:`${e.event_type}${e.action ? ` · ${e.action}` : ""}${e.payload?.reason ? ` — ${e.payload.reason}` : ""}`}))]);
     }).finally(()=>setLoading(false));
@@ -66,7 +68,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
     setPhase("incident");
     setAgents((current) => current.map((agent) => result.affectedAgentIds.includes(agent.id) ? { ...agent, status: "at-risk" } : agent));
     setSelectedId("research");
-    const refreshed=await fetch("/api/laboratory/state"); if(refreshed.ok){const state=await refreshed.json(); setCausalEdges((state.causalEdges??[]).map((edge:any)=>({from:edge.from?.external_id,to:edge.to?.external_id,relation:edge.relation})).filter((edge:any)=>edge.from&&edge.to));}
+    const refreshed=await fetch("/api/laboratory/state"); if(refreshed.ok){const state=await refreshed.json(); setCausalEdges((state.causalEdges??[]).map((edge:any)=>({from:edge.from?.external_id,to:edge.to?.external_id,relation:edge.relation})).filter((edge:any)=>edge.from&&edge.to)); setForensicTimeline(state.forensicTimeline??[]);}
     setEvents((current) => [
       ...current,
       { time: "00:08", kind: "risk", text: "Research consumed untrusted sandbox content." },
@@ -116,6 +118,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
     setRecovery(null);
     setIntegrity(null);
     setCausalEdges([]);
+    setForensicTimeline([]);
   }
 
   return (
@@ -194,7 +197,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
           </div>
         </section> : null}
 
-        {incidentId ? <section className="activityPanel" id="investigation"><div className="activityHead"><div><strong>Incident investigation</strong><span>Evidence-backed causal reconstruction</span></div><span className="recording">{phase.toUpperCase()}</span></div><div className="events"><div className="event"><span className="eventKind trace">origin</span><p><strong>Research</strong> is the recorded laboratory incident origin.</p></div>{causalEdges.map((edge,index)=><div className="event" key={"investigation-"+index}><span className="eventKind trace">{edge.relation}</span><p><strong>{edge.from}</strong> → <strong>{edge.to}</strong></p></div>)}<div className="event"><span className={"eventKind "+(integrity?.valid?"system":"risk")}>evidence</span><p>{integrity?.valid ? `Hash chain verified across ${integrity.checkedEvents} recorded events.` : "Evidence integrity requires verification."}</p></div><div className="event"><span className="eventKind contain">state</span><p>Incident state: <strong>{phase}</strong>. Affected agents: <strong>{affected}</strong>.</p></div></div></section> : null}
+        {incidentId ? <section className="activityPanel" id="investigation"><div className="activityHead"><div><strong>Incident investigation</strong><span>Persisted forensic timeline · observable evidence only</span></div><span className="recording">{phase.toUpperCase()}</span></div><div className="events"><div className="event"><span className="eventKind trace">origin</span><p><strong>Research</strong> is the recorded laboratory incident origin.</p></div>{forensicTimeline.map((item:any,index)=><div className="event" key={item.id ?? `forensic-${index}`}><span className={`eventKind ${item.kind==="containment"?"contain":item.label==="policy-decision"?"blocked":"trace"}`}>{item.kind}</span><p><strong>{item.label}</strong>{item.target ? ` · target ${item.target}` : ""} — {item.detail}<small>{item.at ? new Date(item.at).toLocaleString() : ""}{item.sequence ? ` · sequence ${item.sequence}` : ""}{item.hash ? ` · hash ${String(item.hash).slice(0,12)}…` : ""}</small></p></div>)}<div className="event"><span className={"eventKind "+(integrity?.valid?"system":"risk")}>evidence</span><p>{integrity?.valid ? `Hash chain verified across ${integrity.checkedEvents} recorded events.` : "Evidence integrity requires verification."}</p></div><div className="event"><span className="eventKind contain">state</span><p>Incident state: <strong>{phase}</strong>. Affected agents: <strong>{affected}</strong>.</p></div></div></section> : null}
 
         <section className="activityPanel" id="activity">
           <div className="activityHead"><div><strong>Flight recorder</strong><span>Observable laboratory events</span></div><span className="recording"><i /> RECORDING</span></div>
