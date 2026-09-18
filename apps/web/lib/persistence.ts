@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { createClient } from "./supabase/server";
 
 export async function getWorkspaceContext() {
@@ -26,6 +25,3 @@ export async function ensureLabAgents() {
   return { ...ctx, agents: found };
 }
 
-export function eventHash(input: unknown) {
-  return createHash("sha256").update(JSON.stringify(input)).digest("hex");
-}
