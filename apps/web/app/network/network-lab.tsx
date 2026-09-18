@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { simulateIncident, containLaboratoryIncident } from "../../lib/laboratory";
 
@@ -34,14 +34,14 @@ export function NetworkLab() {
   const [agents, setAgents] = useState(initialAgents);
   const [selectedId, setSelectedId] = useState("manager");
   const [phase, setPhase] = useState<"ready" | "incident" | "contained">("ready");
-  const [events, setEvents] = useState(baseEvents);
+  const [events, setEvents] = useState(baseEvents);\n  const [incidentId, setIncidentId] = useState<string | null>(null);\n  const [loading, setLoading] = useState(true);
 
   const selected = useMemo(() => agents.find((agent) => agent.id === selectedId) ?? agents[0], [agents, selectedId]);
-  const affected = agents.filter((agent) => agent.status !== "healthy").length;
+  const affected = agents.filter((agent) => agent.status !== "healthy").length;\n\n  useEffect(() => {\n    fetch("/api/laboratory/state").then(async (res) => {\n      if (!res.ok) return;\n      const state = await res.json();\n      if (state.agents?.length) setAgents((current) => current.map((agent) => { const saved=state.agents.find((a:any)=>a.external_id===agent.id); return saved ? {...agent,status:saved.status === "at_risk" ? "at-risk" : saved.status} : agent; }));\n      if (state.incident) { setIncidentId(state.incident.id); setPhase(state.incident.state === "contained" || state.incident.state === "recovering" ? "contained" : "incident"); }\n      if (state.events?.length) setEvents([...baseEvents,...state.events.map((e:any)=>({time:new Date(e.occurred_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),kind:e.decision==="deny"?"blocked":"system",text:`${e.event_type}${e.action ? ` · ${e.action}` : ""}${e.payload?.reason ? ` — ${e.payload.reason}` : ""}`}))]);\n    }).finally(()=>setLoading(false));\n  }, []);
 
-  function runIncident() {
+  async function runIncident() {
     if (phase !== "ready") return;
-    const result = simulateIncident();
+    const local = simulateIncident();\n    const response = await fetch("/api/laboratory/incident",{method:"POST"});\n    if (!response.ok) return;\n    const result = await response.json();\n    setIncidentId(result.incidentId);
     setPhase("incident");
     setAgents((current) => current.map((agent) => result.affectedAgentIds.includes(agent.id) ? { ...agent, status: "at-risk" } : agent));
     setSelectedId("research");
@@ -54,9 +54,9 @@ export function NetworkLab() {
     ]);
   }
 
-  function containIncident() {
+  async function containIncident() {
     if (phase !== "incident") return;
-    const result = containLaboratoryIncident();
+    if (!incidentId) return;\n    const response = await fetch("/api/laboratory/contain",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId})});\n    if (!response.ok) return;\n    const result = await response.json();
     const statuses = new Map(result.targets.map((target) => [target.id, target.status]));
     setPhase("contained");
     setAgents((current) => current.map((agent) => ({ ...agent, status: statuses.get(agent.id) ?? agent.status })));
@@ -72,7 +72,7 @@ export function NetworkLab() {
     setAgents(initialAgents);
     setSelectedId("manager");
     setPhase("ready");
-    setEvents(baseEvents);
+    setEvents(baseEvents);\n    setIncidentId(null);
   }
 
   return (
@@ -131,7 +131,7 @@ export function NetworkLab() {
             </div>
             <div className="incidentBar" id="incidents">
               <div><span className="shield">◇</span><p><strong>{phase === "ready" ? "Controlled incident scenario ready" : phase === "incident" ? "Potential propagation detected" : "Affected branch isolated"}</strong><small>{phase === "ready" ? "Simulate untrusted content reaching the Research agent." : phase === "incident" ? "Nodra traced the observable causal path and blocked an unauthorized action." : "Research is quarantined. Manager, Finance, Support and Data remain available."}</small></p></div>
-              {phase === "ready" ? <button className="runBtn" onClick={runIncident}>Run controlled incident</button> : phase === "incident" ? <button className="containBtn" onClick={containIncident}>Contain incident</button> : <button className="runBtn" onClick={resetLab}>Run again</button>}
+              {phase === "ready" ? <button className="runBtn" onClick={runIncident} disabled={loading}>{loading ? "Loading state…" : "Run controlled incident"}</button> : phase === "incident" ? <button className="containBtn" onClick={containIncident}>Contain incident</button> : <button className="runBtn" onClick={resetLab}>Run again</button>}
             </div>
           </section>
 
