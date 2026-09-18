@@ -20,10 +20,14 @@ export async function GET() {
     ]);
     causalEdges=edges??[]; affected=radius??[];
   }
+  let containmentActions:any[]=[];
+  if(incident){ const {data:actions}=await ctx.supabase.from("containment_actions").select("id,action,target_type,target_id,reason,created_at").eq("incident_id",incident.id).order("created_at",{ascending:true}); containmentActions=actions??[]; }
   let recovery=null;
   if(incident){
     const {data:plan}=await ctx.supabase.from("recovery_plans").select("id,safe_to_restart,restart_checks,approved_by,approved_at").eq("incident_id",incident.id).maybeSingle();
     if(plan){ const {data:steps}=await ctx.supabase.from("recovery_steps").select("id,title,reason,requires_human,status,completed_at").eq("recovery_plan_id",plan.id).order("id"); recovery={...plan,steps:steps??[]}; }
   }
-  return NextResponse.json({agents:agents??[],incident,events:events??[],causalEdges,affected,recovery,integrity});
+  const incidentEvents=incident ? (events??[]).filter((event:any)=>causalEdges.some((edge:any)=>edge.event_id===event.id) || event.payload?.incident_id===incident.id || event.event_type==="untrusted-content" || event.event_type==="policy-decision") : [];
+  const forensicTimeline=[...incidentEvents.map((event:any)=>({kind:"evidence",id:event.id,at:event.occurred_at,label:event.event_type,detail:event.action??event.decision??"recorded event",sequence:event.sequence_no,hash:event.event_hash})),...containmentActions.map((action:any)=>({kind:"containment",id:action.id,at:action.created_at,label:action.action,detail:action.reason,target:action.target_id}))].sort((a:any,b:any)=>String(a.at).localeCompare(String(b.at)));
+  return NextResponse.json({agents:agents??[],incident,events:events??[],causalEdges,affected,containmentActions,forensicTimeline,recovery,integrity});
 }
