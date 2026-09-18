@@ -43,6 +43,7 @@ export function NetworkLab() {
 
   const selected = useMemo(() => agents.find((agent) => agent.id === selectedId) ?? agents[0], [agents, selectedId]);
   const affected = agents.filter((agent) => agent.status !== "healthy").length;
+  const selectedEdges = causalEdges.filter((edge)=>edge.from===selectedId||edge.to===selectedId);
 
   useEffect(() => {
     fetch("/api/laboratory/state").then(async (res) => {
@@ -180,6 +181,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
             <div className="inspectSection"><p className="label">TOOLS</p>{selected.tools.map((tool) => <div className="row" key={tool}><span>{tool}</span><b>connected</b></div>)}</div>
             <div className="inspectSection" id="policies"><p className="label">EXPLICIT PERMISSIONS</p>{selected.permissions.map((permission) => <code key={permission}>{permission}</code>)}</div>
             <div className="inspectSection"><p className="label">AUTHORITY</p><div className="authority"><span>Delegated by</span><strong>{selected.id === "manager" ? "Human" : "Manager"}</strong></div></div>
+            <div className="inspectSection"><p className="label">CAUSAL RELATIONSHIPS</p>{selectedEdges.length ? selectedEdges.map((edge,index)=><div className="row" key={edge.from+"-"+edge.to+"-"+index}><span>{edge.from} → {edge.to}</span><b>{edge.relation}</b></div>) : <div className="row"><span>No persisted incident edge</span><b>clean</b></div>}</div>
             {selected.status === "quarantined" ? <div className="quarantineNote"><strong>Quarantine active</strong><p>New tool actions and delegated authority are blocked pending recovery review.</p></div> : null}
           </aside>
         </div>
@@ -191,6 +193,8 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
             {(recovery.steps ?? []).map((step:any)=><div className="event" key={step.id ?? step.title}><span className="eventKind recovery">recovery</span><p><strong>{step.title}</strong> — {step.reason}</p></div>)}
           </div>
         </section> : null}
+
+        {incidentId ? <section className="activityPanel" id="investigation"><div className="activityHead"><div><strong>Incident investigation</strong><span>Evidence-backed causal reconstruction</span></div><span className="recording">{phase.toUpperCase()}</span></div><div className="events"><div className="event"><span className="eventKind trace">origin</span><p><strong>Research</strong> is the recorded laboratory incident origin.</p></div>{causalEdges.map((edge,index)=><div className="event" key={"investigation-"+index}><span className="eventKind trace">{edge.relation}</span><p><strong>{edge.from}</strong> → <strong>{edge.to}</strong></p></div>)}<div className="event"><span className={"eventKind "+(integrity?.valid?"system":"risk")}>evidence</span><p>{integrity?.valid ? `Hash chain verified across ${integrity.checkedEvents} recorded events.` : "Evidence integrity requires verification."}</p></div><div className="event"><span className="eventKind contain">state</span><p>Incident state: <strong>{phase}</strong>. Affected agents: <strong>{affected}</strong>.</p></div></div></section> : null}
 
         <section className="activityPanel" id="activity">
           <div className="activityHead"><div><strong>Flight recorder</strong><span>Observable laboratory events</span></div><span className="recording"><i /> RECORDING</span></div>
