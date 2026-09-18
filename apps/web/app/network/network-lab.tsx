@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { simulateIncident, containLaboratoryIncident } from "../../lib/laboratory";
 
 type Status = "healthy" | "at-risk" | "quarantined";
 type Agent = {
@@ -40,28 +41,25 @@ export function NetworkLab() {
 
   function runIncident() {
     if (phase !== "ready") return;
+    const result = simulateIncident();
     setPhase("incident");
-    setAgents((current) => current.map((agent) =>
-      agent.id === "research" ? { ...agent, status: "at-risk" } :
-      agent.id === "manager" || agent.id === "finance" ? { ...agent, status: "at-risk" } : agent
-    ));
+    setAgents((current) => current.map((agent) => result.affectedAgentIds.includes(agent.id) ? { ...agent, status: "at-risk" } : agent));
     setSelectedId("research");
     setEvents((current) => [
       ...current,
       { time: "00:08", kind: "risk", text: "Research consumed untrusted sandbox content." },
       { time: "00:09", kind: "risk", text: "Research attempted an action outside its explicit authority." },
-      { time: "00:09", kind: "blocked", text: "Policy gateway blocked the unauthorized request." },
+      { time: "00:09", kind: "blocked", text: `Policy gateway decision: ${result.attemptedAction.decision}. ${result.attemptedAction.reason}` },
       { time: "00:10", kind: "trace", text: "Causal path traced: Research → Manager → Finance." },
     ]);
   }
 
   function containIncident() {
     if (phase !== "incident") return;
+    const result = containLaboratoryIncident();
+    const statuses = new Map(result.targets.map((target) => [target.id, target.status]));
     setPhase("contained");
-    setAgents((current) => current.map((agent) =>
-      agent.id === "research" ? { ...agent, status: "quarantined" } :
-      agent.id === "manager" || agent.id === "finance" ? { ...agent, status: "healthy" } : agent
-    ));
+    setAgents((current) => current.map((agent) => ({ ...agent, status: statuses.get(agent.id) ?? agent.status })));
     setEvents((current) => [
       ...current,
       { time: "00:12", kind: "contain", text: "Research quarantined; delegated authority revoked." },
