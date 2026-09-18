@@ -12,3 +12,5 @@ export function intercept(request: LabRequest, rules: PolicyRule[]): RecordedEve
 export function calculateBlastRadius(originAgentId: string, edges: CausalEdge[]) {
   return traceBlastRadius(originAgentId, edges);
 }
+
+export { NodraGateway, type ToolHandler, type GatewayResult } from "./gateway";
