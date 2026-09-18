@@ -76,7 +76,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
     const response = await fetch("/api/laboratory/contain",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId})});
     if (!response.ok) return;
     const result = await response.json();
-    const statuses = new Map(result.targets.map((target) => [target.id, target.status]));
+    const statuses = new Map<string, Status>(result.targets.map((target: { id: string; status: Status }) => [target.id, target.status]));
     setPhase("contained");
     setAgents((current) => current.map((agent) => ({ ...agent, status: statuses.get(agent.id) ?? agent.status })));
     setEvents((current) => [
