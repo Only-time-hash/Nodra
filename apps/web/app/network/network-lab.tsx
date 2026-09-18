@@ -34,14 +34,30 @@ export function NetworkLab() {
   const [agents, setAgents] = useState(initialAgents);
   const [selectedId, setSelectedId] = useState("manager");
   const [phase, setPhase] = useState<"ready" | "incident" | "contained" | "recovering" | "resolved">("ready");
-  const [events, setEvents] = useState(baseEvents);\n  const [incidentId, setIncidentId] = useState<string | null>(null);\n  const [loading, setLoading] = useState(true);\n  const [recovery, setRecovery] = useState<any>(null);
+  const [events, setEvents] = useState(baseEvents);
+  const [incidentId, setIncidentId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [recovery, setRecovery] = useState<any>(null);
 
   const selected = useMemo(() => agents.find((agent) => agent.id === selectedId) ?? agents[0], [agents, selectedId]);
-  const affected = agents.filter((agent) => agent.status !== "healthy").length;\n\n  useEffect(() => {\n    fetch("/api/laboratory/state").then(async (res) => {\n      if (!res.ok) return;\n      const state = await res.json();\n      if (state.agents?.length) setAgents((current) => current.map((agent) => { const saved=state.agents.find((a:any)=>a.external_id===agent.id); return saved ? {...agent,status:saved.status === "at_risk" ? "at-risk" : saved.status} : agent; }));\n      if (state.incident) { setIncidentId(state.incident.id); setPhase(state.incident.state === "resolved" ? "resolved" : state.incident.state === "recovering" ? "recovering" : state.incident.state === "contained" ? "contained" : "incident"); setRecovery(state.recovery ?? null); }\n      if (state.events?.length) setEvents([...baseEvents,...state.events.map((e:any)=>({time:new Date(e.occurred_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),kind:e.decision==="deny"?"blocked":"system",text:`${e.event_type}${e.action ? ` · ${e.action}` : ""}${e.payload?.reason ? ` — ${e.payload.reason}` : ""}`}))]);\n    }).finally(()=>setLoading(false));\n  }, []);
+  const affected = agents.filter((agent) => agent.status !== "healthy").length;
+
+  useEffect(() => {
+    fetch("/api/laboratory/state").then(async (res) => {
+      if (!res.ok) return;
+      const state = await res.json();
+      if (state.agents?.length) setAgents((current) => current.map((agent) => { const saved=state.agents.find((a:any)=>a.external_id===agent.id); return saved ? {...agent,status:saved.status === "at_risk" ? "at-risk" : saved.status} : agent; }));
+      if (state.incident) { setIncidentId(state.incident.id); setPhase(state.incident.state === "resolved" ? "resolved" : state.incident.state === "recovering" ? "recovering" : state.incident.state === "contained" ? "contained" : "incident"); setRecovery(state.recovery ?? null); }
+      if (state.events?.length) setEvents([...baseEvents,...state.events.map((e:any)=>({time:new Date(e.occurred_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),kind:e.decision==="deny"?"blocked":"system",text:`${e.event_type}${e.action ? ` · ${e.action}` : ""}${e.payload?.reason ? ` — ${e.payload.reason}` : ""}`}))]);
+    }).finally(()=>setLoading(false));
+  }, []);
 
   async function runIncident() {
     if (phase !== "ready") return;
-const response = await fetch("/api/laboratory/incident",{method:"POST"});\n    if (!response.ok) return;\n    const result = await response.json();\n    setIncidentId(result.incidentId);
+const response = await fetch("/api/laboratory/incident",{method:"POST"});
+    if (!response.ok) return;
+    const result = await response.json();
+    setIncidentId(result.incidentId);
     setPhase("incident");
     setAgents((current) => current.map((agent) => result.affectedAgentIds.includes(agent.id) ? { ...agent, status: "at-risk" } : agent));
     setSelectedId("research");
@@ -56,8 +72,11 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});\n    i
 
   async function containIncident() {
     if (phase !== "incident") return;
-    if (!incidentId) return;\n    const response = await fetch("/api/laboratory/contain",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId})});\n    if (!response.ok) return;\n    const result = await response.json();
-    const statuses = new Map(result.targets.map((target) => [target.id, target.status]));
+    if (!incidentId) return;
+    const response = await fetch("/api/laboratory/contain",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId})});
+    if (!response.ok) return;
+    const result = await response.json();
+    const statuses = new Map<string, Status>(result.targets.map((target: { id: string; status: Status }) => [target.id, target.status]));
     setPhase("contained");
     setAgents((current) => current.map((agent) => ({ ...agent, status: statuses.get(agent.id) ?? agent.status })));
     setEvents((current) => [
@@ -68,11 +87,24 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});\n    i
     ]);
   }
 
-  async function beginRecovery() {\n    if (!incidentId) return;\n    const res=await fetch("/api/laboratory/recovery",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId})});\n    if(!res.ok) return; const data=await res.json(); setRecovery(data); setPhase("recovering");\n  }\n\n  async function updateRestartCheck(key:string,value:boolean) {\n    if(!incidentId) return;\n    const res=await fetch("/api/laboratory/restart",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId,checks:{[key]:value}})});\n    if(!res.ok) return; const data=await res.json(); setRecovery((r:any)=>({...r,restart_checks:data.restartChecks,safe_to_restart:data.safeToRestart})); if(data.safeToRestart) setPhase("resolved");\n  }\n\n  function resetLab() {
+  async function beginRecovery() {
+    if (!incidentId) return;
+    const res=await fetch("/api/laboratory/recovery",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId})});
+    if(!res.ok) return; const data=await res.json(); setRecovery(data); setPhase("recovering");
+  }
+
+  async function updateRestartCheck(key:string,value:boolean) {
+    if(!incidentId) return;
+    const res=await fetch("/api/laboratory/restart",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId,checks:{[key]:value}})});
+    if(!res.ok) return; const data=await res.json(); setRecovery((r:any)=>({...r,restart_checks:data.restartChecks,safe_to_restart:data.safeToRestart})); if(data.safeToRestart) setPhase("resolved");
+  }
+
+  function resetLab() {
     setAgents(initialAgents);
     setSelectedId("manager");
     setPhase("ready");
-    setEvents(baseEvents);\n    setIncidentId(null);
+    setEvents(baseEvents);
+    setIncidentId(null);
   }
 
   return (
