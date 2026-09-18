@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getWorkspaceContext } from "../../../../lib/persistence";
 
-const keys=["originPatched","credentialsRotated","memoryReviewed","pendingJobsReviewed","humanApproved"] as const;
+const evidenceKeys=["originPatched","credentialsRotated","memoryReviewed","pendingJobsReviewed"] as const;
 
 export async function POST(request:Request){
   const ctx=await getWorkspaceContext();
@@ -11,8 +11,11 @@ export async function POST(request:Request){
   const {data:plan}=await ctx.supabase.from("recovery_plans").select("id,restart_checks").eq("incident_id",body.incidentId).eq("workspace_id",ctx.workspaceId).maybeSingle();
   if(!plan) return NextResponse.json({error:"recovery_plan_not_found"},{status:404});
   const checks={...(plan.restart_checks??{})};
-  for(const key of keys) if(typeof body.checks?.[key]==="boolean") checks[key]=body.checks[key];
-  if(body.checks?.humanApproved===true && !["owner","admin"].includes(ctx.role)) return NextResponse.json({error:"owner_or_admin_approval_required"},{status:403});
+  if(evidenceKeys.some((key)=>typeof body.checks?.[key]==="boolean")) return NextResponse.json({error:"system_verified_checks_are_read_only"},{status:403});
+  if(typeof body.checks?.humanApproved==="boolean") {
+    if(!["owner","admin"].includes(ctx.role)) return NextResponse.json({error:"owner_or_admin_approval_required"},{status:403});
+    checks.humanApproved=body.checks.humanApproved;
+  }
   const humanApproved=checks.humanApproved===true;
   await ctx.supabase.from("recovery_plans").update({restart_checks:checks,approved_by:humanApproved?ctx.userId:null,approved_at:humanApproved?new Date().toISOString():null}).eq("id",plan.id);
   const {data:safe,error}=await ctx.supabase.rpc("assess_incident_restart",{p_incident_id:body.incidentId});
