@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { simulateIncident, containLaboratoryIncident } from "../../lib/laboratory";
+
 
 type Status = "healthy" | "at-risk" | "quarantined";
 type Agent = {
@@ -33,15 +33,15 @@ const baseEvents = [
 export function NetworkLab() {
   const [agents, setAgents] = useState(initialAgents);
   const [selectedId, setSelectedId] = useState("manager");
-  const [phase, setPhase] = useState<"ready" | "incident" | "contained">("ready");
-  const [events, setEvents] = useState(baseEvents);\n  const [incidentId, setIncidentId] = useState<string | null>(null);\n  const [loading, setLoading] = useState(true);
+  const [phase, setPhase] = useState<"ready" | "incident" | "contained" | "recovering" | "resolved">("ready");
+  const [events, setEvents] = useState(baseEvents);\n  const [incidentId, setIncidentId] = useState<string | null>(null);\n  const [loading, setLoading] = useState(true);\n  const [recovery, setRecovery] = useState<any>(null);
 
   const selected = useMemo(() => agents.find((agent) => agent.id === selectedId) ?? agents[0], [agents, selectedId]);
-  const affected = agents.filter((agent) => agent.status !== "healthy").length;\n\n  useEffect(() => {\n    fetch("/api/laboratory/state").then(async (res) => {\n      if (!res.ok) return;\n      const state = await res.json();\n      if (state.agents?.length) setAgents((current) => current.map((agent) => { const saved=state.agents.find((a:any)=>a.external_id===agent.id); return saved ? {...agent,status:saved.status === "at_risk" ? "at-risk" : saved.status} : agent; }));\n      if (state.incident) { setIncidentId(state.incident.id); setPhase(state.incident.state === "contained" || state.incident.state === "recovering" ? "contained" : "incident"); }\n      if (state.events?.length) setEvents([...baseEvents,...state.events.map((e:any)=>({time:new Date(e.occurred_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),kind:e.decision==="deny"?"blocked":"system",text:`${e.event_type}${e.action ? ` · ${e.action}` : ""}${e.payload?.reason ? ` — ${e.payload.reason}` : ""}`}))]);\n    }).finally(()=>setLoading(false));\n  }, []);
+  const affected = agents.filter((agent) => agent.status !== "healthy").length;\n\n  useEffect(() => {\n    fetch("/api/laboratory/state").then(async (res) => {\n      if (!res.ok) return;\n      const state = await res.json();\n      if (state.agents?.length) setAgents((current) => current.map((agent) => { const saved=state.agents.find((a:any)=>a.external_id===agent.id); return saved ? {...agent,status:saved.status === "at_risk" ? "at-risk" : saved.status} : agent; }));\n      if (state.incident) { setIncidentId(state.incident.id); setPhase(state.incident.state === "resolved" ? "resolved" : state.incident.state === "recovering" ? "recovering" : state.incident.state === "contained" ? "contained" : "incident"); setRecovery(state.recovery ?? null); }\n      if (state.events?.length) setEvents([...baseEvents,...state.events.map((e:any)=>({time:new Date(e.occurred_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),kind:e.decision==="deny"?"blocked":"system",text:`${e.event_type}${e.action ? ` · ${e.action}` : ""}${e.payload?.reason ? ` — ${e.payload.reason}` : ""}`}))]);\n    }).finally(()=>setLoading(false));\n  }, []);
 
   async function runIncident() {
     if (phase !== "ready") return;
-    const local = simulateIncident();\n    const response = await fetch("/api/laboratory/incident",{method:"POST"});\n    if (!response.ok) return;\n    const result = await response.json();\n    setIncidentId(result.incidentId);
+const response = await fetch("/api/laboratory/incident",{method:"POST"});\n    if (!response.ok) return;\n    const result = await response.json();\n    setIncidentId(result.incidentId);
     setPhase("incident");
     setAgents((current) => current.map((agent) => result.affectedAgentIds.includes(agent.id) ? { ...agent, status: "at-risk" } : agent));
     setSelectedId("research");
@@ -68,7 +68,7 @@ export function NetworkLab() {
     ]);
   }
 
-  function resetLab() {
+  async function beginRecovery() {\n    if (!incidentId) return;\n    const res=await fetch("/api/laboratory/recovery",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId})});\n    if(!res.ok) return; const data=await res.json(); setRecovery(data); setPhase("recovering");\n  }\n\n  async function updateRestartCheck(key:string,value:boolean) {\n    if(!incidentId) return;\n    const res=await fetch("/api/laboratory/restart",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId,checks:{[key]:value}})});\n    if(!res.ok) return; const data=await res.json(); setRecovery((r:any)=>({...r,restart_checks:data.restartChecks,safe_to_restart:data.safeToRestart})); if(data.safeToRestart) setPhase("resolved");\n  }\n\n  function resetLab() {
     setAgents(initialAgents);
     setSelectedId("manager");
     setPhase("ready");
@@ -95,7 +95,7 @@ export function NetworkLab() {
         <header className="labHeader">
           <div><p>NETWORK / LABORATORY</p><h1>Agent Network</h1></div>
           <div className="headerActions">
-            <span className={"phase " + phase}><i />{phase === "ready" ? "All systems healthy" : phase === "incident" ? "Incident active" : "Incident contained"}</span>
+            <span className={"phase " + phase}><i />{phase === "ready" ? "All systems healthy" : phase === "incident" ? "Incident active" : phase === "contained" ? "Incident contained" : phase === "recovering" ? "Recovery required" : "Safe restart verified"}</span>
             <button className="ghostBtn" onClick={resetLab}>Reset</button>
           </div>
         </header>
@@ -131,7 +131,7 @@ export function NetworkLab() {
             </div>
             <div className="incidentBar" id="incidents">
               <div><span className="shield">◇</span><p><strong>{phase === "ready" ? "Controlled incident scenario ready" : phase === "incident" ? "Potential propagation detected" : "Affected branch isolated"}</strong><small>{phase === "ready" ? "Simulate untrusted content reaching the Research agent." : phase === "incident" ? "Nodra traced the observable causal path and blocked an unauthorized action." : "Research is quarantined. Manager, Finance, Support and Data remain available."}</small></p></div>
-              {phase === "ready" ? <button className="runBtn" onClick={runIncident} disabled={loading}>{loading ? "Loading state…" : "Run controlled incident"}</button> : phase === "incident" ? <button className="containBtn" onClick={containIncident}>Contain incident</button> : <button className="runBtn" onClick={resetLab}>Run again</button>}
+              {phase === "ready" ? <button className="runBtn" onClick={runIncident} disabled={loading}>{loading ? "Loading state…" : "Run controlled incident"}</button> : phase === "incident" ? <button className="containBtn" onClick={containIncident}>Contain incident</button> : phase === "contained" ? <button className="runBtn" onClick={beginRecovery}>Prepare recovery</button> : phase === "resolved" ? <button className="runBtn" onClick={resetLab}>Run again</button> : null}
             </div>
           </section>
 
@@ -144,6 +144,14 @@ export function NetworkLab() {
             {selected.status === "quarantined" ? <div className="quarantineNote"><strong>Quarantine active</strong><p>New tool actions and delegated authority are blocked pending recovery review.</p></div> : null}
           </aside>
         </div>
+
+        {phase === "recovering" && recovery ? <section className="activityPanel" id="recovery">
+          <div className="activityHead"><div><strong>Safe restart assessment</strong><span>Recovery is separate from containment</span></div><span className="recording">HUMAN GATED</span></div>
+          <div className="events">
+            {Object.entries(recovery.restart_checks ?? recovery.restartChecks ?? {}).map(([key,value]) => <label className="event" key={key}><input type="checkbox" checked={Boolean(value)} onChange={(e)=>updateRestartCheck(key,e.target.checked)} /><p>{key.replace(/([A-Z])/g," $1")}</p></label>)}
+            {(recovery.steps ?? []).map((step:any)=><div className="event" key={step.id ?? step.title}><span className="eventKind recovery">recovery</span><p><strong>{step.title}</strong> — {step.reason}</p></div>)}
+          </div>
+        </section> : null}
 
         <section className="activityPanel" id="activity">
           <div className="activityHead"><div><strong>Flight recorder</strong><span>Observable laboratory events</span></div><span className="recording"><i /> RECORDING</span></div>
