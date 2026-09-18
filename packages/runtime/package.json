@@ -1,0 +1,1 @@
+{"name":"@nodra/runtime","version":"0.1.0","private":true,"type":"module","dependencies":{"@nodra/policy":"0.1.0","@nodra/provenance":"0.1.0"},"exports":{".":"./src/runtime.ts"}}
