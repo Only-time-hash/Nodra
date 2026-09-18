@@ -1,0 +1,2 @@
+import { describe,it } from "node:test";import assert from "node:assert/strict";import { traceBlastRadius } from "./provenance.ts";
+describe("provenance",()=>{it("traces only reachable causal descendants",()=>{const result=traceBlastRadius("research",[{from:"research",to:"manager",eventId:"1",relation:"influenced"},{from:"manager",to:"finance",eventId:"2",relation:"delegated"},{from:"support",to:"data",eventId:"3",relation:"touched"}]);assert.deepEqual(result,["research","manager","finance"]);});});
