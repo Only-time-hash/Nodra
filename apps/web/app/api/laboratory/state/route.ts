@@ -10,6 +10,8 @@ export async function GET() {
     ctx.supabase.from("security_events").select("id,event_type,action,decision,payload,sequence_no,occurred_at,event_hash").eq("workspace_id",ctx.workspaceId).order("sequence_no",{ascending:true}).limit(100)
   ]);
   const incident=incidents?.[0]??null;
+  const {data:integrityRows,error:integrityError}=await ctx.supabase.rpc("verify_security_event_chain",{p_workspace_id:ctx.workspaceId});
+  const integrity=integrityError ? {valid:false,checkedEvents:0,firstBadSequence:null,reason:"verification_unavailable"} : (()=>{ const row=integrityRows?.[0]; return {valid:Boolean(row?.valid),checkedEvents:Number(row?.checked_events??0),firstBadSequence:row?.first_bad_sequence??null,reason:row?.reason??null}; })();
   let causalEdges:any[]=[]; let affected:any[]=[];
   if(incident){
     const [{data:edges},{data:radius}]=await Promise.all([
@@ -23,5 +25,5 @@ export async function GET() {
     const {data:plan}=await ctx.supabase.from("recovery_plans").select("id,safe_to_restart,restart_checks,approved_by,approved_at").eq("incident_id",incident.id).maybeSingle();
     if(plan){ const {data:steps}=await ctx.supabase.from("recovery_steps").select("id,title,reason,requires_human,status,completed_at").eq("recovery_plan_id",plan.id).order("id"); recovery={...plan,steps:steps??[]}; }
   }
-  return NextResponse.json({agents:agents??[],incident,events:events??[],causalEdges,affected,recovery});
+  return NextResponse.json({agents:agents??[],incident,events:events??[],causalEdges,affected,recovery,integrity});
 }
