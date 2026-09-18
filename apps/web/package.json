@@ -1,6 +1,6 @@
 {
   "name":"@nodra/web","private":true,"version":"0.1.0",
   "scripts":{"dev":"next dev","build":"next build","start":"next start","typecheck":"tsc --noEmit"},
-  "dependencies":{"@nodra/containment":"0.1.0","@nodra/policy":"0.1.0","@nodra/recovery":"0.1.0","@nodra/runtime":"0.1.0","next":"^16.0.0","react":"^19.0.0","react-dom":"^19.0.0"},
+  "dependencies":{"@nodra/containment":"0.1.0","@nodra/policy":"0.1.0","@nodra/recovery":"0.1.0","@nodra/runtime":"0.1.0","@supabase/ssr":"^0.7.0","@supabase/supabase-js":"^2.57.4","next":"^16.0.0","react":"^19.0.0","react-dom":"^19.0.0"},
   "devDependencies":{"@types/node":"^24.0.0","@types/react":"^19.0.0","@types/react-dom":"^19.0.0","typescript":"^5.9.0"}
 }
