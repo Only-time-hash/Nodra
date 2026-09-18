@@ -38,6 +38,7 @@ export function NetworkLab() {
   const [incidentId, setIncidentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [recovery, setRecovery] = useState<any>(null);
+  const [integrity, setIntegrity] = useState<{valid:boolean;checkedEvents:number;firstBadSequence:number|null;reason:string|null}|null>(null);
 
   const selected = useMemo(() => agents.find((agent) => agent.id === selectedId) ?? agents[0], [agents, selectedId]);
   const affected = agents.filter((agent) => agent.status !== "healthy").length;
@@ -47,6 +48,7 @@ export function NetworkLab() {
       if (!res.ok) return;
       const state = await res.json();
       if (state.agents?.length) setAgents((current) => current.map((agent) => { const saved=state.agents.find((a:any)=>a.external_id===agent.id); return saved ? {...agent,status:saved.status === "at_risk" ? "at-risk" : saved.status} : agent; }));
+      if (state.integrity) setIntegrity(state.integrity);
       if (state.incident) { setIncidentId(state.incident.id); setPhase(state.incident.state === "resolved" ? "resolved" : state.incident.state === "recovering" ? "recovering" : state.incident.state === "contained" ? "contained" : "incident"); setRecovery(state.recovery ?? null); }
       if (state.events?.length) setEvents([...baseEvents,...state.events.map((e:any)=>({time:new Date(e.occurred_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),kind:e.decision==="deny"?"blocked":"system",text:`${e.event_type}${e.action ? ` · ${e.action}` : ""}${e.payload?.reason ? ` — ${e.payload.reason}` : ""}`}))]);
     }).finally(()=>setLoading(false));
@@ -187,6 +189,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
 
         <section className="activityPanel" id="activity">
           <div className="activityHead"><div><strong>Flight recorder</strong><span>Observable laboratory events</span></div><span className="recording"><i /> RECORDING</span></div>
+          {integrity ? <div className={integrity.valid ? "quarantineNote" : "quarantineNote danger"}><strong>Evidence integrity: {integrity.valid ? "Verified" : "Failed"}</strong><p>{integrity.valid ? `${integrity.checkedEvents} recorded event${integrity.checkedEvents === 1 ? "" : "s"} verified against the tamper-evident hash chain.` : `Verification failed${integrity.firstBadSequence ? ` at sequence ${integrity.firstBadSequence}` : ""}${integrity.reason ? `: ${integrity.reason}` : "."}`}</p></div> : null}
           <div className="events">
             {events.map((event, index) => <div className="event" key={index}><time>{event.time}</time><span className={"eventKind " + event.kind}>{event.kind}</span><p>{event.text}</p></div>)}
           </div>
