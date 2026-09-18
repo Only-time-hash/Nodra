@@ -101,12 +101,16 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
     if(!res.ok) return; const data=await res.json(); setRecovery((r:any)=>({...r,restart_checks:data.restartChecks,safe_to_restart:data.safeToRestart})); if(data.safeToRestart) setPhase("resolved");
   }
 
-  function resetLab() {
+  async function resetLab() {
+    const res=await fetch("/api/laboratory/reset",{method:"POST"});
+    if(!res.ok) return;
     setAgents(initialAgents);
     setSelectedId("manager");
     setPhase("ready");
     setEvents(baseEvents);
     setIncidentId(null);
+    setRecovery(null);
+    setIntegrity(null);
   }
 
   return (
