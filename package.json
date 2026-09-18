@@ -1,0 +1,12 @@
+{
+  "name": "nodra",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "npm --workspace apps/web run dev",
+    "build": "npm --workspace apps/web run build",
+    "start": "npm --workspace apps/web run start",
+    "typecheck": "npm --workspace apps/web run typecheck"
+  },
+  "workspaces": ["apps/*", "packages/*"]
+}
