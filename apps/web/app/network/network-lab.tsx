@@ -192,7 +192,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
         {phase === "recovering" && recovery ? <section className="activityPanel" id="recovery">
           <div className="activityHead"><div><strong>Safe restart assessment</strong><span>Recovery is separate from containment</span></div><span className="recording">HUMAN GATED</span></div>
           <div className="events">
-            {Object.entries(recovery.restart_checks ?? recovery.restartChecks ?? {}).map(([key,value]) => <label className="event" key={key}><input type="checkbox" checked={Boolean(value)} onChange={(e)=>updateRestartCheck(key,e.target.checked)} /><p>{key.replace(/([A-Z])/g," $1")}</p></label>)}
+            {Object.entries(recovery.restart_checks ?? recovery.restartChecks ?? {}).map(([key,value]) => <label className="event" key={key}><input type="checkbox" checked={Boolean(value)} disabled={key!=="humanApproved"} onChange={(e)=>key==="humanApproved"&&updateRestartCheck(key,e.target.checked)} /><p>{key.replace(/([A-Z])/g," $1")}<small>{key==="humanApproved" ? "Owner/Admin approval" : "Verified by Nodra remediation evidence"}</small></p></label>)}
             {(recovery.steps ?? []).map((step:any)=><div className="event" key={step.id ?? step.title}><span className="eventKind recovery">recovery</span><p><strong>{step.title}</strong> — {step.reason}</p></div>)}
           </div>
         </section> : null}
