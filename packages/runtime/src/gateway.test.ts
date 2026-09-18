@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createObservableGateway } from "./observable-gateway";
+import { createObservableGateway } from "./observable-gateway.ts";
 
 test("allowed tool executes and is observed",async()=>{
  const observed:any[]=[]; let calls=0;
