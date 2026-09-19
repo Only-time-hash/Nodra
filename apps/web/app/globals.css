@@ -72,3 +72,52 @@
 .investigationMeta{display:flex;align-items:center;gap:7px}.incidentRef{padding:5px 7px;border:1px solid #1a3152;border-radius:6px;background:#08162a;color:#6f91c3;font:8px monospace}.recording.incident{color:#ff7287;border-color:#642237;background:#2d121b}.recording.contained,.recording.recovering{color:#ffc36d;border-color:#62451e;background:#2b1f10}.recording.resolved{color:#56dfa5;border-color:#185a47;background:#092a21}.incidentFacts{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:12px 18px;border-bottom:1px solid #142541}.incidentFacts span{padding:8px 10px;border:1px solid #142744;border-radius:7px;background:#07101e}.incidentFacts small,.incidentFacts strong{display:block}.incidentFacts small{font-size:7px;color:#60738f;letter-spacing:.08em}.incidentFacts strong{margin-top:4px;font-size:10px;color:#cbd9ed}@media(max-width:560px){.incidentFacts{grid-template-columns:repeat(2,1fr)}.investigationMeta{align-items:flex-end;flex-direction:column}}
 
 .liveIndicator.connecting{color:#8fa5c7;border-color:#314967;background:#101d31}.liveIndicator.offline{color:#ff8292;border-color:#6b2637;background:#30151e}.liveIndicator.connecting i{background:#8fa5c7;box-shadow:0 0 8px #8fa5c7}.liveIndicator.offline i{background:#ff6e83;box-shadow:0 0 8px #ff6e83}.dashboardError{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:-6px 0 14px;padding:10px 12px;border:1px solid #6c2638;border-radius:8px;background:#2d131c;color:#ff9baa;font-size:10px}.dashboardError button{border:1px solid #824052;border-radius:6px;padding:5px 9px;background:#3b1823;color:#ffd5dc;cursor:pointer;text-transform:uppercase;font-size:8px;font-weight:800}
+
+
+/* V0.1 responsive command-center hardening */
+@media(max-width:700px){
+  .labMain{padding:12px;overflow-x:hidden}
+  .labHeader{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
+  .labHeader h1{font-size:clamp(22px,7vw,27px);overflow-wrap:anywhere}
+  .headerActions{align-self:start}
+  .phase{max-width:150px;white-space:normal;text-align:center}
+  .sideNav{overflow-x:auto;justify-content:flex-start;gap:4px;scrollbar-width:none}
+  .sideNav::-webkit-scrollbar{display:none}
+  .sideNav a{flex:0 0 42px;min-height:42px}
+  .sideNav a b{position:absolute;margin:-26px 0 0 25px}
+  .commandTopbar{gap:8px}
+  .commandSearch{width:min(100%,420px);flex:1;min-width:0}
+  .shieldStats{grid-template-columns:1fr 1fr}
+  .shieldStats article{min-width:0}
+  .commandGrid,.dashboardLower,.labGrid{grid-template-columns:minmax(0,1fr)}
+  .canvasPanel,.inspector,.activityPanel,.commandCard{min-width:0}
+  .canvas{height:460px;overflow:hidden}
+  .agentNode{min-width:104px;max-width:120px;font-size:10px}
+  .agentNode small{font-size:8px}
+  .agentIcon{width:28px;height:28px;flex:0 0 28px}
+  .canvasHint{right:10px;max-width:calc(100% - 24px);line-height:1.4}
+  .compactEvent{grid-template-columns:8px minmax(0,1fr)}
+  .compactEvent time{grid-column:2}
+  .compactEvent p{white-space:normal;overflow-wrap:anywhere}
+  .incidentSummary code{overflow-wrap:anywhere}
+}
+@media(max-width:430px){
+  .labMain{padding:10px}
+  .labHeader{grid-template-columns:1fr}
+  .headerActions{justify-content:flex-start}
+  .shieldStats{grid-template-columns:1fr}
+  .shieldStats article:last-child{grid-column:auto}
+  .postureBody{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px}
+  .postureRing{width:72px;height:72px}
+  .postureRing strong{font-size:18px}
+  .canvas{height:500px}
+  .agentNode{min-width:94px;max-width:104px;padding:7px;gap:6px}
+  .agentNode:nth-of-type(n){font-size:9px}
+  .incidentBar{padding:12px}
+  .events{padding:6px 12px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .agentNode,.createWorkspaceButton{transition:none!important}
+  .networkCard,.liveDot{animation:none!important}
+}
