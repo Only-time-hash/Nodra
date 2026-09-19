@@ -29,3 +29,20 @@ export function containLaboratoryIncident() {
     { id: "data", status: "healthy", delegatedAuthority: true },
   ], "research");
 }
+
+
+export const fiveAgentScenario = {
+  origin: "research",
+  propagation: [
+    { from: "research", to: "manager", relation: "influenced" },
+    { from: "manager", to: "finance", relation: "delegated" },
+    { from: "manager", to: "data", relation: "delegated" },
+  ],
+  expectedContained: ["research", "manager", "finance", "data"],
+  expectedHealthy: ["support"],
+} as const;
+
+export function verifySelectiveContainment(statuses: Record<string,string>) {
+  return fiveAgentScenario.expectedContained.every(id=>statuses[id] === "quarantined" || statuses[id] === "restricted" || statuses[id] === "at-risk")
+    && fiveAgentScenario.expectedHealthy.every(id=>statuses[id] === "healthy");
+}
