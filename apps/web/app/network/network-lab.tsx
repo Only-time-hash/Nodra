@@ -131,26 +131,39 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
     <main className="lab">
       <aside className="sidebar">
         <Link className="labBrand" href="/"><span>N</span>NODRA</Link>
-        <p className="workspace">V0.1 LABORATORY</p>
+        <p className="workspace">AGENTIC AI SHIELD</p>
         <nav className="sideNav" aria-label="Nodra application">
-          <Link href="/">⌂ <span>Home</span></Link>
-          <a className="active" href="#network">⌘ <span>Network</span></a>
+          <a className="active" href="#dashboard">⌂ <span>Dashboard</span></a>
+          <a href="#network">⌘ <span>Network</span></a>
           <a href="#agents">◎ <span>Agents</span></a>
           <a href="#incidents">△ <span>Incidents</span>{affected > 0 ? <b>{affected}</b> : null}</a>
           <a href="#activity">≋ <span>Activity</span></a>
           <a href="#policies">◇ <span>Policies</span></a>
+          <a href="#credentials">▱ <span>Credentials</span></a>
+          <a href="#containment">⬡ <span>Containment</span></a>
+          <a href="#recovery">↻ <span>Recovery</span></a>
+          <a href="#reports">▥ <span>Reports</span></a>
+          <a href="#settings">⚙ <span>Settings</span></a>
         </nav>
-        <div className="labScope"><strong>Sandbox only</strong><p>This laboratory uses simulated resources. It does not attack external systems.</p></div>
+        <div className="labScope"><strong>Nodra Shield</strong><p>Containment, provenance and recovery controls for autonomous agents.</p></div>
       </aside>
 
       <section className="labMain">
         <header className="labHeader">
-          <div><p>NETWORK / LABORATORY</p><h1>Agent Network</h1></div>
+          <div id="dashboard"><p>NODRA / SECURITY OVERVIEW</p><h1>Your Agentic AI, <span className="accentText">Protected.</span></h1><p className="dashboardSub">Prevent threats. Contain risks. Preserve trusted autonomy.</p></div>
           <div className="headerActions">
             <span className={"phase " + phase}><i />{phase === "ready" ? "All systems healthy" : phase === "incident" ? "Incident active" : phase === "contained" ? "Incident contained" : phase === "recovering" ? "Recovery required" : "Safe restart verified"}</span>
             <button className="ghostBtn" onClick={resetLab}>Reset</button>
           </div>
         </header>
+
+        <section className="shieldStats" aria-label="Nodra security overview">
+          <article><span className="statIcon healthy">◆</span><div><strong>{agents.filter(a=>a.status==="healthy").length}</strong><p>Agents Online</p><small>{agents.length} agents registered</small></div></article>
+          <article><span className="statIcon danger">△</span><div><strong>{incidentId ? 1 : 0}</strong><p>Open Incidents</p><small>{phase === "ready" || phase === "resolved" ? "No active incident" : phase}</small></div></article>
+          <article><span className="statIcon protected">⬡</span><div><strong>{agents.reduce((n,a)=>n+a.tools.length,0)}</strong><p>Protected Resources</p><small>Tools and runtime surfaces</small></div></article>
+          <article><span className="statIcon events">◷</span><div><strong>{Math.max(events.length-baseEvents.length,0)}</strong><p>Security Events</p><small>Flight Recorder evidence</small></div></article>
+          <article><span className="statIcon healthy">✓</span><div><strong>{integrity?.valid ? "100%" : "—"}</strong><p>Evidence Integrity</p><small>{integrity?.valid ? "Hash chain verified" : "Awaiting verification"}</small></div></article>
+        </section>
 
         <div className="labGrid">
           <section className="canvasPanel" id="network">
