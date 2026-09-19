@@ -42,3 +42,12 @@ test("quarantined agent is denied before tool execution",async()=>{
  assert.equal(result.executed,false); assert.equal(calls,0); assert.equal(result.event.decision,"deny");
  assert.match(result.event.reason,/quarantined/i); assert.equal(observed[0].phase,"intent"); assert.equal(observed[1].phase,"result");
 });
+
+
+test("approval-required action fails closed without approval resolver",async()=>{
+ let calls=0;
+ const gateway=createObservableGateway([{agentId:"finance",resourceId:"payments",actions:["pay"],requireApproval:true} as any],async()=>{});
+ gateway.register("payments",async()=>{calls++;return {paid:true}});
+ const result=await gateway.execute({id:"approval-1",agentId:"finance",resourceId:"payments",action:"pay",amount:50},{});
+ assert.equal(result.executed,false); assert.equal(calls,0);
+});
