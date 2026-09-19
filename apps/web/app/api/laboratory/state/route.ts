@@ -28,6 +28,14 @@ export async function GET() {
     if(plan){ const {data:steps}=await ctx.supabase.from("recovery_steps").select("id,title,reason,requires_human,status,completed_at").eq("recovery_plan_id",plan.id).order("id"); recovery={...plan,steps:steps??[]}; }
   }
   const incidentEvents=incident ? (events??[]).filter((event:any)=>causalEdges.some((edge:any)=>edge.event_id===event.id) || event.payload?.incident_id===incident.id || event.event_type==="untrusted-content" || event.event_type==="policy-decision") : [];
-  const forensicTimeline=[...incidentEvents.map((event:any)=>({kind:"evidence",id:event.id,at:event.occurred_at,label:event.event_type,detail:event.action??event.decision??"recorded event",sequence:event.sequence_no,hash:event.event_hash})),...containmentActions.map((action:any)=>({kind:"containment",id:action.id,at:action.created_at,label:action.action,detail:action.reason,target:action.target_id}))].sort((a:any,b:any)=>String(a.at).localeCompare(String(b.at)));
-  return NextResponse.json({agents:agents??[],incident,events:events??[],causalEdges,affected,containmentActions,forensicTimeline,recovery,integrity});
+  let remediationActions:any[]=[]; let remediationEvidence:any[]=[];
+  if(incident){
+    const [{data:ra},{data:re}]=await Promise.all([
+      ctx.supabase.from("remediation_actions").select("id,action_type,target,status,started_at,completed_at,result").eq("incident_id",incident.id).order("started_at",{ascending:true}),
+      ctx.supabase.from("remediation_evidence").select("id,check_key,evidence_type,evidence_ref,source,verified_at,adapter_action_id").eq("incident_id",incident.id).order("verified_at",{ascending:true})
+    ]);
+    remediationActions=ra??[]; remediationEvidence=re??[];
+  }
+  const forensicTimeline=[...incidentEvents.map((event:any)=>({kind:"evidence",id:event.id,at:event.occurred_at,label:event.event_type,detail:event.action??event.decision??"recorded event",sequence:event.sequence_no,hash:event.event_hash})),...containmentActions.map((action:any)=>({kind:"containment",id:action.id,at:action.created_at,label:action.action,detail:action.reason,target:action.target_id})),...remediationActions.map((action:any)=>({kind:"remediation",id:action.id,at:action.completed_at??action.started_at,label:action.action_type,detail:action.status,target:action.target})),...remediationEvidence.map((e:any)=>({kind:"evidence",id:e.id,at:e.verified_at,label:e.check_key,detail:e.evidence_type,target:e.evidence_ref}))].sort((a:any,b:any)=>String(a.at).localeCompare(String(b.at)));
+  return NextResponse.json({agents:agents??[],incident,events:events??[],causalEdges,affected,containmentActions,remediationActions,remediationEvidence,forensicTimeline,recovery,integrity});
 }
