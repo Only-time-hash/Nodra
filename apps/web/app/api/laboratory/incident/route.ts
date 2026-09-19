@@ -27,7 +27,17 @@ export async function POST() {
       p_workspace_id:ctx.workspaceId,p_incident_id:incident.id,p_agent_id:rec.agent_id,p_event_type:rec.event_type,
       p_action:rec.action,p_decision:rec.decision,p_payload:rec.payload
     });
-    if(eerr||!e) {\n      console.error("[Nodra] append_security_event failed", {\n        incidentId: incident.id,\n        eventType: rec.event_type,\n        code: eerr?.code ?? null,\n        message: eerr?.message ?? "RPC returned no event",\n        details: eerr?.details ?? null,\n        hint: eerr?.hint ?? null\n      });\n      return NextResponse.json({error:"evidence_persistence_failed"},{status:500});\n    }
+    if(eerr||!e) {
+      console.error("[Nodra] append_security_event failed", {
+        incidentId: incident.id,
+        eventType: rec.event_type,
+        code: eerr?.code ?? null,
+        message: eerr?.message ?? "RPC returned no event",
+        details: eerr?.details ?? null,
+        hint: eerr?.hint ?? null
+      });
+      return NextResponse.json({error:"evidence_persistence_failed"},{status:500});
+    }
     ids.push(e.id);
   }
 
