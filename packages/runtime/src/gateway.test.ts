@@ -51,3 +51,22 @@ test("approval-required action fails closed without approval resolver",async()=>
  const result=await gateway.execute({id:"approval-1",agentId:"finance",resourceId:"payments",action:"pay",amount:50},{});
  assert.equal(result.executed,false); assert.equal(calls,0);
 });
+
+
+test("timeout aborts cooperative tool adapter",async()=>{
+ let aborted=false;
+ const gateway=createObservableGateway([{agentId:"research",resourceId:"slow",actions:["read"]}],async()=>{});
+ gateway.register("slow",async(_input,signal)=>new Promise((_resolve,reject)=>{
+   signal?.addEventListener("abort",()=>{aborted=true;reject(new Error("aborted"));});
+ }),{timeoutMs:5});
+ await assert.rejects(()=>gateway.execute({id:"timeout-abort",agentId:"research",resourceId:"slow",action:"read"},{}));
+ assert.equal(aborted,true);
+});
+
+test("input validator blocks adapter before invocation",async()=>{
+ let calls=0;
+ const gateway=createObservableGateway([{agentId:"data",resourceId:"database",actions:["write"]}],async()=>{});
+ gateway.register("database",async()=>{calls++;return {ok:true}},{validateInput:(v)=>typeof v==="object"&&v!==null&&"record" in v});
+ const result=await gateway.execute({id:"validation-block",agentId:"data",resourceId:"database",action:"write"},{bad:true});
+ assert.equal(result.executed,false); assert.equal(calls,0); assert.match(result.event.reason,/validation failed/i);
+});
