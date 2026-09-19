@@ -212,7 +212,8 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
 
           <aside className="inspector" id="agents">
             <div className="inspectorHead"><p>AGENT INSPECTOR</p><span className={"statusPill " + selected.status}>{selected.status.replace("-", " ")}</span></div>
-            <div className="identity"><span className="bigIcon">{selected.name[0]}</span><div><h2>{selected.name}</h2><p>{selected.role}</p></div></div>
+            <div className="identity"><span className={"bigIcon "+selected.status}>{selected.name[0]}</span><div><h2>{selected.name}</h2><p>{selected.role}</p></div></div>
+            <div className="agentTrust"><span><small>TRUST STATE</small><strong>{selected.status==="healthy" ? "Trusted" : selected.status==="quarantined" ? "Isolated" : "Reduced"}</strong></span><span><small>TOOLS</small><strong>{selected.tools.length}</strong></span><span><small>PERMISSIONS</small><strong>{selected.permissions.length}</strong></span></div>
             <div className="inspectSection"><p className="label">TOOLS</p>{selected.tools.map((tool) => <div className="row" key={tool}><span>{tool}</span><b>connected</b></div>)}</div>
             <div className="inspectSection" id="policies"><p className="label">EXPLICIT PERMISSIONS</p>{selected.permissions.map((permission) => <code key={permission}>{permission}</code>)}</div>
             <div className="inspectSection"><p className="label">AUTHORITY</p><div className="authority"><span>Delegated by</span><strong>{selected.id === "manager" ? "Human" : "Manager"}</strong></div><div className="authority"><span>Execution state</span><strong>{selected.status === "healthy" ? "Normal" : selected.status === "quarantined" ? "Blocked" : "Restricted"}</strong></div><div className="authority"><span>Blast-radius membership</span><strong>{selected.status === "healthy" ? "Outside affected branch" : "Affected"}</strong></div></div>
