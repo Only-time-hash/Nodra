@@ -1,7 +1,7 @@
 import { NetworkLab } from "./network-lab";
 
 export const metadata = {
-  title: "Network Laboratory — Nodra",
+  title: "Agentic AI Shield — Nodra",
 };
 
 export default function NetworkPage() {
