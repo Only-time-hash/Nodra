@@ -160,7 +160,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
         <section className="shieldStats" aria-label="Nodra security overview">
           <article><span className="statIcon healthy">◆</span><div><strong>{agents.filter(a=>a.status==="healthy").length}</strong><p>Agents Online</p><small>{agents.length} agents registered</small></div></article>
           <article><span className="statIcon danger">△</span><div><strong>{incidentId ? 1 : 0}</strong><p>Open Incidents</p><small>{phase === "ready" || phase === "resolved" ? "No active incident" : phase}</small></div></article>
-          <article><span className="statIcon protected">⬡</span><div><strong>{agents.reduce((n,a)=>n+a.tools.length,0)}</strong><p>Protected Resources</p><small>Tools and runtime surfaces</small></div></article>
+          <article><span className="statIcon protectedIcon">⬡</span><div><strong>{agents.reduce((n,a)=>n+a.tools.length,0)}</strong><p>Protected Resources</p><small>Tools and runtime surfaces</small></div></article>
           <article><span className="statIcon events">◷</span><div><strong>{Math.max(events.length-baseEvents.length,0)}</strong><p>Security Events</p><small>Flight Recorder evidence</small></div></article>
           <article><span className="statIcon healthy">✓</span><div><strong>{integrity && integrity.valid ? "100%" : "—"}</strong><p>Evidence Integrity</p><small>{integrity && integrity.valid ? "Hash chain verified" : "Awaiting verification"}</small></div></article>
         </section>
