@@ -13,21 +13,22 @@ export const laboratoryRules: PolicyRule[] = [
 
 export function simulateIncident() {
   const attemptedAction = intercept({ id: "evt-policy-block", agentId: "research", action: "request", resourceId: "payments", causedBy: "evt-untrusted-content" }, laboratoryRules);
-  const causalEdges = [
-    { from: "research", to: "manager", eventId: "evt-delegation", relation: "influenced" as const },
-    { from: "manager", to: "finance", eventId: "evt-finance-task", relation: "delegated" as const },
-  ];
+  const causalEdges = fiveAgentScenario.propagation.map((edge,index) => ({
+    ...edge,
+    eventId: `evt-propagation-${index + 1}`,
+  }));
   return { attemptedAction, affectedAgentIds: calculateBlastRadius("research", causalEdges) };
 }
 
 export function containLaboratoryIncident() {
+  const affected=new Set(fiveAgentScenario.expectedContained);
   return quarantineBranch([
-    { id: "manager", status: "at-risk", delegatedAuthority: true },
-    { id: "research", status: "at-risk", delegatedAuthority: true },
-    { id: "finance", status: "at-risk", delegatedAuthority: true },
-    { id: "support", status: "healthy", delegatedAuthority: true },
-    { id: "data", status: "healthy", delegatedAuthority: true },
-  ], "research");
+    { id: "manager", status: affected.has("manager") ? "at-risk" : "healthy", delegatedAuthority: true },
+    { id: "research", status: affected.has("research") ? "at-risk" : "healthy", delegatedAuthority: true },
+    { id: "finance", status: affected.has("finance") ? "at-risk" : "healthy", delegatedAuthority: true },
+    { id: "support", status: affected.has("support") ? "at-risk" : "healthy", delegatedAuthority: true },
+    { id: "data", status: affected.has("data") ? "at-risk" : "healthy", delegatedAuthority: true },
+  ], fiveAgentScenario.origin);
 }
 
 
