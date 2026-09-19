@@ -33,6 +33,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "remediation_failed" }, { status: 409 });
   }
 
+  const { error: syncError } = await ctx.supabase.rpc("sync_recovery_steps_for_incident", {
+    p_incident_id: body.incidentId,
+    p_action_type: body.actionType,
+  });
+  if (syncError) return NextResponse.json({ error: "recovery_step_sync_failed" }, { status: 500 });
+
   const result = data as { actionId?: string; checkKey?: string; restartChecks?: Record<string, boolean> };
   const { data: safe } = await ctx.supabase.rpc("assess_incident_restart", { p_incident_id: body.incidentId });
 
