@@ -21,10 +21,10 @@ type ConnectionState = "connecting" | "live" | "offline";
 
 const initialAgents: Agent[] = [
   { id: "manager", name: "Manager", role: "Orchestrator", status: "healthy", x: 50, y: 15, tools: ["Delegation", "Task Queue"], permissions: ["delegate:task", "read:status"] },
-  { id: "research", name: "Research", role: "Web research", status: "healthy", x: 18, y: 52, tools: ["Sandbox Browser", "Notes"], permissions: ["browser:read", "notes:write"] },
-  { id: "finance", name: "Finance", role: "Financial operations", status: "healthy", x: 39, y: 72, tools: ["Simulated Payments", "Ledger"], permissions: ["ledger:read", "payment:request"] },
-  { id: "support", name: "Support", role: "Communication", status: "healthy", x: 62, y: 72, tools: ["Simulated Email"], permissions: ["email:draft"] },
-  { id: "data", name: "Data", role: "Data operations", status: "healthy", x: 82, y: 52, tools: ["Sandbox Database"], permissions: ["database:read", "database:write"] },
+  { id: "research", name: "Research", role: "Web research", status: "healthy", x: 16, y: 48, tools: ["Sandbox Browser", "Notes"], permissions: ["browser:read", "notes:write"] },
+  { id: "finance", name: "Finance", role: "Financial operations", status: "healthy", x: 25, y: 78, tools: ["Simulated Payments", "Ledger"], permissions: ["ledger:read", "payment:request"] },
+  { id: "support", name: "Support", role: "Communication", status: "healthy", x: 75, y: 78, tools: ["Simulated Email"], permissions: ["email:draft"] },
+  { id: "data", name: "Data", role: "Data operations", status: "healthy", x: 84, y: 48, tools: ["Sandbox Database"], permissions: ["database:read", "database:write"] },
 ];
 
 const baseEvents = [
