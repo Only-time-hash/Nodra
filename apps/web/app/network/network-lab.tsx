@@ -53,7 +53,7 @@ export function NetworkLab() {
   const selectedEdges = causalEdges.filter((edge)=>edge.from===selectedId||edge.to===selectedId);
   const hasOpenIncident = Boolean(incidentId && phase !== "resolved");
   const integrityState = !integrity ? "checking" : integrity.valid ? "verified" : "failed";
-  const searchMatches = useMemo(() => { const q=searchQuery.trim().toLowerCase(); if(!q) return []; return agents.filter(a=>[a.name,a.role,a.status,...a.tools,...a.permissions].some(v=>v.toLowerCase().includes(q))).slice(0,5); }, [agents,searchQuery]);\n  const postureHealthy = affected === 0 && integrity?.valid === true && connection === "live";
+  const searchMatches = useMemo<Agent[]>(() => { const q=searchQuery.trim().toLowerCase(); if(!q) return []; return agents.filter((a: Agent)=>[a.name,a.role,a.status,...a.tools,...a.permissions].some((v: string)=>v.toLowerCase().includes(q))).slice(0,5); }, [agents,searchQuery]);\n  const postureHealthy = affected === 0 && integrity?.valid === true && connection === "live";
   const postureScore = Math.max(0, 100 - affected * 20 - (integrity?.valid === false ? 25 : 0) - (connection === "offline" ? 25 : 0));
 
   const loadState = useCallback(async (showLoading = false) => {
