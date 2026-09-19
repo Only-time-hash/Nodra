@@ -221,6 +221,13 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
           </aside>
         </div>
 
+        <section className="controlStrip">
+          <article id="credentials"><div><span className="controlIcon">▱</span><p><strong>Credentials</strong><small>Scoped runtime authority</small></p></div><b className={affected ? "warnText" : "okText"}>{affected ? "Review" : "Protected"}</b></article>
+          <article id="policies"><div><span className="controlIcon">◇</span><p><strong>Policy Gateway</strong><small>Deterministic enforcement</small></p></div><b className="okText">Active</b></article>
+          <article id="reports"><div><span className="controlIcon">▥</span><p><strong>Evidence</strong><small>Tamper-evident event chain</small></p></div><b className={integrity?.valid ? "okText" : "neutralText"}>{integrity?.valid ? "Verified" : "Recording"}</b></article>
+          <article id="settings"><div><span className="controlIcon">⚙</span><p><strong>Runtime</strong><small>Five-agent protected environment</small></p></div><b className="okText">Online</b></article>
+        </section>
+
         <section className="dashboardLower">
           <article className="activityPanel dashboardEvents">
             <div className="activityHead"><div><strong>Recent Security Events</strong><span>Latest observable activity from the Flight Recorder</span></div><a href="#activity">View activity</a></div>
