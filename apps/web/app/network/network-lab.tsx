@@ -181,7 +181,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
         <div className="labGrid">
           <section className="canvasPanel" id="network">
             <div className="panelTop">
-              <div><strong>Authority graph</strong><span>5 agents · 5 simulated resources</span></div>
+              <div><strong>Agent Network</strong><span>Live authority, trust and propagation paths</span></div>
               <div className="legend"><i />Healthy <i className="warn" />At risk <i className="isolated" />Quarantined</div>
             </div>
             <div className="canvas">
@@ -202,7 +202,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
                   <i />
                 </button>
               ))}
-              <div className="canvasHint">Select an agent to inspect its authority, tools, and state.</div>
+              <div className="canvasHint"><span className="canvasLive"><i/> LIVE NETWORK</span> Select an agent to inspect authority, tools, and containment state.</div>
             </div>
             <div className="incidentBar" id="incidents">
               <div><span className="shield">◇</span><p><strong>{phase === "ready" ? "Controlled incident scenario ready" : phase === "incident" ? "Potential propagation detected" : "Affected branch isolated"}</strong><small>{phase === "ready" ? "Simulate untrusted content reaching the Research agent." : phase === "incident" ? "Nodra traced the observable causal path and blocked an unauthorized action." : "Research is quarantined. Manager, Finance and Data have restricted authority; Support remains healthy and available."}</small></p></div>
