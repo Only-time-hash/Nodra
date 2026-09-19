@@ -13,7 +13,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "valid_incident_and_action_required" }, { status: 400 });
   }
 
-  // Atomic, DB-controlled V0.1 laboratory remediation. Clients cannot forge nodra_adapter evidence.
+  // Mutate the controlled laboratory state first. Evidence is recorded only after
+  // the simulated resource actually reflects the remediation action.
+  const { data: labState, error: stateError } = await ctx.supabase.rpc("apply_laboratory_remediation_state", {
+    p_workspace_id: ctx.workspaceId,
+    p_action_type: body.actionType,
+  });
+  if (stateError || !labState) {
+    return NextResponse.json({ error: "laboratory_state_remediation_failed" }, { status: 409 });
+  }
+
   const { data, error } = await ctx.supabase.rpc("run_laboratory_remediation", {
     p_incident_id: body.incidentId,
     p_action_type: body.actionType,
@@ -33,5 +42,6 @@ export async function POST(request: Request) {
     checkKey: result.checkKey,
     restartChecks: result.restartChecks ?? {},
     safeToRestart: Boolean(safe),
+    laboratoryState: labState,
   });
 }
