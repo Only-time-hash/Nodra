@@ -53,7 +53,7 @@ export async function POST(request: Request) {
   }
 
   let incidentId: string | null = body.incidentId ?? null;
-  const suspicious = body.decision === "deny" || body.decision === "require-approval";
+  const suspicious = body.phase !== "intent" && (body.decision === "deny" || body.decision === "require-approval");
 
   if (suspicious && agent?.id && !incidentId) {
     const { data: existing } = await ctx.supabase
