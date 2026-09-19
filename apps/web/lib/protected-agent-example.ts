@@ -5,8 +5,8 @@ type ModelDecision = { resourceId: "notes"|"browser"; action: "write"|"read"; in
 type ModelProvider = "gemini"|"openai";
 
 const rules = [
-  { agentId: "example-research", resourceId: "notes", actions: ["write"] },
-  { agentId: "example-research", resourceId: "browser", actions: ["read"] },
+  { agentId: "research", resourceId: "notes", actions: ["write"] },
+  { agentId: "research", resourceId: "browser", actions: ["read"] },
 ];
 
 function parseDecision(text:string):ModelDecision{
@@ -60,11 +60,11 @@ export function createProtectedResearchAgent(observer: GatewayObserver, resolveA
   gateway.register("browser", async (input) => ({ fetched: true, input }));
   return {
     async act(resourceId: string, action: string, input: unknown) {
-      return gateway.execute({ id: crypto.randomUUID(), agentId: "example-research", resourceId, action }, input);
+      return gateway.execute({ id: crypto.randomUUID(), agentId: "research", resourceId, action }, input);
     },
     async actFromGoal(goal:string){
       const decision=await decideWithModel(goal);
-      return gateway.execute({id:crypto.randomUUID(),agentId:"example-research",resourceId:decision.resourceId,action:decision.action},decision.input);
+      return gateway.execute({id:crypto.randomUUID(),agentId:"research",resourceId:decision.resourceId,action:decision.action},decision.input);
     }
   };
 }
