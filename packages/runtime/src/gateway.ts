@@ -2,7 +2,7 @@ import { intercept, type LabRequest, type RecordedEvent } from "./runtime.ts";
 import type { PolicyRule } from "@nodra/policy";
 
 export type ToolValidator = (value: unknown) => boolean;
-export type ToolHandler<T = unknown> = (input: unknown) => Promise<T>;
+export type ToolHandler<T = unknown> = (input: unknown, signal?: AbortSignal) => Promise<T>;
 export type ToolAdapter<T = unknown> = { handler: ToolHandler<T>; validateInput?: ToolValidator; validateOutput?: ToolValidator; timeoutMs?: number };
 export type GatewayResult<T = unknown> = { event: RecordedEvent; executed: boolean; output?: T };
 export type RuntimeAgentState = "healthy" | "at-risk" | "restricted" | "quarantined";
@@ -54,11 +54,19 @@ export class NodraGateway {
     if (!tool) return { event: { ...event, decision: "deny", reason: "No registered tool adapter." }, executed: false };
     if (tool.validateInput && !tool.validateInput(input)) return { event: { ...event, decision: "deny", reason: "Tool input validation failed." }, executed: false };
     const timeoutMs = tool.timeoutMs ?? 10000;
-    const output = await Promise.race([
-      tool.handler(input),
-      new Promise<never>((_,reject)=>setTimeout(()=>reject(new Error("Nodra tool execution timed out.")),timeoutMs)),
-    ]) as T;
-    if (tool.validateOutput && !tool.validateOutput(output)) throw new Error("Tool output validation failed.");
-    return { event, executed: true, output };
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const output = await Promise.race([
+        tool.handler(input, controller.signal),
+        new Promise<never>((_,reject)=>{
+          timer=setTimeout(()=>{ controller.abort(); reject(new Error("Nodra tool execution timed out.")); },timeoutMs);
+        }),
+      ]) as T;
+      if (tool.validateOutput && !tool.validateOutput(output)) throw new Error("Tool output validation failed.");
+      return { event, executed: true, output };
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   }
 }
