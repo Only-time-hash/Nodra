@@ -1,27 +1,57 @@
 import { createObservableGateway, type GatewayObserver } from "@nodra/runtime";
 
 type AgentStateResolver = (agentId:string)=>Promise<"healthy"|"at-risk"|"restricted"|"quarantined">|"healthy"|"at-risk"|"restricted"|"quarantined";
+type ModelDecision = { resourceId: "notes"|"browser"; action: "write"|"read"; input: unknown };
+type ModelProvider = "gemini"|"openai";
 
 const rules = [
   { agentId: "example-research", resourceId: "notes", actions: ["write"] },
   { agentId: "example-research", resourceId: "browser", actions: ["read"] },
 ];
 
-type ModelDecision = { resourceId: "notes"|"browser"; action: "write"|"read"; input: unknown };
+function parseDecision(text:string):ModelDecision{
+  const cleaned=text.replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"").trim();
+  const parsed=JSON.parse(cleaned) as ModelDecision;
+  const valid=(parsed.resourceId==="browser"&&parsed.action==="read")||(parsed.resourceId==="notes"&&parsed.action==="write");
+  if(!valid || typeof parsed.input!=="object" || parsed.input===null) throw new Error("Model returned an invalid sandbox action.");
+  return parsed;
+}
 
-async function decideWithModel(goal:string):Promise<ModelDecision>{
+const instruction=(goal:string)=>`You are the Research agent inside a controlled Nodra laboratory. Choose exactly one safe sandbox action for this goal: ${goal}. Return JSON only: {"resourceId":"browser"|"notes","action":"read"|"write","input":{}}. browser must use read; notes must use write.`;
+
+async function decideWithGemini(goal:string):Promise<ModelDecision>{
+  const key=process.env.GEMINI_API_KEY;
+  if(!key) throw new Error("GEMINI_API_KEY is not configured.");
+  const model=process.env.NODRA_AGENT_MODEL??"gemini-2.5-flash";
+  const response=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,{
+    method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({contents:[{parts:[{text:instruction(goal)}]}],generationConfig:{responseMimeType:"application/json"}})
+  });
+  if(!response.ok) throw new Error(`Gemini request failed: ${response.status}`);
+  const data=await response.json() as any;
+  const text=String(data.candidates?.[0]?.content?.parts?.map((p:any)=>p.text??"").join("")??"");
+  if(!text) throw new Error("Gemini returned no decision.");
+  return parseDecision(text);
+}
+
+async function decideWithOpenAI(goal:string):Promise<ModelDecision>{
   const key=process.env.OPENAI_API_KEY;
   if(!key) throw new Error("OPENAI_API_KEY is not configured.");
   const response=await fetch("https://api.openai.com/v1/responses",{
     method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},
-    body:JSON.stringify({model:process.env.NODRA_AGENT_MODEL??"gpt-5-mini",input:`You are the Research agent inside a controlled Nodra laboratory. Choose exactly one safe sandbox action for this goal: ${goal}. Return JSON only with resourceId browser|notes, action read|write, and input object.`})
+    body:JSON.stringify({model:process.env.NODRA_AGENT_MODEL??"gpt-5-mini",input:instruction(goal)})
   });
-  if(!response.ok) throw new Error(`Model request failed: ${response.status}`);
+  if(!response.ok) throw new Error(`OpenAI request failed: ${response.status}`);
   const data=await response.json() as any;
   const text=String(data.output_text??data.output?.flatMap((x:any)=>x.content??[]).map((x:any)=>x.text??"").join("")??"");
-  const parsed=JSON.parse(text) as ModelDecision;
-  if(!["browser","notes"].includes(parsed.resourceId)||!["read","write"].includes(parsed.action)) throw new Error("Model returned an invalid sandbox action.");
-  return parsed;
+  return parseDecision(text);
+}
+
+async function decideWithModel(goal:string):Promise<ModelDecision>{
+  const provider=(process.env.NODRA_MODEL_PROVIDER??"gemini").toLowerCase() as ModelProvider;
+  if(provider==="gemini") return decideWithGemini(goal);
+  if(provider==="openai") return decideWithOpenAI(goal);
+  throw new Error(`Unsupported NODRA_MODEL_PROVIDER: ${provider}`);
 }
 
 export function createProtectedResearchAgent(observer: GatewayObserver, resolveAgentState?: AgentStateResolver) {
