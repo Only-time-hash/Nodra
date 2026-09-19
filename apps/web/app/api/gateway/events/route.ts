@@ -61,6 +61,17 @@ export async function POST(request: Request) {
     }
   }
 
+  if (body.phase === "intent") {
+    const { error: outboxError } = await ctx.supabase.rpc("record_gateway_intent", {
+      p_workspace_id: ctx.workspaceId,
+      p_incident_id: incidentId,
+      p_agent_id: agent?.id ?? null,
+      p_request_id: body.id,
+      p_payload: body,
+    });
+    if (outboxError) return NextResponse.json({ error: "gateway_intent_not_durable" }, { status: 503 });
+  }
+
   const { data, error } = await ctx.supabase.rpc("append_security_event", {
     p_workspace_id: ctx.workspaceId,
     p_incident_id: incidentId,
@@ -72,6 +83,8 @@ export async function POST(request: Request) {
     p_caused_by: body.causedBy ?? null,
     p_payload: {
       gatewayRequestId: body.id,
+      phase: body.phase ?? "result",
+      outcome: body.outcome ?? null,
       resourceId: body.resourceId,
       executed: Boolean(body.executed),
       reason: body.reason ?? null,
