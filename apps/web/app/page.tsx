@@ -13,7 +13,7 @@ export default function HomePage() {
   return (
     <main>
       <header className="nav shell">
-        <a className="brand" href="#top" aria-label="Nodra home"><span className="brandMark">N</span>NODRA</a>
+        <a className="brand nodraWordmark" href="#top" aria-label="Nodra home">NODRA</a>
         <nav aria-label="Primary navigation">
           <a href="#product">Product</a>
           <a href="#developers">Developers</a>
@@ -100,7 +100,7 @@ export default function HomePage() {
       </section>
 
       <footer className="footer shell" id="signin">
-        <a className="brand" href="#top"><span className="brandMark">N</span>NODRA</a>
+        <a className="brand nodraWordmark" href="#top">NODRA</a>
         <p>Containment, provenance, and recovery infrastructure for autonomous AI agents.</p>
         <p className="muted">V0.1 · Built in public</p>
       </footer>
