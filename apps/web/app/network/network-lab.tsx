@@ -165,6 +165,18 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
           <article><span className="statIcon healthy">✓</span><div><strong>{integrity && integrity.valid ? "100%" : "—"}</strong><p>Evidence Integrity</p><small>{integrity && integrity.valid ? "Hash chain verified" : "Awaiting verification"}</small></div></article>
         </section>
 
+        <section className="commandGrid">
+          <article className="commandCard postureCard">
+            <div className="commandTitle"><div><strong>Security Posture</strong><small>Live protection state</small></div><span className={affected===0 ? "postureGood" : "postureRisk"}>{affected===0 ? "Protected" : "Attention"}</span></div>
+            <div className="postureBody"><div className={"postureRing "+(affected===0?"good":"risk")}><strong>{affected===0 ? "100" : Math.max(0,100-affected*20)}</strong><span>/100</span></div><div className="postureChecks"><p><i /> Runtime policy gateway active</p><p><i /> Flight Recorder enabled</p><p><i /> Evidence chain {integrity?.valid ? "verified" : "monitoring"}</p><p><i /> Containment controls ready</p></div></div>
+          </article>
+          <article className="commandCard containmentCard" id="containment">
+            <div className="commandTitle"><div><strong>Containment Status</strong><small>Blast-radius control</small></div><span className={"containmentBadge "+phase}>{phase === "ready" || phase === "resolved" ? "Standby" : phase}</span></div>
+            <div className="containmentRows"><p><span>Quarantined</span><strong>{agents.filter(a=>a.status==="quarantined").length}</strong></p><p><span>Restricted / at risk</span><strong>{agents.filter(a=>a.status==="restricted"||a.status==="at-risk").length}</strong></p><p><span>Healthy</span><strong>{agents.filter(a=>a.status==="healthy").length}</strong></p></div>
+            <small className="containmentNote">{phase==="incident" ? "Propagation detected. Selective containment is available." : phase==="contained"||phase==="recovering" ? "Affected authority has been reduced while healthy agents remain available." : "No active containment action required."}</small>
+          </article>
+        </section>
+
         <div className="labGrid">
           <section className="canvasPanel" id="network">
             <div className="panelTop">
