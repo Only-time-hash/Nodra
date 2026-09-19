@@ -8,8 +8,8 @@ export async function POST(request: Request) {
   if (!ctx) return NextResponse.json({ error: "authentication_or_workspace_required" }, { status: 401 });
 
   const body = await request.json().catch(() => null);
-  if (!body?.resourceId || !body?.action) {
-    return NextResponse.json({ error: "resourceId_and_action_required" }, { status: 400 });
+  if (!body?.goal && (!body?.resourceId || !body?.action)) {
+    return NextResponse.json({ error: "goal_or_resourceId_and_action_required" }, { status: 400 });
   }
 
   const resolveAgentState = async (externalId: string) => {
@@ -27,7 +27,9 @@ export async function POST(request: Request) {
 
   const agent = createProtectedResearchAgent(createFlightRecorderObserver(), resolveAgentState);
   try {
-    const result = await agent.act(String(body.resourceId), String(body.action), body.input ?? {});
+    const result = body.goal
+      ? await agent.actFromGoal(String(body.goal))
+      : await agent.act(String(body.resourceId), String(body.action), body.input ?? {});
     return NextResponse.json(result, {
       status: result.event.decision === "deny" ? 403 : result.event.decision === "require-approval" ? 202 : 200,
     });
