@@ -12,12 +12,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_gateway_event" }, { status: 400 });
   }
 
-  const { data: agent } = await ctx.supabase
+  const { data: agent, error: agentError } = await ctx.supabase
     .from("agents")
     .select("id")
     .eq("workspace_id", ctx.workspaceId)
     .eq("external_id", body.agentId)
     .maybeSingle();
+
+  // Never accept an unlinked runtime identity. A missing agent would weaken
+  // containment enforcement, incident attribution, and forensic provenance.
+  if (agentError || !agent.id) {
+    console.error("[Nodra] gateway agent linkage failed", {
+      code: agentError?.code ?? null,
+      message: agentError?.message ?? "unknown_agent",
+      externalId: body.agentId,
+    });
+    return NextResponse.json({ error: "gateway_agent_linkage_failed" }, { status: 409 });
+  }
 
   let { data: resource } = await ctx.supabase
     .from("resources")
@@ -55,7 +66,7 @@ export async function POST(request: Request) {
   let incidentId: string | null = body.incidentId ?? null;
   const suspicious = body.phase !== "intent" && (body.decision === "deny" || body.decision === "require-approval");
 
-  if (suspicious && agent?.id && !incidentId) {
+  if (suspicious && agent.id && !incidentId) {
     const { data: existing } = await ctx.supabase
       .from("incidents")
       .select("id")
@@ -98,7 +109,7 @@ export async function POST(request: Request) {
     const { error: outboxError } = await ctx.supabase.rpc("record_gateway_intent", {
       p_workspace_id: ctx.workspaceId,
       p_incident_id: incidentId,
-      p_agent_id: agent?.id ?? null,
+      p_agent_id: agent.id,
       p_request_id: body.id,
       p_payload: body,
     });
@@ -114,7 +125,7 @@ export async function POST(request: Request) {
   const { data, error } = await ctx.supabase.rpc("append_security_event", {
     p_workspace_id: ctx.workspaceId,
     p_incident_id: incidentId,
-    p_agent_id: agent?.id ?? null,
+    p_agent_id: agent.id,
     p_event_type: "gateway-tool-request",
     p_action: body.action,
     p_resource_id: resource?.id ?? null,
@@ -142,7 +153,7 @@ export async function POST(request: Request) {
 
   // Persist observable agent-to-agent causality when causedBy identifies a known agent.
   // Unknown/external causes remain on the event but never create fabricated graph edges.
-  if (body.causedBy && agent?.id) {
+  if (body.causedBy && agent.id) {
     const { data: parentAgent } = await ctx.supabase
       .from("agents")
       .select("id")
