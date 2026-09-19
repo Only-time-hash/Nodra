@@ -121,3 +121,7 @@
   .agentNode,.createWorkspaceButton{transition:none!important}
   .networkCard,.liveDot{animation:none!important}
 }
+
+.searchResults{position:absolute;z-index:40;top:62px;left:268px;width:min(430px,calc(100vw - 310px));display:grid;border:1px solid #1b3154;border-radius:9px;background:#071225;box-shadow:0 18px 50px rgba(0,0,0,.45);overflow:hidden}.searchResults button{display:flex;justify-content:space-between;gap:12px;padding:11px 13px;border:0;border-bottom:1px solid #132541;background:transparent;color:#d9e5f7;text-align:left;cursor:pointer}.searchResults button:hover{background:#0d1d35}.searchResults button:last-child{border-bottom:0}.searchResults strong{font-size:10px}.searchResults span{padding:11px 13px;color:#6f83a1;font-size:9px}.searchResults button span{padding:0}
+@media(max-width:1050px){.searchResults{left:104px;width:min(430px,calc(100vw - 130px))}}
+@media(max-width:700px){.searchResults{position:fixed;top:58px;left:10px;right:10px;width:auto}}
