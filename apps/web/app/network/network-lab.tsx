@@ -130,7 +130,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
   return (
     <main className="lab">
       <aside className="sidebar">
-        <Link className="labBrand" href="/"><span>N</span>NODRA</Link>
+        <Link className="labBrand" href="/" aria-label="Nodra home"><span className="armadilloMark" aria-hidden="true"><i className="shellSeg s1"/><i className="shellSeg s2"/><i className="shellSeg s3"/><i className="shellSeg s4"/><b/></span><span className="brandCopy"><strong>NODRA</strong><small>The Shield for Agentic AI</small></span></Link>
         <p className="workspace">AGENTIC AI SHIELD</p>
         <nav className="sideNav" aria-label="Nodra application">
           <a className="active" href="#dashboard">⌂ <span>Dashboard</span></a>
@@ -149,6 +149,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
       </aside>
 
       <section className="labMain">
+        <div className="commandTopbar"><label className="commandSearch"><span>⌕</span><input aria-label="Search Nodra" placeholder="Search agents, incidents, events..." /></label><div className="topbarStatus"><span className="liveIndicator"><i/> LIVE</span><span>V0.1</span></div></div>
         <header className="labHeader">
           <div id="dashboard"><p>NODRA / SECURITY OVERVIEW</p><h1>Your Agentic AI, <span className="accentText">Protected.</span></h1><p className="dashboardSub">Prevent threats. Contain risks. Preserve trusted autonomy.</p></div>
           <div className="headerActions">
