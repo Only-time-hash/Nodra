@@ -1,0 +1,3 @@
+import { notFound } from "next/navigation"; import { ProductSection } from "../components/product-section";
+const allowed=new Set(["agents","incidents","activity","policies","credentials","containment","recovery","reports","settings"]);
+export default async function Page({params}:{params:Promise<{section:string}>}){const {section}=await params;if(!allowed.has(section))notFound();return <ProductSection section={section}/>}
