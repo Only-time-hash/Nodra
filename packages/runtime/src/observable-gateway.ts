@@ -1,4 +1,4 @@
-import { NodraGateway, type ToolHandler } from "./gateway.ts";
+import { NodraGateway, type ToolHandler, type AgentStateResolver } from "./gateway.ts";
 import type { LabRequest, RecordedEvent } from "./runtime.ts";
 import type { PolicyRule } from "@nodra/policy";
 
@@ -7,8 +7,13 @@ export type GatewayObserver = (event: RecordedEvent & { executed: boolean; occur
 export class ObservableNodraGateway extends NodraGateway {
   private observer?: GatewayObserver;
 
-  constructor(rules: PolicyRule[], tools: Record<string, ToolHandler> = {}, observer?: GatewayObserver) {
-    super(rules, tools);
+  constructor(
+    rules: PolicyRule[],
+    tools: Record<string, ToolHandler> = {},
+    observer?: GatewayObserver,
+    resolveAgentState?: AgentStateResolver,
+  ) {
+    super(rules, tools, resolveAgentState);
     this.observer = observer;
   }
 
@@ -19,6 +24,11 @@ export class ObservableNodraGateway extends NodraGateway {
   }
 }
 
-export function createObservableGateway(rules: PolicyRule[], observer: GatewayObserver, tools: Record<string, ToolHandler> = {}) {
-  return new ObservableNodraGateway(rules, tools, observer);
+export function createObservableGateway(
+  rules: PolicyRule[],
+  observer: GatewayObserver,
+  tools: Record<string, ToolHandler> = {},
+  resolveAgentState?: AgentStateResolver,
+) {
+  return new ObservableNodraGateway(rules, tools, observer, resolveAgentState);
 }
