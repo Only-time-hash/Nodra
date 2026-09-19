@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     p_action: body.action,
     p_resource_id: resource?.id ?? null,
     p_decision: body.decision,
-    p_caused_by: body.causedBy ?? null,
+    p_caused_by_event_id: body.causedByEventId ?? null,
     p_payload: {
       gatewayRequestId: body.id,
       phase: body.phase ?? "result",
