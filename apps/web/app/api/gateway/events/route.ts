@@ -80,5 +80,29 @@ export async function POST(request: Request) {
   });
 
   if (error) return NextResponse.json({ error: "gateway_event_persistence_failed" }, { status: 500 });
+
+  // Persist observable agent-to-agent causality when causedBy identifies a known agent.
+  // Unknown/external causes remain on the event but never create fabricated graph edges.
+  if (body.causedBy && agent?.id) {
+    const { data: parentAgent } = await ctx.supabase
+      .from("agents")
+      .select("id")
+      .eq("workspace_id", ctx.workspaceId)
+      .eq("external_id", body.causedBy)
+      .maybeSingle();
+
+    if (parentAgent?.id && parentAgent.id !== agent.id) {
+      const { error: edgeError } = await ctx.supabase.from("causal_edges").insert({
+        workspace_id: ctx.workspaceId,
+        incident_id: incidentId,
+        from_agent_id: parentAgent.id,
+        to_agent_id: agent.id,
+        event_id: data?.id ?? null,
+        relation: "gateway-caused-by",
+      });
+      if (edgeError) return NextResponse.json({ error: "gateway_causal_edge_persistence_failed" }, { status: 500 });
+    }
+  }
+
   return NextResponse.json({ recorded: true, eventId: data?.id ?? null, incidentId });
 }
