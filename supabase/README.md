@@ -23,3 +23,5 @@ Before release:
 4. Verify two authenticated identities cannot read or mutate each other's workspace.
 5. Verify direct event-chain mutation and direct adapter-evidence insertion are rejected.
 6. Run `npm test`, `npm run typecheck`, and `npm run build`.
+
+Run the transactional tenant-boundary suite against a disposable branch or an authorized database connection with `DATABASE_URL=... npm run verify:database`. The suite creates two temporary authenticated identities, verifies reciprocal read/write isolation and privileged RPC boundaries, then rolls the entire fixture back.

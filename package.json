@@ -1,5 +1,5 @@
 {
   "name":"nodra","private":true,"version":"0.1.0",
-  "scripts":{"dev":"npm --workspace apps/web run dev","build":"npm --workspace apps/web run build","start":"npm --workspace apps/web run start","typecheck":"npm --workspace apps/web run typecheck","test":"node --experimental-strip-types --test packages/*/src/*.test.ts apps/web/lib/*.test.ts","verify:migrations":"node scripts/verify-migrations.mjs"},
+  "scripts":{"dev":"npm --workspace apps/web run dev","build":"npm --workspace apps/web run build","start":"npm --workspace apps/web run start","typecheck":"npm --workspace apps/web run typecheck","test":"node --experimental-strip-types --test packages/*/src/*.test.ts apps/web/lib/*.test.ts","verify:migrations":"node scripts/verify-migrations.mjs","verify:database":"psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/rls_workspace_isolation.sql"},
   "workspaces":["apps/*","packages/*"]
 }

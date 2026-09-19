@@ -16,7 +16,7 @@ A release is not considered verified until every required check below has eviden
 - [x] Direct authenticated security-event insert/update denied.
 - [x] Direct authenticated remediation-evidence insert denied.
 - [x] Direct authenticated remediation-action update denied.
-- [ ] Cross-incident remediation evidence is rejected.
+- [x] Cross-incident remediation evidence is rejected by the transactional database security suite.
 - [x] Security Advisor reviewed; any remaining warning is documented and intentional.
 
 ## Production
