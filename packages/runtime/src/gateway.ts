@@ -6,17 +6,20 @@ export type ToolHandler<T = unknown> = (input: unknown) => Promise<T>;
 export type ToolAdapter<T = unknown> = { handler: ToolHandler<T>; validateInput?: ToolValidator; validateOutput?: ToolValidator; timeoutMs?: number };
 export type GatewayResult<T = unknown> = { event: RecordedEvent; executed: boolean; output?: T };
 export type RuntimeAgentState = "healthy" | "at-risk" | "restricted" | "quarantined";
+export type ApprovalResolver = (request: LabRequest, event: RecordedEvent) => Promise<boolean> | boolean;
 export type AgentStateResolver = (agentId: string) => Promise<RuntimeAgentState> | RuntimeAgentState;
 
 export class NodraGateway {
   private rules: PolicyRule[];
   private tools: Record<string, ToolAdapter>;
   private resolveAgentState?: AgentStateResolver;
+  private resolveApproval?: ApprovalResolver;
 
-  constructor(rules: PolicyRule[], tools: Record<string, ToolHandler> = {}, resolveAgentState?: AgentStateResolver) {
+  constructor(rules: PolicyRule[], tools: Record<string, ToolHandler> = {}, resolveAgentState?: AgentStateResolver, resolveApproval?: ApprovalResolver) {
     this.rules = rules;
     this.tools = Object.fromEntries(Object.entries(tools).map(([id,handler])=>[id,{handler}]));
     this.resolveAgentState = resolveAgentState;
+    this.resolveApproval = resolveApproval;
   }
 
   register(resourceId: string, handler: ToolHandler, options: Omit<ToolAdapter,"handler"> = {}) {
@@ -32,7 +35,11 @@ export class NodraGateway {
     }
 
     const event = intercept(request, this.rules);
-    if (event.decision !== "allow") return { event, executed: false };
+    if (event.decision === "deny") return { event, executed: false };
+    if (event.decision === "require-approval") {
+      const approved = this.resolveApproval ? await this.resolveApproval(request, event) : false;
+      if (!approved) return { event, executed: false };
+    }
 
     // Restricted/at-risk agents keep only explicitly allowed read operations.
     // This is deliberately fail-closed for writes, payments, delegation, and unknown actions.
