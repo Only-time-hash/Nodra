@@ -25,7 +25,17 @@ export async function POST(request: Request) {
     return "healthy" as const;
   };
 
-  const agent = createProtectedResearchAgent(createFlightRecorderObserver(), resolveAgentState);
+  // This route runs on the server, where a root-relative fetch target has no browser
+  // origin to resolve against. Resolve the recorder endpoint from the incoming request
+  // and forward only the authenticated session cookie to the same-origin recorder route.
+  const recorderEndpoint = new URL("/api/gateway/events", request.url).toString();
+  const agent = createProtectedResearchAgent(
+    createFlightRecorderObserver({
+      endpoint: recorderEndpoint,
+      cookie: request.headers.get("cookie"),
+    }),
+    resolveAgentState,
+  );
   try {
     const result = body.goal
       ? await agent.actFromGoal(String(body.goal))
