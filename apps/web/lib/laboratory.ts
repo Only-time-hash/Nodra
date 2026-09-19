@@ -21,7 +21,7 @@ export function simulateIncident() {
 }
 
 export function containLaboratoryIncident() {
-  const affected=new Set(fiveAgentScenario.expectedContained);
+  const affected = new Set<string>(fiveAgentScenario.expectedContained);
   return quarantineBranch([
     { id: "manager", status: affected.has("manager") ? "at-risk" : "healthy", delegatedAuthority: true },
     { id: "research", status: affected.has("research") ? "at-risk" : "healthy", delegatedAuthority: true },
