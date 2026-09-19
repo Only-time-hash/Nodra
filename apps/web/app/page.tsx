@@ -1,3 +1,5 @@
+import { GitHubAuthButton } from "../components/github-auth-button";
+
 const lifecycle = [
   ["01", "Control", "Define explicit boundaries around what agents may access and do."],
   ["02", "Observe", "Record consequential agent actions and the systems they touch."],
@@ -18,8 +20,8 @@ export default function HomePage() {
           <a href="#docs">Docs</a>
         </nav>
         <div className="navActions">
-          <a className="textButton" href="#signin">Sign in</a>
-          <a className="button small" href="#github">Sign up with GitHub</a>
+          <GitHubAuthButton className="textButton">Sign in</GitHubAuthButton>
+          <GitHubAuthButton className="button small">Sign up with GitHub</GitHubAuthButton>
         </div>
       </header>
 
@@ -31,7 +33,7 @@ export default function HomePage() {
           systems, contains affected agents, and supports safe recovery.
         </p>
         <div className="heroActions">
-          <a className="button" href="#github">Sign up with GitHub <b>→</b></a>
+          <GitHubAuthButton>Sign up with GitHub <b>→</b></GitHubAuthButton>
           <a className="secondaryButton" href="#product">Explore Nodra</a>
         </div>
 
@@ -94,7 +96,7 @@ export default function HomePage() {
 
       <section className="cta shell" id="github">
         <div><p className="kicker">BUILD WITH US</p><h2>Autonomous agents need<br /><span>real boundaries.</span></h2></div>
-        <div><p>Nodra is early-stage. Join through GitHub as we build the first working containment and recovery system.</p><a className="button" href="#signin">Sign up with GitHub →</a></div>
+        <div><p>Nodra is early-stage. Join through GitHub as we build the first working containment and recovery system.</p><GitHubAuthButton>Sign up with GitHub →</GitHubAuthButton></div>
       </section>
 
       <footer className="footer shell" id="signin">
