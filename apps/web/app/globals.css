@@ -41,3 +41,18 @@
 
 .workspaceCube svg{width:46px;height:46px;fill:none;stroke:#9186ff;stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round}
 .benefitIcon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+
+/* Nodra agentic-AI shield dashboard */
+.accentText{background:linear-gradient(90deg,#70a8ff,#806cff);-webkit-background-clip:text;color:transparent}
+.dashboardSub{margin:6px 0 0!important;color:#7789a6!important;font-size:12px!important;letter-spacing:0!important}
+.shieldStats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:22px}
+.shieldStats article{min-width:0;display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #172847;border-radius:8px;background:linear-gradient(145deg,#081328,#07101f);box-shadow:inset 0 1px rgba(255,255,255,.025)}
+.shieldStats strong{display:block;font-size:20px;line-height:1}.shieldStats p{margin:4px 0 3px;font-size:11px;font-weight:700;color:#dce8ff}.shieldStats small{display:block;color:#61728f;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.statIcon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;font-size:14px;background:#0c2034;border:1px solid #1b4465}
+.statIcon.healthy{color:#46e4a1;background:#09251f;border-color:#12684d}.statIcon.danger{color:#ff5d78;background:#2b111b;border-color:#702039}.statIcon.protected{color:#809cff;background:#111b3a;border-color:#293c82}.statIcon.events{color:#57b8ff;background:#0b2035;border-color:#164b72}
+.labHeader h1{font-size:27px;letter-spacing:-.035em}.labHeader{align-items:flex-end}.labMain{background:radial-gradient(circle at 50% 0,rgba(20,64,145,.12),transparent 30%),#050b16}
+.sidebar{background:linear-gradient(180deg,#071328,#050b16);border-color:#12213a}.sideNav a.active{background:linear-gradient(90deg,#0d52d8,#12367f);box-shadow:0 0 22px rgba(27,100,255,.18)}
+.canvasPanel,.inspector,.activityPanel{border-color:#152845;background:#071225}.canvas{background-color:#061020}.panelTop,.activityHead{border-color:#142541}
+@media(max-width:1180px){.shieldStats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.shieldStats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.shieldStats article{padding:11px}.shieldStats article:last-child{grid-column:1/-1}.dashboardSub{display:none}}
