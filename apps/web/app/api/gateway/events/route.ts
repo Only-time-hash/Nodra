@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
   // Never accept an unlinked runtime identity. A missing agent would weaken
   // containment enforcement, incident attribution, and forensic provenance.
-  if (agentError || !agent.id) {
+  if (agentError || !agent?.id) {
     console.error("[Nodra] gateway agent linkage failed", {
       code: agentError?.code ?? null,
       message: agentError?.message ?? "unknown_agent",
