@@ -19,12 +19,38 @@ export async function POST(request: Request) {
     .eq("external_id", body.agentId)
     .maybeSingle();
 
-  const { data: resource } = await ctx.supabase
+  let { data: resource } = await ctx.supabase
     .from("resources")
     .select("id")
     .eq("workspace_id", ctx.workspaceId)
     .eq("external_id", body.resourceId)
     .maybeSingle();
+
+  // Runtime tools are first-class resources. Ensure the recorder can attach
+  // provenance even in a newly-created laboratory workspace.
+  if (!resource?.id) {
+    const { data: createdResource, error: resourceError } = await ctx.supabase
+      .from("resources")
+      .upsert(
+        {
+          workspace_id: ctx.workspaceId,
+          external_id: body.resourceId,
+          name: body.resourceId,
+          kind: "runtime-tool",
+        },
+        { onConflict: "workspace_id,external_id" },
+      )
+      .select("id")
+      .single();
+    if (resourceError || !createdResource?.id) {
+      console.error("[Nodra] gateway resource linkage failed", {
+        code: resourceError?.code ?? null,
+        message: resourceError?.message ?? "resource_not_created",
+      });
+      return NextResponse.json({ error: "gateway_resource_linkage_failed" }, { status: 500 });
+    }
+    resource = createdResource;
+  }
 
   let incidentId: string | null = body.incidentId ?? null;
   const suspicious = body.decision === "deny" || body.decision === "require-approval";
