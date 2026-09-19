@@ -3,7 +3,10 @@ import assert from "node:assert/strict";
 import { fiveAgentScenario, verifySelectiveContainment } from "./laboratory.ts";
 
 test("five-agent scenario preserves Support outside the blast radius",()=>{
-  const affected=new Set([fiveAgentScenario.origin,...fiveAgentScenario.propagation.map(edge=>edge.to)]);
+  const affected = new Set<string>([
+    fiveAgentScenario.origin,
+    ...fiveAgentScenario.propagation.map((edge) => edge.to),
+  ]);
   assert.deepEqual([...affected].sort(),[...fiveAgentScenario.expectedContained].sort());
   assert.equal(affected.has("support"),false);
 });
