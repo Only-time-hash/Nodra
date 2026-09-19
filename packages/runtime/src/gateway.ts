@@ -1,24 +1,26 @@
 import { intercept, type LabRequest, type RecordedEvent } from "./runtime.ts";
 import type { PolicyRule } from "@nodra/policy";
 
+export type ToolValidator = (value: unknown) => boolean;
 export type ToolHandler<T = unknown> = (input: unknown) => Promise<T>;
+export type ToolAdapter<T = unknown> = { handler: ToolHandler<T>; validateInput?: ToolValidator; validateOutput?: ToolValidator; timeoutMs?: number };
 export type GatewayResult<T = unknown> = { event: RecordedEvent; executed: boolean; output?: T };
 export type RuntimeAgentState = "healthy" | "at-risk" | "restricted" | "quarantined";
 export type AgentStateResolver = (agentId: string) => Promise<RuntimeAgentState> | RuntimeAgentState;
 
 export class NodraGateway {
   private rules: PolicyRule[];
-  private tools: Record<string, ToolHandler>;
+  private tools: Record<string, ToolAdapter>;
   private resolveAgentState?: AgentStateResolver;
 
   constructor(rules: PolicyRule[], tools: Record<string, ToolHandler> = {}, resolveAgentState?: AgentStateResolver) {
     this.rules = rules;
-    this.tools = tools;
+    this.tools = Object.fromEntries(Object.entries(tools).map(([id,handler])=>[id,{handler}]));
     this.resolveAgentState = resolveAgentState;
   }
 
-  register(resourceId: string, handler: ToolHandler) {
-    this.tools[resourceId] = handler;
+  register(resourceId: string, handler: ToolHandler, options: Omit<ToolAdapter,"handler"> = {}) {
+    this.tools[resourceId] = { handler, ...options };
     return this;
   }
 
@@ -43,7 +45,13 @@ export class NodraGateway {
 
     const tool = this.tools[request.resourceId];
     if (!tool) return { event: { ...event, decision: "deny", reason: "No registered tool adapter." }, executed: false };
-    const output = await tool(input) as T;
+    if (tool.validateInput && !tool.validateInput(input)) return { event: { ...event, decision: "deny", reason: "Tool input validation failed." }, executed: false };
+    const timeoutMs = tool.timeoutMs ?? 10000;
+    const output = await Promise.race([
+      tool.handler(input),
+      new Promise<never>((_,reject)=>setTimeout(()=>reject(new Error("Nodra tool execution timed out.")),timeoutMs)),
+    ]) as T;
+    if (tool.validateOutput && !tool.validateOutput(output)) throw new Error("Tool output validation failed.");
     return { event, executed: true, output };
   }
 }
