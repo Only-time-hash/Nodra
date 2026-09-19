@@ -80,7 +80,10 @@ export default async function Onboarding() {
         <form action={createWorkspace} className="workspaceCard">
           <div className="workspaceFormRow">
             <div className="workspaceCube" aria-hidden="true">
-              <span>◇</span>
+              <svg viewBox="0 0 48 48" role="img">
+                <path d="M24 5 39 13.5v17L24 39 9 30.5v-17L24 5Z" />
+                <path d="M9 13.5 24 22l15-8.5M24 22v17" />
+              </svg>
             </div>
             <div className="workspaceField">
               <label htmlFor="workspace-name">Workspace name</label>
@@ -105,15 +108,15 @@ export default async function Onboarding() {
 
         <div className="onboardingBenefits">
           <div>
-            <span className="benefitIcon secureIcon">◇</span>
+            <span className="benefitIcon secureIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.4 8.2-8 9-4.6-.8-8-4-8-9V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg></span>
             <p><strong>Secure by design</strong><small>Scoped access from day one</small></p>
           </div>
           <div>
-            <span className="benefitIcon agentIcon">◎</span>
+            <span className="benefitIcon agentIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3.5 19c.4-4 2.4-6 5.5-6s5.1 2 5.5 6M14 14c3.8-.5 6.1 1.2 6.5 5"/></svg></span>
             <p><strong>Multi-agent ready</strong><small>Coordinate agents safely</small></p>
           </div>
           <div>
-            <span className="benefitIcon auditIcon">▤</span>
+            <span className="benefitIcon auditIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6V3Z"/><path d="M15 3v5h4M9 12h7M9 16h7"/></svg></span>
             <p><strong>Audit &amp; recovery</strong><small>Full incident traceability</small></p>
           </div>
         </div>
