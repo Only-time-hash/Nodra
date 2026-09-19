@@ -1,4 +1,6 @@
-import { createObservableGateway, type GatewayObserver, type AgentStateResolver } from "@nodra/runtime";
+import { createObservableGateway, type GatewayObserver } from "@nodra/runtime";
+
+type AgentStateResolver = (agentId:string)=>Promise<"healthy"|"at-risk"|"restricted"|"quarantined">|"healthy"|"at-risk"|"restricted"|"quarantined";
 
 const rules = [
   { agentId: "example-research", resourceId: "notes", actions: ["write"] },
