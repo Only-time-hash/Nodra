@@ -33,7 +33,15 @@ export async function POST(request: Request) {
     return NextResponse.json(result, {
       status: result.event.decision === "deny" ? 403 : result.event.decision === "require-approval" ? 202 : 200,
     });
-  } catch {
-    return NextResponse.json({ error: "protected_agent_execution_failed" }, { status: 500 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown_error";
+    console.error("[Nodra] protected agent execution failed", { message });
+    const category =
+      message.includes("GEMINI_API_KEY") || message.includes("OPENAI_API_KEY") ? "model_not_configured" :
+      message.includes("Gemini request failed") || message.includes("OpenAI request failed") ? "model_provider_request_failed" :
+      message.includes("invalid sandbox action") || message.includes("no decision") ? "model_response_invalid" :
+      message.includes("flight recorder") ? "flight_recorder_failed" :
+      "protected_agent_execution_failed";
+    return NextResponse.json({ error: category }, { status: 500 });
   }
 }
