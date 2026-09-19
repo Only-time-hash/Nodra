@@ -46,14 +46,14 @@ export function NetworkLab() {
   const [forensicTimeline, setForensicTimeline] = useState<any[]>([]);
   const [remediating, setRemediating] = useState<string | null>(null);
   const [connection, setConnection] = useState<ConnectionState>("connecting");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);\n  const [searchQuery, setSearchQuery] = useState("");
 
   const selected = useMemo(() => agents.find((agent) => agent.id === selectedId) ?? agents[0], [agents, selectedId]);
   const affected = agents.filter((agent) => agent.status !== "healthy").length;
   const selectedEdges = causalEdges.filter((edge)=>edge.from===selectedId||edge.to===selectedId);
   const hasOpenIncident = Boolean(incidentId && phase !== "resolved");
   const integrityState = !integrity ? "checking" : integrity.valid ? "verified" : "failed";
-  const postureHealthy = affected === 0 && integrity?.valid === true && connection === "live";
+  const searchMatches = useMemo(() => { const q=searchQuery.trim().toLowerCase(); if(!q) return []; return agents.filter(a=>[a.name,a.role,a.status,...a.tools,...a.permissions].some(v=>v.toLowerCase().includes(q))).slice(0,5); }, [agents,searchQuery]);\n  const postureHealthy = affected === 0 && integrity?.valid === true && connection === "live";
   const postureScore = Math.max(0, 100 - affected * 20 - (integrity?.valid === false ? 25 : 0) - (connection === "offline" ? 25 : 0));
 
   const loadState = useCallback(async (showLoading = false) => {
@@ -193,8 +193,8 @@ export function NetworkLab() {
       </aside>
 
       <section className="labMain">
-        <div className="commandTopbar"><label className="commandSearch"><span>⌕</span><input aria-label="Search Nodra" placeholder="Search agents, incidents, events..." /></label><div className="topbarStatus"><span className={"liveIndicator "+connection}><i/> {connection === "live" ? "LIVE" : connection === "connecting" ? "CONNECTING" : "OFFLINE"}</span><span>V0.1</span></div></div>
-        {errorMessage ? <div className="dashboardError" role="alert"><span>{errorMessage}</span><button type="button" onClick={()=>void loadState(true)}>Retry</button></div> : null}
+        <div className="commandTopbar"><label className="commandSearch"><span>⌕</span><input aria-label="Search Nodra" placeholder="Search agents, incidents, events..." value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)} onKeyDown={(e)=>{if(e.key==="Enter"&&searchMatches[0]){setSelectedId(searchMatches[0].id);document.getElementById("agents")?.scrollIntoView({behavior:"smooth"});}}} /></label><div className="topbarStatus"><span className={"liveIndicator "+connection}><i/> {connection === "live" ? "LIVE" : connection === "connecting" ? "CONNECTING" : "OFFLINE"}</span><span>V0.1</span></div></div>
+        {searchQuery.trim() ? <div className="searchResults" role="listbox" aria-label="Search results">{searchMatches.length ? searchMatches.map(a=><button key={a.id} type="button" onClick={()=>{setSelectedId(a.id);setSearchQuery("");document.getElementById("agents")?.scrollIntoView({behavior:"smooth"});}}><strong>{a.name}</strong><span>{a.role} · {a.status}</span></button>) : <span>No matching agents</span>}</div> : null}\n        {errorMessage ? <div className="dashboardError" role="alert"><span>{errorMessage}</span><button type="button" onClick={()=>void loadState(true)}>Retry</button></div> : null}
         <header className="labHeader">
           <div id="dashboard"><p>NODRA / SECURITY OVERVIEW</p><h1>Your Agentic AI, <span className="accentText">Protected.</span></h1><p className="dashboardSub">Prevent threats. Contain risks. Preserve trusted autonomy.</p></div>
           <div className="headerActions">
