@@ -19,6 +19,13 @@ export async function POST(request: Request) {
     .eq("external_id", body.agentId)
     .maybeSingle();
 
+  const { data: resource } = await ctx.supabase
+    .from("resources")
+    .select("id")
+    .eq("workspace_id", ctx.workspaceId)
+    .eq("external_id", body.resourceId)
+    .maybeSingle();
+
   let incidentId: string | null = body.incidentId ?? null;
   const suspicious = body.decision === "deny" || body.decision === "require-approval";
 
@@ -78,7 +85,7 @@ export async function POST(request: Request) {
     p_agent_id: agent?.id ?? null,
     p_event_type: "gateway-tool-request",
     p_action: body.action,
-    p_resource_id: null,
+    p_resource_id: resource?.id ?? null,
     p_decision: body.decision,
     p_caused_by: body.causedBy ?? null,
     p_payload: {
