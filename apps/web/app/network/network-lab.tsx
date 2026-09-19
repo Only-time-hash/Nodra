@@ -179,17 +179,17 @@ export function NetworkLab() {
         <Link className="labBrand" href="/" aria-label="Nodra home"><span className="armadilloMark" aria-hidden="true"><i className="shellSeg s1"/><i className="shellSeg s2"/><i className="shellSeg s3"/><i className="shellSeg s4"/><b/></span><span className="brandCopy"><strong>NODRA</strong><small>The Shield for Agentic AI</small></span></Link>
         <p className="workspace">AGENTIC AI SHIELD</p>
         <nav className="sideNav" aria-label="Nodra application">
-          <a className="active" href="#dashboard">⌂ <span>Dashboard</span></a>
-          <a href="#network">⌘ <span>Network</span></a>
-          <a href="#agents">◎ <span>Agents</span></a>
-          <a href="#incidents">△ <span>Incidents</span>{affected > 0 ? <b>{affected}</b> : null}</a>
-          <a href="#activity">≋ <span>Activity</span></a>
-          <a href="#policies">◇ <span>Policies</span></a>
-          <a href="#credentials">▱ <span>Credentials</span></a>
-          <a href="#containment">⬡ <span>Containment</span></a>
-          <a href="#recovery">↻ <span>Recovery</span></a>
-          <a href="#reports">▥ <span>Reports</span></a>
-          <a href="#settings">⚙ <span>Settings</span></a>
+          <Link className="active" href="/network">⌂ <span>Dashboard</span></Link>
+          <Link href="/network/map">⌘ <span>Network</span></Link>
+          <Link href="/agents">◎ <span>Agents</span></Link>
+          <Link href="/incidents">△ <span>Incidents</span>{affected > 0 ? <b>{affected}</b> : null}</Link>
+          <Link href="/activity">≋ <span>Activity</span></Link>
+          <Link href="/policies">◇ <span>Policies</span></Link>
+          <Link href="/credentials">▱ <span>Credentials</span></Link>
+          <Link href="/containment">⬡ <span>Containment</span></Link>
+          <Link href="/recovery">↻ <span>Recovery</span></Link>
+          <Link href="/reports">▥ <span>Reports</span></Link>
+          <Link href="/settings">⚙ <span>Settings</span></Link>
         </nav>
         <div className="labScope"><strong>Nodra Shield</strong><p>Containment, provenance and recovery controls for autonomous agents.</p></div>
       </aside>
@@ -279,11 +279,11 @@ export function NetworkLab() {
 
         <section className="dashboardLower">
           <article className="activityPanel dashboardEvents">
-            <div className="activityHead"><div><strong>Recent Security Events</strong><span>Latest observable activity from the Flight Recorder</span></div><a href="#activity">View activity</a></div>
+            <div className="activityHead"><div><strong>Recent Security Events</strong><span>Latest observable activity from the Flight Recorder</span></div><Link href="/activity">View activity</Link></div>
             <div className="compactEvents">{events.slice(-4).reverse().map((event,index)=><div className="compactEvent" key={index}><span className={"eventDot "+event.kind} /><div><strong>{event.kind}</strong><p>{event.text}</p></div><time>{event.time}</time></div>)}</div>
           </article>
           <article className="activityPanel dashboardIncidents">
-            <div className="activityHead"><div><strong>Open Incidents</strong><span>Current response state</span></div><a href="#incidents">Investigate</a></div>
+            <div className="activityHead"><div><strong>Open Incidents</strong><span>Current response state</span></div><Link href="/incidents">Investigate</Link></div>
             <div className="incidentSummary">{incidentId && phase!=="resolved" ? <><div className="incidentSeverity"><span>HIGH</span><strong>{phase==="incident" ? "Propagation risk detected" : phase==="contained" ? "Affected branch contained" : "Recovery in progress"}</strong></div><p>Origin: <b>Research</b></p><p>Affected agents: <b>{affected}</b></p><p>Incident: <code>{incidentId.slice(0,8)}…</code></p></> : <div className="emptyIncident"><span>✓</span><strong>No open incidents</strong><p>Nodra is monitoring the agent network.</p></div>}</div>
           </article>
         </section>
