@@ -72,6 +72,16 @@ values
   ('a3000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'a2000000-0000-4000-8000-000000000001', 'a1000000-0000-4000-8000-000000000001', 'tenant-fixture', 1, repeat('a', 64)),
   ('b3000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000002', 'b2000000-0000-4000-8000-000000000002', 'b1000000-0000-4000-8000-000000000002', 'tenant-fixture', 1, repeat('b', 64));
 
+insert into public.gateway_request_nonces (
+  workspace_id, agent_id, nonce, request_timestamp, expires_at
+) values (
+  'a0000000-0000-4000-8000-000000000001',
+  'a1000000-0000-4000-8000-000000000001',
+  'expired_nonce_123456789',
+  now() - interval '10 minutes',
+  now() - interval '5 minutes'
+);
+
 do $$
 declare missing_rls text[];
 declare missing_policy text[];
@@ -106,6 +116,36 @@ $$;
 
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"10000000-0000-4000-8000-000000000001","role":"authenticated"}', true);
+
+insert into public.gateway_request_nonces (
+  workspace_id, agent_id, nonce, request_timestamp, expires_at
+) values (
+  'a0000000-0000-4000-8000-000000000001',
+  'a1000000-0000-4000-8000-000000000001',
+  'signed_nonce_1234567890',
+  now(),
+  now() + interval '5 minutes'
+);
+
+do $$
+declare replay_blocked boolean := false;
+begin
+  begin
+    insert into public.gateway_request_nonces (
+      workspace_id, agent_id, nonce, request_timestamp, expires_at
+    ) values (
+      'a0000000-0000-4000-8000-000000000001',
+      'a1000000-0000-4000-8000-000000000001',
+      'signed_nonce_1234567890',
+      now(),
+      now() + interval '5 minutes'
+    );
+  exception when unique_violation then
+    replay_blocked := true;
+  end;
+  if not replay_blocked then raise exception 'signed gateway nonce replay was accepted'; end if;
+end
+$$;
 
 do $$
 begin
@@ -226,6 +266,18 @@ end
 $$;
 
 reset role;
+
+do $$
+begin
+  if exists (
+    select 1 from public.gateway_request_nonces
+    where nonce = 'expired_nonce_123456789'
+  ) then
+    raise exception 'expired gateway nonce was not pruned';
+  end if;
+end
+$$;
+
 rollback;
 
 select 'workspace isolation passed' as result;

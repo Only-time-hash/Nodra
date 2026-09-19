@@ -20,6 +20,8 @@ Agent -> Nodra runtime gateway -> deterministic policy decision -> tool adapter
 
 Every consequential request creates an observable event. The gateway is the enforcement point; an LLM may help classify or explain risk later, but it does not override hard policy.
 
+Runtime events are signed over the exact body, timestamp and nonce with a key derived for the workspace and database agent identity. The recorder rejects missing, altered, expired, cross-agent and replayed requests before creating resources, incidents or evidence. The master derivation secret remains server-only.
+
 ## Core domains
 
 - **Core:** agents, tools, credentials, resources, events, incidents and actions.

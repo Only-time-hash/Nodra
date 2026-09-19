@@ -296,6 +296,48 @@ export type Database = {
           },
         ]
       }
+      gateway_request_nonces: {
+        Row: {
+          agent_id: string
+          created_at: string
+          expires_at: string
+          nonce: string
+          request_timestamp: string
+          workspace_id: string
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          expires_at: string
+          nonce: string
+          request_timestamp: string
+          workspace_id: string
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          expires_at?: string
+          nonce?: string
+          request_timestamp?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gateway_request_nonce_agent_workspace_fkey"
+            columns: ["workspace_id", "agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["workspace_id", "id"]
+          },
+          {
+            foreignKeyName: "gateway_request_nonces_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       incident_affected_entities: {
         Row: {
           entity_ref: string

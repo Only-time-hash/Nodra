@@ -31,10 +31,28 @@ export async function POST(request: Request) {
   // origin to resolve against. Resolve the recorder endpoint from the incoming request
   // and forward only the authenticated session cookie to the same-origin recorder route.
   const recorderEndpoint = new URL("/api/gateway/events", request.url).toString();
+  const signingSecret = process.env.NODRA_GATEWAY_SIGNING_SECRET;
+  if (!signingSecret) {
+    return NextResponse.json({ error: "gateway_signing_not_configured" }, { status: 503 });
+  }
+  const { data: signingAgent } = await ctx.supabase
+    .from("agents")
+    .select("id")
+    .eq("workspace_id", ctx.workspaceId)
+    .eq("external_id", "research")
+    .maybeSingle();
+  if (!signingAgent?.id) {
+    return NextResponse.json({ error: "gateway_agent_linkage_failed" }, { status: 409 });
+  }
   const agent = createProtectedResearchAgent(
     createFlightRecorderObserver({
       endpoint: recorderEndpoint,
       cookie: request.headers.get("cookie"),
+      signingIdentity: {
+        workspaceId: ctx.workspaceId,
+        agentId: signingAgent.id,
+        masterSecret: signingSecret,
+      },
     }),
     resolveAgentState,
   );

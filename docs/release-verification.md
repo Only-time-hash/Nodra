@@ -9,6 +9,7 @@ A release is not considered verified until every required check below has eviden
 - [x] Next.js production build passes.
 - [x] Five-agent selective containment acceptance test passes.
 - [x] Recovery refuses restart without every system check and human approval.
+- [x] Gateway signatures reject body tampering, cross-agent identity use and expired requests.
 
 ## Database security
 - [x] Two distinct authenticated identities cannot cross workspace boundaries.
@@ -17,6 +18,7 @@ A release is not considered verified until every required check below has eviden
 - [x] Direct authenticated remediation-evidence insert denied.
 - [x] Direct authenticated remediation-action update denied.
 - [x] Cross-incident remediation evidence is rejected by the transactional database security suite.
+- [x] Signed gateway nonces are single-use and reject database-level replay.
 - [x] Security Advisor reviewed; any remaining warning is documented and intentional.
 
 ## Production

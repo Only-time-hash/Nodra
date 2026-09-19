@@ -11,5 +11,7 @@ These are properties the implementation must preserve. They are stronger than UI
 7. **Human approval remains consequential:** the V0.1 safe-restart assessment requires explicit human approval after technical checks.
 8. **Observable evidence only:** Nodra records actions, requests, policy decisions, resource access and causal metadata; it does not claim to capture private model chain-of-thought.
 9. **Sandbox attack testing:** deliberate compromise scenarios are limited to owned/authorized test environments.
+10. **Runtime identity is cryptographic:** a dashboard session alone cannot impersonate an agent; gateway evidence requires a fresh signature derived for the exact workspace and agent.
+11. **Gateway requests are single-use:** signed request nonces are consumed atomically, so a captured valid event cannot be replayed.
 
 Any change that violates an invariant should fail review even if the interface still appears to work.

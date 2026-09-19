@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getWorkspaceContext } from "../../../../lib/persistence";
+import { GATEWAY_SIGNATURE_MAX_AGE_SECONDS, verifyGatewayRequest } from "../../../../lib/gateway-signing";
 
 const decisions = new Set(["allow", "deny", "require-approval"]);
 
@@ -7,7 +8,17 @@ export async function POST(request: Request) {
   const ctx = await getWorkspaceContext();
   if (!ctx) return NextResponse.json({ error: "authentication_or_workspace_required" }, { status: 401 });
 
-  const body = await request.json().catch(() => null);
+  const declaredLength = Number(request.headers.get("content-length") ?? "0");
+  if (declaredLength > 65_536) {
+    return NextResponse.json({ error: "gateway_event_too_large" }, { status: 413 });
+  }
+  const rawBody = await request.text();
+  if (Buffer.byteLength(rawBody, "utf8") > 65_536) {
+    return NextResponse.json({ error: "gateway_event_too_large" }, { status: 413 });
+  }
+  const body = (() => {
+    try { return JSON.parse(rawBody); } catch { return null; }
+  })();
   if (!body?.id || !body?.agentId || !body?.resourceId || !body?.action || !decisions.has(body?.decision)) {
     return NextResponse.json({ error: "invalid_gateway_event" }, { status: 400 });
   }
@@ -28,6 +39,50 @@ export async function POST(request: Request) {
       externalId: body.agentId,
     });
     return NextResponse.json({ error: "gateway_agent_linkage_failed" }, { status: 409 });
+  }
+
+  const signingSecret = process.env.NODRA_GATEWAY_SIGNING_SECRET;
+  if (!signingSecret) {
+    console.error("[Nodra] gateway signing secret is not configured");
+    return NextResponse.json({ error: "gateway_signing_not_configured" }, { status: 503 });
+  }
+  let verified;
+  try {
+    verified = verifyGatewayRequest(rawBody, {
+      timestamp: request.headers.get("x-nodra-timestamp"),
+      nonce: request.headers.get("x-nodra-nonce"),
+      signature: request.headers.get("x-nodra-signature"),
+    }, {
+      workspaceId: ctx.workspaceId,
+      agentId: agent.id,
+      masterSecret: signingSecret,
+    });
+  } catch (error) {
+    console.error("[Nodra] gateway signature configuration failed", {
+      message: error instanceof Error ? error.message : "unknown_error",
+    });
+    return NextResponse.json({ error: "gateway_signing_not_configured" }, { status: 503 });
+  }
+  if (!verified.valid) {
+    return NextResponse.json({ error: verified.reason }, { status: 401 });
+  }
+
+  const { error: nonceError } = await ctx.supabase.from("gateway_request_nonces").insert({
+    workspace_id: ctx.workspaceId,
+    agent_id: agent.id,
+    nonce: verified.nonce,
+    request_timestamp: new Date(verified.timestamp * 1000).toISOString(),
+    expires_at: new Date((verified.timestamp + GATEWAY_SIGNATURE_MAX_AGE_SECONDS) * 1000).toISOString(),
+  });
+  if (nonceError) {
+    if (nonceError.code === "23505") {
+      return NextResponse.json({ error: "gateway_request_replayed" }, { status: 409 });
+    }
+    console.error("[Nodra] gateway nonce persistence failed", {
+      code: nonceError.code ?? null,
+      message: nonceError.message ?? "unknown_error",
+    });
+    return NextResponse.json({ error: "gateway_replay_protection_unavailable" }, { status: 503 });
   }
 
   let { data: resource } = await ctx.supabase
@@ -129,7 +184,7 @@ export async function POST(request: Request) {
     p_event_type: "gateway-tool-request",
     p_action: body.action,
     p_resource_id: resource?.id ?? null,
-    p_decision: body.decision,
+    p_decision: body.decision === "require-approval" ? "require_approval" : body.decision,
     p_caused_by_event_id: body.causedByEventId ?? null,
     p_payload: {
       gatewayRequestId: body.id,
