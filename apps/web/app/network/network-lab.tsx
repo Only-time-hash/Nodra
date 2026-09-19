@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 
@@ -15,6 +15,9 @@ type Agent = {
   tools: string[];
   permissions: string[];
 };
+type Phase = "ready" | "incident" | "contained" | "recovering" | "resolved";
+type Integrity = {valid:boolean;checkedEvents:number;firstBadSequence:number|null;reason:string|null};
+type ConnectionState = "connecting" | "live" | "offline";
 
 const initialAgents: Agent[] = [
   { id: "manager", name: "Manager", role: "Orchestrator", status: "healthy", x: 50, y: 15, tools: ["Delegation", "Task Queue"], permissions: ["delegate:task", "read:status"] },
@@ -33,43 +36,83 @@ const baseEvents = [
 export function NetworkLab() {
   const [agents, setAgents] = useState(initialAgents);
   const [selectedId, setSelectedId] = useState("manager");
-  const [phase, setPhase] = useState<"ready" | "incident" | "contained" | "recovering" | "resolved">("ready");
+  const [phase, setPhase] = useState<Phase>("ready");
   const [events, setEvents] = useState(baseEvents);
   const [incidentId, setIncidentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [recovery, setRecovery] = useState<any>(null);
-  const [integrity, setIntegrity] = useState<{valid:boolean;checkedEvents:number;firstBadSequence:number|null;reason:string|null}|null>(null);
+  const [integrity, setIntegrity] = useState<Integrity|null>(null);
   const [causalEdges, setCausalEdges] = useState<Array<{from:string;to:string;relation:string}>>([]);
   const [forensicTimeline, setForensicTimeline] = useState<any[]>([]);
   const [remediating, setRemediating] = useState<string | null>(null);
+  const [connection, setConnection] = useState<ConnectionState>("connecting");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const selected = useMemo(() => agents.find((agent) => agent.id === selectedId) ?? agents[0], [agents, selectedId]);
   const affected = agents.filter((agent) => agent.status !== "healthy").length;
   const selectedEdges = causalEdges.filter((edge)=>edge.from===selectedId||edge.to===selectedId);
+  const hasOpenIncident = Boolean(incidentId && phase !== "resolved");
+  const integrityState = !integrity ? "checking" : integrity.valid ? "verified" : "failed";
+  const postureHealthy = affected === 0 && integrity?.valid === true && connection === "live";
+  const postureScore = Math.max(0, 100 - affected * 20 - (integrity?.valid === false ? 25 : 0) - (connection === "offline" ? 25 : 0));
 
-  useEffect(() => {
-    fetch("/api/laboratory/state").then(async (res) => {
-      if (!res.ok) return;
+  const loadState = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+    try {
+      const res = await fetch("/api/laboratory/state", { cache: "no-store" });
+      if (!res.ok) throw new Error(`State refresh failed (${res.status})`);
       const state = await res.json();
       if (state.agents?.length) setAgents((current) => current.map((agent) => { const saved=state.agents.find((a:any)=>a.external_id===agent.id); return saved ? {...agent,status:saved.status === "at_risk" ? "at-risk" : saved.status} : agent; }));
-      if (state.integrity) setIntegrity(state.integrity);
-      if (state.causalEdges) setCausalEdges(state.causalEdges.map((edge:any)=>({from:edge.from?.external_id,to:edge.to?.external_id,relation:edge.relation})).filter((edge:any)=>edge.from&&edge.to));
-      if (state.forensicTimeline) setForensicTimeline(state.forensicTimeline);
-      if (state.incident) { setIncidentId(state.incident.id); setPhase(state.incident.state === "resolved" ? "resolved" : state.incident.state === "recovering" ? "recovering" : state.incident.state === "contained" ? "contained" : "incident"); setRecovery(state.recovery ?? null); }
-      if (state.events?.length) setEvents([...baseEvents,...state.events.map((e:any)=>({time:new Date(e.occurred_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),kind:e.decision==="deny"?"blocked":"system",text:`${e.event_type}${e.action ? ` · ${e.action}` : ""}${e.payload?.reason ? ` — ${e.payload.reason}` : ""}`}))]);
-    }).finally(()=>setLoading(false));
+      setIntegrity(state.integrity ?? null);
+      setCausalEdges((state.causalEdges??[]).map((edge:any)=>({from:edge.from?.external_id,to:edge.to?.external_id,relation:edge.relation})).filter((edge:any)=>edge.from&&edge.to));
+      setForensicTimeline(state.forensicTimeline ?? []);
+      if (state.incident) {
+        setIncidentId(state.incident.id);
+        setPhase(state.incident.state === "resolved" ? "resolved" : state.incident.state === "recovering" ? "recovering" : state.incident.state === "contained" ? "contained" : "incident");
+        setRecovery(state.recovery ?? null);
+      } else {
+        setIncidentId(null);
+        setPhase("ready");
+        setRecovery(null);
+      }
+      setEvents(state.events?.length ? [...baseEvents,...state.events.map((e:any)=>({time:new Date(e.occurred_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),kind:e.decision==="deny"?"blocked":"system",text:`${e.event_type}${e.action ? ` · ${e.action}` : ""}${e.payload?.reason ? ` — ${e.payload.reason}` : ""}`}))] : baseEvents);
+      setConnection("live");
+      setErrorMessage(null);
+    } catch (error) {
+      setConnection("offline");
+      setErrorMessage(error instanceof Error ? error.message : "Nodra could not refresh security state.");
+    } finally {
+      if (showLoading) setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadState(true);
+    const timer = window.setInterval(() => void loadState(false), 10000);
+    const refreshOnFocus = () => void loadState(false);
+    window.addEventListener("focus", refreshOnFocus);
+    return () => { window.clearInterval(timer); window.removeEventListener("focus", refreshOnFocus); };
+  }, [loadState]);
+
+  async function requireSuccess(response: Response, fallback: string) {
+    if (response.ok) return;
+    const body = await response.json().catch(() => null);
+    const message = body?.error ? `${fallback}: ${body.error}` : `${fallback} (${response.status})`;
+    setErrorMessage(message);
+    throw new Error(message);
+  }
 
   async function runIncident() {
     if (phase !== "ready") return;
-const response = await fetch("/api/laboratory/incident",{method:"POST"});
-    if (!response.ok) return;
+    setErrorMessage(null);
+    const response = await fetch("/api/laboratory/incident",{method:"POST"});
+    await requireSuccess(response, "Incident creation failed");
     const result = await response.json();
     setIncidentId(result.incidentId);
     setPhase("incident");
     setAgents((current) => current.map((agent) => result.affectedAgentIds.includes(agent.id) ? { ...agent, status: "at-risk" } : agent));
     setSelectedId("research");
-    const refreshed=await fetch("/api/laboratory/state"); if(refreshed.ok){const state=await refreshed.json(); setCausalEdges((state.causalEdges??[]).map((edge:any)=>({from:edge.from?.external_id,to:edge.to?.external_id,relation:edge.relation})).filter((edge:any)=>edge.from&&edge.to)); setForensicTimeline(state.forensicTimeline??[]);}
+    await loadState(false);
     setEvents((current) => [
       ...current,
       { time: "00:08", kind: "risk", text: "Research consumed untrusted sandbox content." },
@@ -83,7 +126,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
     if (phase !== "incident") return;
     if (!incidentId) return;
     const response = await fetch("/api/laboratory/contain",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId})});
-    if (!response.ok) return;
+    await requireSuccess(response, "Containment failed");
     const result = await response.json();
     const statuses = new Map<string, Status>(result.targets.map((target: { id: string; status: Status }) => [target.id, target.status]));
     setPhase("contained");
@@ -94,28 +137,29 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
       { time: "00:12", kind: "contain", text: "Affected branch severed. Unaffected agents remain available." },
       { time: "00:13", kind: "recovery", text: "Recovery review prepared for Research state and sandbox notes." },
     ]);
+    await loadState(false);
   }
 
   async function beginRecovery() {
     if (!incidentId) return;
     const res=await fetch("/api/laboratory/recovery",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId})});
-    if(!res.ok) return; const data=await res.json(); setRecovery(data); setPhase("recovering");
+    await requireSuccess(res, "Recovery preparation failed"); const data=await res.json(); setRecovery(data); setPhase("recovering"); await loadState(false);
   }
 
   async function runRemediation(actionType:string,target:string) {
     if(!incidentId||remediating) return; setRemediating(actionType);
-    try { const res=await fetch("/api/laboratory/remediate",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId,actionType,target})}); if(!res.ok) return; const data=await res.json(); setRecovery((r:any)=>({...r,restart_checks:data.restartChecks,restartChecks:data.restartChecks,safe_to_restart:data.safeToRestart})); const stateRes=await fetch("/api/laboratory/state"); if(stateRes.ok){const state=await stateRes.json(); setForensicTimeline(state.forensicTimeline??[]);} } finally { setRemediating(null); }
+    try { const res=await fetch("/api/laboratory/remediate",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId,actionType,target})}); await requireSuccess(res, "Remediation failed"); const data=await res.json(); setRecovery((r:any)=>({...r,restart_checks:data.restartChecks,restartChecks:data.restartChecks,safe_to_restart:data.safeToRestart})); await loadState(false); } catch(error) { setErrorMessage(error instanceof Error ? error.message : "Remediation failed."); } finally { setRemediating(null); }
   }
 
   async function updateRestartCheck(key:string,value:boolean) {
     if(!incidentId) return;
     const res=await fetch("/api/laboratory/restart",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({incidentId,checks:{[key]:value}})});
-    if(!res.ok) return; const data=await res.json(); setRecovery((r:any)=>({...r,restart_checks:data.restartChecks,safe_to_restart:data.safeToRestart})); if(data.safeToRestart) setPhase("resolved");
+    await requireSuccess(res, "Restart assessment failed"); const data=await res.json(); setRecovery((r:any)=>({...r,restart_checks:data.restartChecks,safe_to_restart:data.safeToRestart})); if(data.safeToRestart) setPhase("resolved"); await loadState(false);
   }
 
   async function resetLab() {
     const res=await fetch("/api/laboratory/reset",{method:"POST"});
-    if(!res.ok) return;
+    await requireSuccess(res, "Laboratory reset failed");
     setAgents(initialAgents);
     setSelectedId("manager");
     setPhase("ready");
@@ -149,7 +193,8 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
       </aside>
 
       <section className="labMain">
-        <div className="commandTopbar"><label className="commandSearch"><span>⌕</span><input aria-label="Search Nodra" placeholder="Search agents, incidents, events..." /></label><div className="topbarStatus"><span className="liveIndicator"><i/> LIVE</span><span>V0.1</span></div></div>
+        <div className="commandTopbar"><label className="commandSearch"><span>⌕</span><input aria-label="Search Nodra" placeholder="Search agents, incidents, events..." /></label><div className="topbarStatus"><span className={"liveIndicator "+connection}><i/> {connection === "live" ? "LIVE" : connection === "connecting" ? "CONNECTING" : "OFFLINE"}</span><span>V0.1</span></div></div>
+        {errorMessage ? <div className="dashboardError" role="alert"><span>{errorMessage}</span><button type="button" onClick={()=>void loadState(true)}>Retry</button></div> : null}
         <header className="labHeader">
           <div id="dashboard"><p>NODRA / SECURITY OVERVIEW</p><h1>Your Agentic AI, <span className="accentText">Protected.</span></h1><p className="dashboardSub">Prevent threats. Contain risks. Preserve trusted autonomy.</p></div>
           <div className="headerActions">
@@ -160,16 +205,16 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
 
         <section className="shieldStats" aria-label="Nodra security overview">
           <article><span className="statIcon healthy">◆</span><div><strong>{agents.filter(a=>a.status==="healthy").length}</strong><p>Agents Online</p><small>{agents.length} agents registered</small></div></article>
-          <article><span className="statIcon danger">△</span><div><strong>{incidentId ? 1 : 0}</strong><p>Open Incidents</p><small>{phase === "ready" || phase === "resolved" ? "No active incident" : phase}</small></div></article>
+          <article><span className="statIcon danger">△</span><div><strong>{hasOpenIncident ? 1 : 0}</strong><p>Open Incidents</p><small>{hasOpenIncident ? phase : "No active incident"}</small></div></article>
           <article><span className="statIcon protectedIcon">⬡</span><div><strong>{agents.reduce((n,a)=>n+a.tools.length,0)}</strong><p>Protected Resources</p><small>Tools and runtime surfaces</small></div></article>
           <article><span className="statIcon events">◷</span><div><strong>{Math.max(events.length-baseEvents.length,0)}</strong><p>Security Events</p><small>Flight Recorder evidence</small></div></article>
-          <article><span className="statIcon healthy">✓</span><div><strong>{integrity && integrity.valid ? "100%" : "—"}</strong><p>Evidence Integrity</p><small>{integrity && integrity.valid ? "Hash chain verified" : "Awaiting verification"}</small></div></article>
+          <article><span className={"statIcon "+(integrityState === "verified" ? "healthy" : integrityState === "failed" ? "danger" : "events")}>{integrityState === "verified" ? "✓" : integrityState === "failed" ? "!" : "…"}</span><div><strong>{integrityState === "verified" ? "100%" : integrityState === "failed" ? "FAILED" : "—"}</strong><p>Evidence Integrity</p><small>{integrityState === "verified" ? "Hash chain verified" : integrityState === "failed" ? integrity?.reason ?? "Verification failed" : "Verification in progress"}</small></div></article>
         </section>
 
         <section className="commandGrid">
           <article className="commandCard postureCard">
-            <div className="commandTitle"><div><strong>Security Posture</strong><small>Live protection state</small></div><span className={affected===0 ? "postureGood" : "postureRisk"}>{affected===0 ? "Protected" : "Attention"}</span></div>
-            <div className="postureBody"><div className={"postureRing "+(affected===0?"good":"risk")}><strong>{affected===0 ? "100" : Math.max(0,100-affected*20)}</strong><span>/100</span></div><div className="postureChecks"><p><i /> Runtime policy gateway active</p><p><i /> Flight Recorder enabled</p><p><i /> Evidence chain {integrity?.valid ? "verified" : "monitoring"}</p><p><i /> Containment controls ready</p></div></div>
+            <div className="commandTitle"><div><strong>Security Posture</strong><small>Verified protection state</small></div><span className={postureHealthy ? "postureGood" : "postureRisk"}>{postureHealthy ? "Protected" : "Attention"}</span></div>
+            <div className="postureBody"><div className={"postureRing "+(postureHealthy?"good":"risk")}><strong>{postureScore}</strong><span>/100</span></div><div className="postureChecks"><p><i /> Runtime connection {connection}</p><p><i /> Flight Recorder {connection === "live" ? "reachable" : "unavailable"}</p><p><i /> Evidence chain {integrityState}</p><p><i /> Containment state {phase}</p></div></div>
           </article>
           <article className="commandCard containmentCard" id="containment">
             <div className="commandTitle"><div><strong>Containment Status</strong><small>Blast-radius control</small></div><span className={"containmentBadge "+phase}>{phase === "ready" || phase === "resolved" ? "Standby" : phase}</span></div>
@@ -224,9 +269,9 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
 
         <section className="controlStrip">
           <article id="credentials"><div><span className="controlIcon">▱</span><p><strong>Credentials</strong><small>Scoped runtime authority</small></p></div><b className={affected ? "warnText" : "okText"}>{affected ? "Review" : "Protected"}</b></article>
-          <article id="policies"><div><span className="controlIcon">◇</span><p><strong>Policy Gateway</strong><small>Deterministic enforcement</small></p></div><b className="okText">Active</b></article>
-          <article id="reports"><div><span className="controlIcon">▥</span><p><strong>Evidence</strong><small>Tamper-evident event chain</small></p></div><b className={integrity?.valid ? "okText" : "neutralText"}>{integrity?.valid ? "Verified" : "Recording"}</b></article>
-          <article id="settings"><div><span className="controlIcon">⚙</span><p><strong>Runtime</strong><small>Five-agent protected environment</small></p></div><b className="okText">Online</b></article>
+          <article id="policy-status"><div><span className="controlIcon">◇</span><p><strong>Policy Gateway</strong><small>Deterministic enforcement</small></p></div><b className={connection === "live" ? "okText" : "warnText"}>{connection === "live" ? "Reachable" : "Unavailable"}</b></article>
+          <article id="reports"><div><span className="controlIcon">▥</span><p><strong>Evidence</strong><small>Tamper-evident event chain</small></p></div><b className={integrityState === "verified" ? "okText" : integrityState === "failed" ? "warnText" : "neutralText"}>{integrityState}</b></article>
+          <article id="settings"><div><span className="controlIcon">⚙</span><p><strong>Runtime</strong><small>Five-agent protected environment</small></p></div><b className={connection === "live" ? "okText" : "warnText"}>{connection}</b></article>
         </section>
 
         <section className="dashboardLower">
@@ -248,7 +293,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
           </div>
         </section> : null}
 
-        {incidentId ? <section className="activityPanel" id="investigation"><div className="activityHead"><div><strong>Incident Investigation</strong><span>Persisted forensic timeline · observable evidence only</span></div><div className="investigationMeta"><span className="incidentRef">{incidentId.slice(0,8)}</span><span className={"recording "+phase}>{phase.toUpperCase()}</span></div></div><div className="events"><div className="incidentFacts"><span><small>ORIGIN</small><strong>Research</strong></span><span><small>AFFECTED</small><strong>{affected}</strong></span><span><small>EVIDENCE</small><strong>{forensicTimeline.length}</strong></span><span><small>CHAIN</small><strong>{integrity?.valid ? "Verified" : "Checking"}</strong></span></div><div className="event"><span className="eventKind trace">origin</span><p><strong>Research</strong> is the recorded incident origin.</p></div>{forensicTimeline.map((item:any,index)=><div className="event" key={item.id ?? `forensic-${index}`}><span className={`eventKind ${item.kind==="containment"?"contain":item.label==="policy-decision"?"blocked":"trace"}`}>{item.kind}</span><p><strong>{item.label}</strong>{item.target ? ` · target ${item.target}` : ""} — {item.detail}<small>{item.at ? new Date(item.at).toLocaleString() : ""}{item.sequence ? ` · sequence ${item.sequence}` : ""}{item.hash ? ` · hash ${String(item.hash).slice(0,12)}…` : ""}</small></p></div>)}<div className="event"><span className={"eventKind "+(integrity?.valid?"system":"risk")}>evidence</span><p>{integrity?.valid ? `Hash chain verified across ${integrity.checkedEvents} recorded events.` : "Evidence integrity requires verification."}</p></div><div className="event"><span className="eventKind contain">state</span><p>Incident state: <strong>{phase}</strong>. Affected agents: <strong>{affected}</strong>.</p></div></div></section> : null}
+        {incidentId ? <section className="activityPanel" id="investigation"><div className="activityHead"><div><strong>Incident Investigation</strong><span>Persisted forensic timeline · observable evidence only</span></div><div className="investigationMeta"><span className="incidentRef">{incidentId.slice(0,8)}</span><span className={"recording "+phase}>{phase.toUpperCase()}</span></div></div><div className="events"><div className="incidentFacts"><span><small>ORIGIN</small><strong>Research</strong></span><span><small>AFFECTED</small><strong>{affected}</strong></span><span><small>EVIDENCE</small><strong>{forensicTimeline.length}</strong></span><span><small>CHAIN</small><strong>{integrityState}</strong></span></div><div className="event"><span className="eventKind trace">origin</span><p><strong>Research</strong> is the recorded incident origin.</p></div>{forensicTimeline.map((item:any,index)=><div className="event" key={item.id ?? `forensic-${index}`}><span className={`eventKind ${item.kind==="containment"?"contain":item.label==="policy-decision"?"blocked":"trace"}`}>{item.kind}</span><p><strong>{item.label}</strong>{item.target ? ` · target ${item.target}` : ""} — {item.detail}<small>{item.at ? new Date(item.at).toLocaleString() : ""}{item.sequence ? ` · sequence ${item.sequence}` : ""}{item.hash ? ` · hash ${String(item.hash).slice(0,12)}…` : ""}</small></p></div>)}<div className="event"><span className={"eventKind "+(integrity?.valid?"system":"risk")}>evidence</span><p>{integrity?.valid ? `Hash chain verified across ${integrity.checkedEvents} recorded events.` : integrity ? `Evidence verification failed${integrity.reason ? `: ${integrity.reason}` : "."}` : "Evidence verification is in progress."}</p></div><div className="event"><span className="eventKind contain">state</span><p>Incident state: <strong>{phase}</strong>. Affected agents: <strong>{affected}</strong>.</p></div></div></section> : null}
 
         <section className="activityPanel" id="activity">
           <div className="activityHead"><div><strong>Flight recorder</strong><span>Observable laboratory events</span></div><span className="recording"><i /> RECORDING</span></div>
