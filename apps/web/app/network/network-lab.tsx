@@ -75,7 +75,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
       { time: "00:08", kind: "risk", text: "Research consumed untrusted sandbox content." },
       { time: "00:09", kind: "risk", text: "Research attempted an action outside its explicit authority." },
       { time: "00:09", kind: "blocked", text: `Policy gateway decision: ${result.attemptedAction.decision}. ${result.attemptedAction.reason}` },
-      { time: "00:10", kind: "trace", text: "Causal path traced: Research → Manager → Finance." },
+      { time: "00:10", kind: "trace", text: "Causal paths traced: Research → Manager → Finance and Data. Support remains outside the affected branch." },
     ]);
   }
 
@@ -179,7 +179,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
               <div className="canvasHint">Select an agent to inspect its authority, tools, and state.</div>
             </div>
             <div className="incidentBar" id="incidents">
-              <div><span className="shield">◇</span><p><strong>{phase === "ready" ? "Controlled incident scenario ready" : phase === "incident" ? "Potential propagation detected" : "Affected branch isolated"}</strong><small>{phase === "ready" ? "Simulate untrusted content reaching the Research agent." : phase === "incident" ? "Nodra traced the observable causal path and blocked an unauthorized action." : "Research is quarantined. Manager, Finance, Support and Data remain available."}</small></p></div>
+              <div><span className="shield">◇</span><p><strong>{phase === "ready" ? "Controlled incident scenario ready" : phase === "incident" ? "Potential propagation detected" : "Affected branch isolated"}</strong><small>{phase === "ready" ? "Simulate untrusted content reaching the Research agent." : phase === "incident" ? "Nodra traced the observable causal path and blocked an unauthorized action." : "Research is quarantined. Manager, Finance and Data have restricted authority; Support remains healthy and available."}</small></p></div>
               {phase === "ready" ? <button className="runBtn" onClick={runIncident} disabled={loading}>{loading ? "Loading state…" : "Run controlled incident"}</button> : phase === "incident" ? <button className="containBtn" onClick={containIncident}>Contain incident</button> : phase === "contained" ? <button className="runBtn" onClick={beginRecovery}>Prepare recovery</button> : phase === "resolved" ? <button className="runBtn" onClick={resetLab}>Run again</button> : null}
             </div>
           </section>
