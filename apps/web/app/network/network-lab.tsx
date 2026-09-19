@@ -220,6 +220,17 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
           </aside>
         </div>
 
+        <section className="dashboardLower">
+          <article className="activityPanel dashboardEvents">
+            <div className="activityHead"><div><strong>Recent Security Events</strong><span>Latest observable activity from the Flight Recorder</span></div><a href="#activity">View activity</a></div>
+            <div className="compactEvents">{events.slice(-4).reverse().map((event,index)=><div className="compactEvent" key={index}><span className={"eventDot "+event.kind} /><div><strong>{event.kind}</strong><p>{event.text}</p></div><time>{event.time}</time></div>)}</div>
+          </article>
+          <article className="activityPanel dashboardIncidents">
+            <div className="activityHead"><div><strong>Open Incidents</strong><span>Current response state</span></div><a href="#incidents">Investigate</a></div>
+            <div className="incidentSummary">{incidentId && phase!=="resolved" ? <><div className="incidentSeverity"><span>HIGH</span><strong>{phase==="incident" ? "Propagation risk detected" : phase==="contained" ? "Affected branch contained" : "Recovery in progress"}</strong></div><p>Origin: <b>Research</b></p><p>Affected agents: <b>{affected}</b></p><p>Incident: <code>{incidentId.slice(0,8)}…</code></p></> : <div className="emptyIncident"><span>✓</span><strong>No open incidents</strong><p>Nodra is monitoring the agent network.</p></div>}</div>
+          </article>
+        </section>
+
         {phase === "recovering" && recovery ? <section className="activityPanel" id="recovery">
           <div className="activityHead"><div><strong>Safe restart assessment</strong><span>Recovery is separate from containment</span></div><span className="recording">HUMAN GATED</span></div>
           <div className="events">
