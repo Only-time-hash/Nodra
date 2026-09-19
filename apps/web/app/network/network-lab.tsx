@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 
-type Status = "healthy" | "at-risk" | "quarantined";
+type Status = "healthy" | "at-risk" | "restricted" | "quarantined";
 type Agent = {
   id: string;
   name: string;
@@ -189,7 +189,7 @@ const response = await fetch("/api/laboratory/incident",{method:"POST"});
             <div className="identity"><span className="bigIcon">{selected.name[0]}</span><div><h2>{selected.name}</h2><p>{selected.role}</p></div></div>
             <div className="inspectSection"><p className="label">TOOLS</p>{selected.tools.map((tool) => <div className="row" key={tool}><span>{tool}</span><b>connected</b></div>)}</div>
             <div className="inspectSection" id="policies"><p className="label">EXPLICIT PERMISSIONS</p>{selected.permissions.map((permission) => <code key={permission}>{permission}</code>)}</div>
-            <div className="inspectSection"><p className="label">AUTHORITY</p><div className="authority"><span>Delegated by</span><strong>{selected.id === "manager" ? "Human" : "Manager"}</strong></div></div>
+            <div className="inspectSection"><p className="label">AUTHORITY</p><div className="authority"><span>Delegated by</span><strong>{selected.id === "manager" ? "Human" : "Manager"}</strong></div><div className="authority"><span>Execution state</span><strong>{selected.status === "healthy" ? "Normal" : selected.status === "quarantined" ? "Blocked" : "Restricted"}</strong></div><div className="authority"><span>Blast-radius membership</span><strong>{selected.status === "healthy" ? "Outside affected branch" : "Affected"}</strong></div></div>
             <div className="inspectSection"><p className="label">CAUSAL RELATIONSHIPS</p>{selectedEdges.length ? selectedEdges.map((edge,index)=><div className="row" key={edge.from+"-"+edge.to+"-"+index}><span>{edge.from} → {edge.to}</span><b>{edge.relation}</b></div>) : <div className="row"><span>No persisted incident edge</span><b>clean</b></div>}</div>
             {selected.status === "quarantined" ? <div className="quarantineNote"><strong>Quarantine active</strong><p>New tool actions and delegated authority are blocked pending recovery review.</p></div> : null}
           </aside>
