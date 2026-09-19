@@ -18,7 +18,8 @@ export async function POST(request:Request) {
   const affected:any[]=[];
   for(const e of events??[]){
     if(e.event_type==="untrusted-content") affected.push({id:e.id,agentId:e.agent_id,kind:"memory-write",target:"research-state",reversibility:"human-review"});
-    if(e.event_type==="policy-decision"&&e.payload?.resource) affected.push({id:e.id,agentId:e.agent_id,kind:"credential-use",target:String(e.payload.resource),reversibility:"human-review"});
+    const payloadResource=e.payload && typeof e.payload === "object" && !Array.isArray(e.payload) ? e.payload.resource : undefined;
+    if(e.event_type==="policy-decision"&&payloadResource) affected.push({id:e.id,agentId:e.agent_id,kind:"credential-use",target:String(payloadResource),reversibility:"human-review"});
   }
   for(const a of actions??[]) if(a.action_type==="restrict_authority") affected.push({id:a.id,agentId:a.target_ref,kind:"scheduled-job",target:`${a.target_ref} delegated work`,reversibility:"human-review"});
   const plan=buildRecoveryPlan(incidentId,affected);

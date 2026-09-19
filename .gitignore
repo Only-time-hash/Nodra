@@ -7,7 +7,9 @@ coverage/
 .env.*
 !.env.example
 *.log
+*.tsbuildinfo
 .DS_Store
 .vercel/
+supabase/.temp/
 .idea/
 .vscode/

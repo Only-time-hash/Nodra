@@ -23,9 +23,12 @@ export async function POST() {
   ];
   const ids:string[]=[];
   for(const rec of records){
+    const decision: "allow" | "deny" | "require_approval" = rec.decision === "require-approval"
+      ? "require_approval"
+      : rec.decision === "deny" ? "deny" : "allow";
     const {data:e,error:eerr}=await ctx.supabase.rpc("append_security_event",{
       p_workspace_id:ctx.workspaceId,p_incident_id:incident.id,p_agent_id:rec.agent_id,p_event_type:rec.event_type,
-      p_action:rec.action,p_decision:rec.decision,p_payload:rec.payload
+      p_action:rec.action,p_decision:decision,p_payload:rec.payload
     });
     if(eerr||!e) {
       console.error("[Nodra] append_security_event failed", {

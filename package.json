@@ -1,5 +1,5 @@
 {
   "name":"nodra","private":true,"version":"0.1.0",
-  "scripts":{"dev":"npm --workspace apps/web run dev","build":"npm --workspace apps/web run build","start":"npm --workspace apps/web run start","typecheck":"npm --workspace apps/web run typecheck","test":"node --experimental-strip-types --test packages/*/src/*.test.ts apps/web/lib/*.test.ts"},
+  "scripts":{"dev":"npm --workspace apps/web run dev","build":"npm --workspace apps/web run build","start":"npm --workspace apps/web run start","typecheck":"npm --workspace apps/web run typecheck","test":"node --experimental-strip-types --test packages/*/src/*.test.ts apps/web/lib/*.test.ts","verify:migrations":"node scripts/verify-migrations.mjs"},
   "workspaces":["apps/*","packages/*"]
 }

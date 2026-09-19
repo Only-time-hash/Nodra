@@ -21,8 +21,10 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     if (error || !data?.status) return "quarantined" as const; // fail closed if containment state cannot be established
-    if (data.status === "quarantined" || data.status === "restricted" || data.status === "at-risk") return data.status;
-    return "healthy" as const;
+    if (data.status === "quarantined") return "quarantined" as const;
+    if (data.status === "at_risk") return "at-risk" as const;
+    if (data.status === "healthy") return "healthy" as const;
+    return "quarantined" as const; // paused/offline agents must not execute tools
   };
 
   // This route runs on the server, where a root-relative fetch target has no browser

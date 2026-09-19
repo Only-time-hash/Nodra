@@ -10,7 +10,9 @@ export async function POST(request:Request){
   if(!body?.incidentId) return NextResponse.json({error:"incidentId_required"},{status:400});
   const {data:plan}=await ctx.supabase.from("recovery_plans").select("id,restart_checks").eq("incident_id",body.incidentId).eq("workspace_id",ctx.workspaceId).maybeSingle();
   if(!plan) return NextResponse.json({error:"recovery_plan_not_found"},{status:404});
-  const checks={...(plan.restart_checks??{})};
+  const checks = plan.restart_checks && typeof plan.restart_checks === "object" && !Array.isArray(plan.restart_checks)
+    ? { ...plan.restart_checks }
+    : {};
   if(evidenceKeys.some((key)=>typeof body.checks?.[key]==="boolean")) return NextResponse.json({error:"system_verified_checks_are_read_only"},{status:403});
   if(typeof body.checks?.humanApproved==="boolean") {
     if(!["owner","admin"].includes(ctx.role)) return NextResponse.json({error:"owner_or_admin_approval_required"},{status:403});
