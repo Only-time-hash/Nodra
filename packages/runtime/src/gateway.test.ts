@@ -8,7 +8,7 @@ test("allowed tool executes and is observed",async()=>{
  gateway.register("notes",async()=>{calls++;return {saved:true}});
  const result=await gateway.execute({id:"evt-allow",agentId:"research",resourceId:"notes",action:"write"},{text:"safe"});
  assert.equal(result.executed,true); assert.equal(calls,1); assert.equal(result.event.decision,"allow");
- assert.equal(observed.length,1); assert.equal(observed[0].executed,true);
+ assert.equal(observed.length,2); assert.equal(observed[0].phase,"intent"); assert.equal(observed[1].phase,"result"); assert.equal(observed[1].executed,true);
 });
 
 test("unauthorized tool never executes and denial is observed",async()=>{
@@ -17,7 +17,7 @@ test("unauthorized tool never executes and denial is observed",async()=>{
  gateway.register("payments",async()=>{calls++;return {paid:true}});
  const result=await gateway.execute({id:"evt-deny",agentId:"research",resourceId:"payments",action:"request"},{amount:100});
  assert.equal(result.executed,false); assert.equal(calls,0); assert.equal(result.event.decision,"deny");
- assert.equal(observed.length,1); assert.equal(observed[0].decision,"deny"); assert.equal(observed[0].executed,false);
+ assert.equal(observed.length,2); assert.equal(observed[0].phase,"intent"); assert.equal(observed[1].decision,"deny"); assert.equal(observed[1].executed,false);
 });
 
 test("missing adapter fails closed and is observed as denied",async()=>{
@@ -25,5 +25,20 @@ test("missing adapter fails closed and is observed as denied",async()=>{
  const gateway=createObservableGateway([{agentId:"research",resourceId:"browser",actions:["read"]}],async e=>{observed.push(e)});
  const result=await gateway.execute({id:"evt-missing",agentId:"research",resourceId:"browser",action:"read"},{url:"sandbox"});
  assert.equal(result.executed,false); assert.equal(result.event.decision,"deny");
- assert.match(result.event.reason,/No registered tool adapter/); assert.equal(observed[0].decision,"deny");
+ assert.match(result.event.reason,/No registered tool adapter/); assert.equal(observed.length,2); assert.equal(observed[1].decision,"deny");
+});
+
+
+test("quarantined agent is denied before tool execution",async()=>{
+ const observed:any[]=[]; let calls=0;
+ const gateway=createObservableGateway(
+  [{agentId:"research",resourceId:"notes",actions:["write"]}],
+  async e=>{observed.push(e)},
+  {},
+  async()=> "quarantined",
+ );
+ gateway.register("notes",async()=>{calls++;return {saved:true}});
+ const result=await gateway.execute({id:"evt-quarantine",agentId:"research",resourceId:"notes",action:"write"},{});
+ assert.equal(result.executed,false); assert.equal(calls,0); assert.equal(result.event.decision,"deny");
+ assert.match(result.event.reason,/quarantined/i); assert.equal(observed[0].phase,"intent"); assert.equal(observed[1].phase,"result");
 });
