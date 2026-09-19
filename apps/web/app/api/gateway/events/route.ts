@@ -76,7 +76,13 @@ export async function POST(request: Request) {
       p_request_id: body.id,
       p_payload: body,
     });
-    if (outboxError) return NextResponse.json({ error: "gateway_intent_not_durable" }, { status: 503 });
+    if (outboxError) {
+      console.error("[Nodra] gateway intent durability failed", {
+        code: outboxError.code ?? null,
+        message: outboxError.message ?? "unknown_error",
+      });
+      return NextResponse.json({ error: "gateway_intent_not_durable" }, { status: 503 });
+    }
   }
 
   const { data, error } = await ctx.supabase.rpc("append_security_event", {
@@ -99,7 +105,14 @@ export async function POST(request: Request) {
     },
   });
 
-  if (error) return NextResponse.json({ error: "gateway_event_persistence_failed" }, { status: 500 });
+  if (error) {
+    console.error("[Nodra] gateway event persistence failed", {
+      code: error.code ?? null,
+      message: error.message ?? "unknown_error",
+      phase: body.phase ?? "result",
+    });
+    return NextResponse.json({ error: "gateway_event_persistence_failed" }, { status: 500 });
+  }
 
   // Persist observable agent-to-agent causality when causedBy identifies a known agent.
   // Unknown/external causes remain on the event but never create fabricated graph edges.
