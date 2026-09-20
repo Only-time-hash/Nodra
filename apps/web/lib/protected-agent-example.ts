@@ -14,6 +14,7 @@ function isPlainObject(value:unknown):value is Record<string,unknown>{
 }
 
 function parseDecision(text:string):ModelDecision{
+  if(text.length>16384) throw new Error("Model returned an invalid sandbox action.");
   const cleaned=text.replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"").trim();
   let parsed: ModelDecision;
   try {
