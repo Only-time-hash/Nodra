@@ -21,11 +21,19 @@ type ConnectionState = "connecting" | "live" | "offline";
 
 const initialAgents: Agent[] = [
   { id: "manager", name: "Manager", role: "Orchestrator", status: "healthy", x: 50, y: 18, tools: ["Delegation", "Task Queue"], permissions: ["delegate:task", "read:status"] },
-  { id: "research", name: "Research", role: "Web research", status: "healthy", x: 20, y: 48, tools: ["Sandbox Browser", "Notes"], permissions: ["browser:read", "notes:write"] },
-  { id: "finance", name: "Finance", role: "Financial operations", status: "healthy", x: 32, y: 76, tools: ["Simulated Payments", "Ledger"], permissions: ["ledger:read", "payment:request"] },
-  { id: "support", name: "Support", role: "Communication", status: "healthy", x: 68, y: 76, tools: ["Simulated Email"], permissions: ["email:draft"] },
-  { id: "data", name: "Data", role: "Data operations", status: "healthy", x: 80, y: 48, tools: ["Sandbox Database"], permissions: ["database:read", "database:write"] },
+  { id: "research", name: "Research", role: "Web research", status: "healthy", x: 22, y: 49, tools: ["Sandbox Browser", "Notes"], permissions: ["browser:read", "notes:write"] },
+  { id: "finance", name: "Finance", role: "Financial operations", status: "healthy", x: 35, y: 78, tools: ["Simulated Payments", "Ledger"], permissions: ["ledger:read", "payment:request"] },
+  { id: "support", name: "Support", role: "Communication", status: "healthy", x: 65, y: 78, tools: ["Simulated Email"], permissions: ["email:draft"] },
+  { id: "data", name: "Data", role: "Data operations", status: "healthy", x: 78, y: 49, tools: ["Sandbox Database"], permissions: ["database:read", "database:write"] },
 ];
+
+function AgentGlyph({ id }: { id: string }) {
+  if (id === "manager") return <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6"/><path d="M12 10v4"/></svg>;
+  if (id === "research") return <svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="5"/><path d="m14 14 5 5"/><path d="M7 10h6M10 7v6"/></svg>;
+  if (id === "finance") return <svg viewBox="0 0 24 24"><path d="M4 8h16M6 8V20M18 8V20M3 20h18M12 4 4 8h16l-8-4Z"/></svg>;
+  if (id === "support") return <svg viewBox="0 0 24 24"><path d="M4 6h16v10H8l-4 4V6Z"/><path d="M8 10h8M8 13h5"/></svg>;
+  return <svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>;
+}
 
 const baseEvents = [
   { time: "00:00", kind: "system", text: "Laboratory initialized with five isolated agents." },
@@ -210,7 +218,7 @@ export function NetworkLab() {
           <article><span className="statIcon healthy" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 19 10 12 17 5 10 12 3Z"/></svg></span><div><strong>{agents.filter(a=>a.status==="healthy").length}</strong><p>Agents Online</p><small>{agents.length} total registered</small></div></article>
           <article><span className="statIcon danger" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4 20 19H4L12 4Z"/><path d="M12 9V14"/><path d="M12 17.2V17.3"/></svg></span><div><strong>{hasOpenIncident ? 1 : 0}</strong><p>Open Incidents</p><small>{hasOpenIncident ? phase : "No active threats"}</small></div></article>
           <article><span className="statIcon protectedIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6.5" y="10" width="11" height="9" rx="2"/><path d="M9 10V7.5a3 3 0 0 1 6 0V10"/></svg></span><div><strong>{agents.reduce((n,a)=>n+a.tools.length,0)}</strong><p>Protected Resources</p><small>Tools & runtime surfaces</small></div></article>
-          <article><span className="statIcon events" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6" y="5.5" width="12" height="14" rx="2"/><path d="M9 3.5V7M15 3.5V7M9 11H15M9 14H13"/></svg></span><div><strong>{Math.max(events.length-baseEvents.length,0)}</strong><p>Security Events</p><small>Last 24 hours</small></div></article>
+          <article><span className="statIcon events securityEventsIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5.5" y="5.5" width="13" height="13" rx="2.25"/><path d="M8.5 4v3M15.5 4v3M8.5 10.5h7M8.5 14h4.5"/></svg></span><div><strong>{Math.max(events.length-baseEvents.length,0)}</strong><p>Security Events</p><small>Last 24 hours</small></div></article>
           <article><span className={"statIcon "+(integrityState === "verified" ? "integrityIcon" : integrityState === "failed" ? "danger" : "events")} aria-hidden="true"><svg viewBox="0 0 24 24">{integrityState === "verified" ? <path d="m5 12 4 4 10-10"/> : integrityState === "failed" ? <><path d="M12 4 20 19H4L12 4Z"/><path d="M12 9V14"/></> : <path d="M12 5v7l4 2"/>}</svg></span><div><strong>{integrityState === "verified" ? "100%" : integrityState === "failed" ? "FAILED" : "—"}</strong><p>Evidence Integrity</p><small>{integrityState === "verified" ? "Hash chain verified" : integrityState === "failed" ? integrity?.reason ?? "Verification failed" : "Verification in progress"}</small></div></article>
         </section>
 
@@ -233,9 +241,9 @@ export function NetworkLab() {
               <div className="legend"><i />Healthy <i className="warn" />At risk <i className="isolated" />Quarantined</div>
             </div>
             <div className="canvas">
-              <svg className="edges" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
-                {causalEdges.map((edge,index)=>{ const from=agents.find(a=>a.id===edge.from); const to=agents.find(a=>a.id===edge.to); if(!from||!to) return null; const x1=from.x*10,y1=from.y*6,x2=to.x*10,y2=to.y*6; const affectedEdge=from.status!=="healthy"||to.status!=="healthy"; return <path key={edge.from+"-"+edge.to+"-"+index} d={`M${x1} ${y1} L${x2} ${y2}`} className={(affectedEdge?"dangerEdge ":"")+(edge.relation==="influenced"?"dashed":"")} />; })}
-                {causalEdges.length===0 ? agents.filter(a=>a.id!=="manager").map((agent,index)=><path key={"baseline-"+agent.id} d={`M500 108 L${agent.x*10} ${agent.y*6}`} className={index===0&&phase!=="ready"?"dangerEdge":""} />) : null}
+              <svg className="edges" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                {causalEdges.map((edge,index)=>{ const from=agents.find(a=>a.id===edge.from); const to=agents.find(a=>a.id===edge.to); if(!from||!to) return null; const affectedEdge=from.status!=="healthy"||to.status!=="healthy"; return <path key={edge.from+"-"+edge.to+"-"+index} d={`M${from.x} ${from.y} L${to.x} ${to.y}`} className={(affectedEdge?"dangerEdge ":"")+(edge.relation==="influenced"?"dashed":"")} />; })}
+                {causalEdges.length===0 ? agents.filter(a=>a.id!=="manager").map((agent,index)=><path key={"baseline-"+agent.id} d={`M50 18 L${agent.x} ${agent.y}`} className={index===0&&phase!=="ready"?"dangerEdge":""} />) : null}
               </svg>
               <div className="humanNode">Human authority</div>
               {agents.map((agent) => (
@@ -245,7 +253,7 @@ export function NetworkLab() {
                   style={{ left: agent.x + "%", top: agent.y + "%" }}
                   onClick={() => setSelectedId(agent.id)}
                 >
-                  <span className={"agentIcon agentIcon-"+agent.id} aria-hidden="true">{agent.id==="manager" ? <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6"/><path d="M12 10v4"/></svg> : agent.id==="research" ? <svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="5"/><path d="m14 14 5 5"/><path d="M7 10h6M10 7v6"/></svg> : agent.id==="finance" ? <svg viewBox="0 0 24 24"><path d="M4 8h16M6 8V20M18 8V20M3 20h18M12 4 4 8h16l-8-4Z"/></svg> : agent.id==="support" ? <svg viewBox="0 0 24 24"><path d="M4 6h16v10H8l-4 4V6Z"/><path d="M8 10h8M8 13h5"/></svg> : <svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>}</span>
+                  <span className={"agentIcon agentIcon-"+agent.id} aria-hidden="true"><AgentGlyph id={agent.id}/></span>
                   <span><strong>{agent.name}</strong><small>{agent.role}</small></span>
                   <i />
                 </button>
@@ -260,7 +268,7 @@ export function NetworkLab() {
 
           <aside className="inspector" id="agents">
             <div className="inspectorHead"><p>AGENT INSPECTOR</p><span className={"statusPill " + selected.status}>{selected.status.replace("-", " ")}</span></div>
-            <div className="identity"><span className={"bigIcon "+selected.status}>{selected.name[0]}</span><div><h2>{selected.name}</h2><p>{selected.role}</p></div></div>
+            <div className="identity"><span className={"bigIcon inspectorAgentIcon agentIcon-"+selected.id+" "+selected.status} aria-hidden="true"><AgentGlyph id={selected.id}/></span><div><h2>{selected.name}</h2><p>{selected.role}</p></div></div>
             <div className="agentTrust"><span><small>TRUST STATE</small><strong>{selected.status==="healthy" ? "Trusted" : selected.status==="quarantined" ? "Isolated" : "Reduced"}</strong></span><span><small>TOOLS</small><strong>{selected.tools.length}</strong></span><span><small>PERMISSIONS</small><strong>{selected.permissions.length}</strong></span></div>
             <div className="inspectSection"><p className="label">TOOLS</p>{selected.tools.map((tool) => <div className="row" key={tool}><span>{tool}</span><b>connected</b></div>)}</div>
             <div className="inspectSection" id="policies"><p className="label">EXPLICIT PERMISSIONS</p>{selected.permissions.map((permission) => <code key={permission}>{permission}</code>)}</div>
