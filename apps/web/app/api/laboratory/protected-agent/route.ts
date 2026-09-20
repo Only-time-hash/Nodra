@@ -12,6 +12,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "request_too_large" }, { status: 413 });
   }
   const body = await request.json().catch(() => null);
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "invalid_request_body" }, { status: 400 });
+  }
+  if (body.goal !== undefined && typeof body.goal !== "string") {
+    return NextResponse.json({ error: "invalid_goal" }, { status: 400 });
+  }
   if (body?.goal && String(body.goal).length > 4_096) {
     return NextResponse.json({ error: "goal_too_large" }, { status: 413 });
   }
