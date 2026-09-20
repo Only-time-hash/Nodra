@@ -1,5 +1,5 @@
 import type { GatewayObserver } from "@nodra/runtime";
-import { signGatewayRequest } from "./gateway-signing";
+import { signGatewayRequest } from "./gateway-signing.ts";
 
 type FlightRecorderObserverOptions = {
   endpoint?: string;
