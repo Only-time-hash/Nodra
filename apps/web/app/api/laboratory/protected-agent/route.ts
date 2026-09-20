@@ -3,10 +3,22 @@ import { PostExecutionObservationError } from "@nodra/runtime";
 import { createFlightRecorderObserver } from "../../../../lib/gateway-observer";
 import { getWorkspaceContext } from "../../../../lib/persistence";
 import { NextResponse } from "next/server";
+import { checkRateLimit } from "../../../../lib/rate-limit";
 
 export async function POST(request: Request) {
   const ctx = await getWorkspaceContext();
   if (!ctx) return NextResponse.json({ error: "authentication_or_workspace_required" }, { status: 401 });
+
+  // Best-effort per-workspace abuse/denial-of-wallet guard. Authorization remains
+  // independent of this limiter. Distributed production deployments should add a
+  // shared durable limiter in front of this process-local safety layer.
+  const rate = checkRateLimit(`protected-agent:${ctx.workspaceId}`, 30, 60_000);
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "rate_limit_exceeded", retryAfterSeconds: rate.retryAfterSeconds },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
+  }
 
   // Agent identity is server-owned. Never accept caller-supplied identity headers.
   const claimedAgent = request.headers.get("x-nodra-agent-id") || request.headers.get("x-agent-id");
