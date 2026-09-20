@@ -4,6 +4,10 @@ type AgentStateResolver = (agentId:string)=>Promise<"healthy"|"at-risk"|"restric
 type ModelDecision = { resourceId: "notes"|"browser"; action: "write"|"read"; input: Record<string,unknown> };
 type ModelProvider = "gemini"|"openai";
 
+const MAX_PROVIDER_RESPONSE_BYTES=65536;
+const MAX_TOOL_URL_BYTES=2048;
+const MAX_NOTE_TEXT_BYTES=4096;
+
 const rules = [
   { agentId: "research", resourceId: "notes", actions: ["write"] },
   { agentId: "research", resourceId: "browser", actions: ["read"] },
@@ -11,6 +15,29 @@ const rules = [
 
 function isPlainObject(value:unknown):value is Record<string,unknown>{
   return typeof value==="object" && value!==null && !Array.isArray(value) && Object.getPrototypeOf(value)===Object.prototype;
+}
+
+function validateCapabilityInput(resourceId:"notes"|"browser",action:"write"|"read",input:Record<string,unknown>){
+  if(resourceId==="browser"&&action==="read"){
+    if(Object.keys(input).some(key=>key!=="url")) throw new Error("Model returned an invalid sandbox action.");
+    if(typeof input.url!=="string"||Buffer.byteLength(input.url,"utf8")>MAX_TOOL_URL_BYTES) throw new Error("Model returned an invalid sandbox action.");
+    let url:URL;
+    try { url=new URL(input.url); } catch { throw new Error("Model returned an invalid sandbox action."); }
+    if(url.protocol!=="https:") throw new Error("Model returned an invalid sandbox action.");
+    if(url.username||url.password) throw new Error("Model returned an invalid sandbox action.");
+  }
+  if(resourceId==="notes"&&action==="write"){
+    if(Object.keys(input).some(key=>key!=="text")) throw new Error("Model returned an invalid sandbox action.");
+    if(typeof input.text!=="string"||Buffer.byteLength(input.text,"utf8")>MAX_NOTE_TEXT_BYTES) throw new Error("Model returned an invalid sandbox action.");
+  }
+}
+
+async function readProviderBody(response:Response){
+  const length=response.headers.get("content-length");
+  if(length&&Number(length)>MAX_PROVIDER_RESPONSE_BYTES) throw new Error("Model provider response too large.");
+  const text=await response.text();
+  if(Buffer.byteLength(text,"utf8")>MAX_PROVIDER_RESPONSE_BYTES) throw new Error("Model provider response too large.");
+  return text;
 }
 
 export function parseProtectedModelDecision(text:string):ModelDecision{
@@ -34,6 +61,7 @@ export function parseProtectedModelDecision(text:string):ModelDecision{
   try { serialized=JSON.stringify(input); }
   catch { throw new Error("Model returned an invalid sandbox action."); }
   if(Buffer.byteLength(serialized,"utf8")>8192) throw new Error("Model returned an invalid sandbox action.");
+  validateCapabilityInput(resourceId as "notes"|"browser",action as "write"|"read",input);
   return {resourceId,action,input} as ModelDecision;
 }
 
@@ -59,7 +87,9 @@ export async function decideWithGemini(goal:string):Promise<ModelDecision>{
     body:JSON.stringify({contents:[{parts:[{text:buildProtectedResearchInstruction(goal)}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:256,temperature:0}})
   });
   if(!response.ok) throw new Error(`Gemini request failed: ${response.status}`);
-  const data=await response.json() as any;
+  const raw=await readProviderBody(response);
+  let data:any;
+  try { data=JSON.parse(raw); } catch { throw new Error("Gemini returned malformed JSON."); }
   const candidate=data.candidates?.[0];
   if(candidate?.finishReason && candidate.finishReason!=="STOP") throw new Error("Gemini returned no decision.");
   const text=String(candidate?.content?.parts?.map((p:any)=>p.text??"").join("")??"");
@@ -75,7 +105,9 @@ export async function decideWithOpenAI(goal:string):Promise<ModelDecision>{
     body:JSON.stringify({model:process.env.NODRA_AGENT_MODEL??"gpt-5-mini",input:buildProtectedResearchInstruction(goal)})
   });
   if(!response.ok) throw new Error(`OpenAI request failed: ${response.status}`);
-  const data=await response.json() as any;
+  const raw=await readProviderBody(response);
+  let data:any;
+  try { data=JSON.parse(raw); } catch { throw new Error("OpenAI returned malformed JSON."); }
   const text=String(data.output_text??data.output?.flatMap((x:any)=>x.content??[]).map((x:any)=>x.text??"").join("")??"");
   return parseProtectedModelDecision(text);
 }
