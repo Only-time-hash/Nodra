@@ -100,3 +100,32 @@ test("post-execution recorder failure is explicitly non-retryable", async()=>{
  );
  assert.equal(calls,1);
 });
+
+
+test("persistent result-recorder outage cannot mask completed execution", async()=>{
+ let calls=0;
+ const gateway=createObservableGateway(
+  [{agentId:"research",resourceId:"notes",actions:["write"]}],
+  async event=>{ if(event.phase==="result") throw new Error("recorder persistently unavailable"); },
+ );
+ gateway.register("notes",async()=>{calls++;return {saved:true}});
+ await assert.rejects(
+  ()=>gateway.execute({id:"persistent-result-outage",agentId:"research",resourceId:"notes",action:"write"},{text:"execute exactly once"}),
+  (error:unknown)=>error instanceof PostExecutionObservationError && error.executed===true && error.requestId==="persistent-result-outage",
+ );
+ assert.equal(calls,1);
+});
+
+test("recorder outage while reporting tool failure preserves the tool failure", async()=>{
+ let calls=0;
+ const gateway=createObservableGateway(
+  [{agentId:"research",resourceId:"notes",actions:["write"]}],
+  async event=>{ if(event.phase==="result") throw new Error("recorder unavailable"); },
+ );
+ gateway.register("notes",async()=>{calls++;throw new Error("adapter exploded");});
+ await assert.rejects(
+  ()=>gateway.execute({id:"tool-and-recorder-fail",agentId:"research",resourceId:"notes",action:"write"},{text:"fail once"}),
+  /adapter exploded/,
+ );
+ assert.equal(calls,1);
+});
