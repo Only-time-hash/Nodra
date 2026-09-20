@@ -50,3 +50,5 @@ A release is not considered verified until every required check below has eviden
 Do not mark V0.1 released while a required unchecked item remains.
 
 - [x] IPv6 literal SSRF boundary regression: commit `ddde1daa3f84ce547a0340f1690de639aeecb477` rejects literal IPv6 browser targets including loopback/private cases; both Nodra CI run 35544228512 and Nodra Security Engine run 35544228525 passed. This is a first-layer parser boundary; a future real outbound adapter must also resolve DNS and revalidate redirect destinations before connection.
+
+- [x] Distributed gateway recorder quota: commit `4588b8ab2fa88df5cf1804c2a48357d3118d63dc` passed Nodra CI run 35544644618 and Security Engine run 35544644628. Live database verification confirms `gateway_rate_limits` has RLS enabled with no authenticated direct SELECT/INSERT grants; `consume_gateway_rate_limit` is executable by authenticated callers and not anon, with membership and agent/workspace checks enforced inside the SECURITY DEFINER function.
