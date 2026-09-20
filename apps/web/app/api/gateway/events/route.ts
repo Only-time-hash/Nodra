@@ -88,8 +88,6 @@ export async function POST(request: Request) {
   const { data: durableRateRows, error: durableRateError } = await ctx.supabase.rpc("consume_gateway_rate_limit", {
     p_workspace_id: ctx.workspaceId,
     p_agent_id: agent.id,
-    p_limit: 240,
-    p_window_seconds: 60,
   });
   if (durableRateError) {
     console.error("[Nodra] distributed gateway rate limit unavailable", {
