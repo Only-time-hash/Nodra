@@ -85,6 +85,28 @@ export async function POST(request: Request) {
     );
   }
 
+  const { data: durableRateRows, error: durableRateError } = await ctx.supabase.rpc("consume_gateway_rate_limit", {
+    p_workspace_id: ctx.workspaceId,
+    p_agent_id: agent.id,
+    p_limit: 240,
+    p_window_seconds: 60,
+  });
+  if (durableRateError) {
+    console.error("[Nodra] distributed gateway rate limit unavailable", {
+      code: durableRateError.code ?? null,
+      message: durableRateError.message ?? "unknown_error",
+    });
+    return NextResponse.json({ error: "gateway_rate_limit_unavailable" }, { status: 503 });
+  }
+  const durableRate = Array.isArray(durableRateRows) ? durableRateRows[0] : durableRateRows;
+  if (!durableRate?.allowed) {
+    const retryAfterSeconds = Math.max(1, Number(durableRate?.retry_after_seconds ?? 1));
+    return NextResponse.json(
+      { error: "gateway_event_rate_limit_exceeded", retryAfterSeconds },
+      { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } },
+    );
+  }
+
   const { error: nonceError } = await ctx.supabase.from("gateway_request_nonces").insert({
     workspace_id: ctx.workspaceId,
     agent_id: agent.id,
