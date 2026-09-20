@@ -9,6 +9,7 @@ A release is not considered verified until every required check below has eviden
 - [x] Next.js production build passes.
 - [x] Release CI measures test coverage with Node's built-in coverage instrumentation; coverage, unit/acceptance tests, migration integrity, typecheck, and production build all passed together at `7915627baebe2afe2bc874f4926818169e831729`.
 - [x] Protected-agent abuse guard is workspace-scoped and regression-tested; limiter exhaustion, workspace isolation, reset behavior, and invalid configuration passed both CI workflows at `cd64640ffffb04c53b19492e9b2a4575e52bff96`. This process-local layer is not treated as the final distributed production quota; a shared durable per-tenant/token/spend/concurrency control remains a production hardening requirement.
+- [x] Flight Recorder ingestion has an independent workspace-scoped pressure ceiling so event flooding cannot consume the same budget as protected model/tool requests; both CI workflows passed at `d8f4663c9ff6c1d2ed89bfaf9bce2bd2a835345b`. Shared distributed enforcement remains required before this control is considered production-complete.
 - [x] Five-agent selective containment acceptance test passes.
 - [x] Recovery refuses restart without every system check and human approval.
 - [x] Gateway signatures reject body, timestamp and nonce tampering, cross-agent and cross-workspace identity use, malformed signature inputs, and expired requests.
