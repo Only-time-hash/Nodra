@@ -1014,6 +1014,14 @@ export type Database = {
           retry_after_seconds: number
         }[]
       }
+      consume_protected_agent_rate_limit: {
+        Args: { p_workspace_id: string }
+        Returns: {
+          allowed: boolean
+          remaining: number
+          retry_after_seconds: number
+        }[]
+      }
       record_gateway_intent: {
         Args: {
           p_agent_id: string
