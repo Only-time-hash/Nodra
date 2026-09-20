@@ -1006,8 +1006,6 @@ export type Database = {
       consume_gateway_rate_limit: {
         Args: {
           p_agent_id: string
-          p_limit?: number
-          p_window_seconds?: number
           p_workspace_id: string
         }
         Returns: {
