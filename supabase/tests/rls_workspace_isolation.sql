@@ -167,7 +167,7 @@ begin
 end
 $;
 
-do $$
+do $
 begin
   if (select count(*) from public.workspaces) <> 1 then
     raise exception 'tenant A can enumerate another workspace';
