@@ -9,17 +9,6 @@ export async function POST(request: Request) {
   const ctx = await getWorkspaceContext();
   if (!ctx) return NextResponse.json({ error: "authentication_or_workspace_required" }, { status: 401 });
 
-  // Bound recorder pressure independently from model/tool invocation limits.
-  // This is a process-local first layer; production still requires a shared
-  // durable quota/circuit-breaker across serverless instances.
-  const rate = checkRateLimit(`gateway-events:${ctx.workspaceId}`, 240, 60_000);
-  if (!rate.allowed) {
-    return NextResponse.json(
-      { error: "gateway_event_rate_limit_exceeded", retryAfterSeconds: rate.retryAfterSeconds },
-      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
-    );
-  }
-
   const declaredLength = Number(request.headers.get("content-length") ?? "0");
   if (declaredLength > 65_536) {
     return NextResponse.json({ error: "gateway_event_too_large" }, { status: 413 });
@@ -81,6 +70,19 @@ export async function POST(request: Request) {
   }
   if (!verified.valid) {
     return NextResponse.json({ error: verified.reason }, { status: 401 });
+  }
+
+  // Only authenticated, signature-verified recorder traffic can consume the
+  // shared workspace/agent event budget. Invalid signatures must not be able
+  // to starve legitimate Flight Recorder traffic.
+  // This remains a process-local first layer; production still requires a
+  // durable distributed limiter across serverless instances.
+  const rate = checkRateLimit(`gateway-events:${ctx.workspaceId}:${agent.id}`, 240, 60_000);
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "gateway_event_rate_limit_exceeded", retryAfterSeconds: rate.retryAfterSeconds },
+      { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
+    );
   }
 
   const { error: nonceError } = await ctx.supabase.from("gateway_request_nonces").insert({
