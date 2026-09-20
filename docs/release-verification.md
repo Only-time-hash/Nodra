@@ -31,7 +31,7 @@ A release is not considered verified until every required check below has eviden
 - [x] Cross-workspace data access is rejected by RLS verification.
 - [x] Incident evidence remains isolated to its incident.
 - [x] Recovery cannot complete without remediation evidence and authorized human approval.
-- [ ] Provider failure, timeout, malformed model JSON, and unavailable recorder all fail without executing an unauthorized tool.
+- [ ] Provider failure, timeout, malformed model JSON, and unavailable recorder all fail without executing an unauthorized tool. Timeout and malformed-model-output paths now have CI-backed fail-closed regression evidence at `670202faa8585f45198a8fe1c38782bda4f88f75`; explicit provider non-OK and unavailable-recorder execution evidence remain.
 - [ ] Production model credentials use the provider's current restricted/auth-key mechanism and remain server-side. Source scan found no committed `GEMINI_API_KEY`, `OPENAI_API_KEY`, `NODRA_GATEWAY_SIGNING_SECRET`, or `SUPABASE_SERVICE_ROLE_KEY`; deployment-secret presence/restrictions and rotation policy still require production-side verification.
 - [ ] Release candidate receives an independent verification pass against the assurance invariants in docs/v0.1.md.
 
