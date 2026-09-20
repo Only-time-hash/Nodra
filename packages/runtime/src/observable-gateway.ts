@@ -47,34 +47,41 @@ export class ObservableNodraGateway extends NodraGateway {
     };
     await this.observer?.({ ...intent, phase: "intent", executed: false, occurredAt: new Date().toISOString() });
 
+    let result;
     try {
-      const result = await super.execute<T>(request, input);
+      result = await super.execute<T>(request, input);
+    } catch (error) {
       try {
         await this.observer?.({
-          ...result.event,
+          ...intent,
+          decision: "deny",
+          reason: "Tool execution failed.",
           phase: "result",
-          executed: result.executed,
-          outcome: result.executed ? "succeeded" : "blocked",
+          executed: false,
+          outcome: "failed",
+          error: error instanceof Error ? error.message : "unknown_error",
           occurredAt: new Date().toISOString(),
         });
-      } catch (error) {
-        if(result.executed) throw new PostExecutionObservationError(request.id,error);
-        throw error;
+      } catch {
+        // Preserve the execution failure as the primary error. A recorder outage
+        // must not hide what failed at the protected tool boundary.
       }
-      return result;
-    } catch (error) {
-      await this.observer?.({
-        ...intent,
-        decision: "deny",
-        reason: "Tool execution failed.",
-        phase: "result",
-        executed: false,
-        outcome: "failed",
-        error: error instanceof Error ? error.message : "unknown_error",
-        occurredAt: new Date().toISOString(),
-      });
       throw error;
     }
+
+    try {
+      await this.observer?.({
+        ...result.event,
+        phase: "result",
+        executed: result.executed,
+        outcome: result.executed ? "succeeded" : "blocked",
+        occurredAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      if (result.executed) throw new PostExecutionObservationError(request.id, error);
+      throw error;
+    }
+    return result;
   }
 }
 
