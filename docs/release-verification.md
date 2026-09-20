@@ -55,3 +55,5 @@ Do not mark V0.1 released while a required unchecked item remains.
 
 - [x] Fixed distributed quota policy reproducibility: commit `604c87455c63ab67d4c9a94e9ab27d07a2e1938a` passed Nodra CI run 35544877859 and Security Engine run 35544877875. The repository now preserves the same two-argument, server-controlled quota upgrade path applied to production.
 - [ ] Latest hardened production deployment: Vercel project remains reachable, but the newest production deployment visible to release verification is still commit `f54441c8662eed85bf7224076d089c49abac5d2d`. Git-triggered deployment is therefore treated as unhealthy; do not mark V0.1 released until a deployment containing the release candidate commit is verified.
+
+- [x] Replay-before-quota ordering: commit `2c538165be92eb2819b76e2ffbdf65d3b687b1da` passed Nodra CI run 35545308181 and Security Engine run 35545308175. Signed duplicate requests are rejected by durable nonce replay protection before consuming process-local or distributed recorder quota.
