@@ -7,6 +7,7 @@ A release is not considered verified until every required check below has eviden
 - [x] Runtime, policy, containment, recovery and laboratory tests pass.
 - [x] TypeScript typecheck passes.
 - [x] Next.js production build passes.
+- [x] Release CI measures test coverage with Node's built-in coverage instrumentation; coverage, unit/acceptance tests, migration integrity, typecheck, and production build all passed together at `7915627baebe2afe2bc874f4926818169e831729`.
 - [x] Five-agent selective containment acceptance test passes.
 - [x] Recovery refuses restart without every system check and human approval.
 - [x] Gateway signatures reject body, timestamp and nonce tampering, cross-agent and cross-workspace identity use, malformed signature inputs, and expired requests.
