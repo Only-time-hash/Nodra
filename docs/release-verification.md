@@ -48,3 +48,5 @@ A release is not considered verified until every required check below has eviden
 - [x] Stable production alias serves the verified commit.
 
 Do not mark V0.1 released while a required unchecked item remains.
+
+- [x] IPv6 literal SSRF boundary regression: commit `ddde1daa3f84ce547a0340f1690de639aeecb477` rejects literal IPv6 browser targets including loopback/private cases; both Nodra CI run 35544228512 and Nodra Security Engine run 35544228525 passed. This is a first-layer parser boundary; a future real outbound adapter must also resolve DNS and revalidate redirect destinations before connection.
