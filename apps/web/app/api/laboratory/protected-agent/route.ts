@@ -1,5 +1,5 @@
 import { createProtectedResearchAgent } from "../../../../lib/protected-agent-example";
-import { PostExecutionObservationError } from "../../../../../../packages/runtime/src/observable-gateway";
+import { PostExecutionObservationError } from "@nodra/runtime";
 import { createFlightRecorderObserver } from "../../../../lib/gateway-observer";
 import { getWorkspaceContext } from "../../../../lib/persistence";
 import { NextResponse } from "next/server";
