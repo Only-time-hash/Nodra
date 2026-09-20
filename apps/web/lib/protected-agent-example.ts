@@ -55,7 +55,9 @@ async function decideWithGemini(goal:string):Promise<ModelDecision>{
   });
   if(!response.ok) throw new Error(`Gemini request failed: ${response.status}`);
   const data=await response.json() as any;
-  const text=String(data.candidates?.[0]?.content?.parts?.map((p:any)=>p.text??"").join("")??"");
+  const candidate=data.candidates?.[0];
+  if(candidate?.finishReason && candidate.finishReason!=="STOP") throw new Error("Gemini returned no decision.");
+  const text=String(candidate?.content?.parts?.map((p:any)=>p.text??"").join("")??"");
   if(!text) throw new Error("Gemini returned no decision.");
   return parseDecision(text);
 }
