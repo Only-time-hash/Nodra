@@ -1,4 +1,5 @@
 import { createProtectedResearchAgent } from "../../../../lib/protected-agent-example";
+import { PostExecutionObservationError } from "@nodra/runtime";
 import { createFlightRecorderObserver } from "../../../../lib/gateway-observer";
 import { getWorkspaceContext } from "../../../../lib/persistence";
 import { NextResponse } from "next/server";
@@ -132,6 +133,10 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown_error";
+    if (error instanceof PostExecutionObservationError) {
+      console.error("[Nodra] protected agent result recording failed after execution", { requestId: error.requestId });
+      return NextResponse.json({ error: "execution_result_recording_failed", executed: true, retrySafe: false, requestId: error.requestId }, { status: 503 });
+    }
     console.error("[Nodra] protected agent execution failed", { message });
     const category =
       message.includes("GEMINI_API_KEY") || message.includes("OPENAI_API_KEY") ? "model_not_configured" :
