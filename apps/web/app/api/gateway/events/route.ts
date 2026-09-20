@@ -19,7 +19,11 @@ export async function POST(request: Request) {
   const body = (() => {
     try { return JSON.parse(rawBody); } catch { return null; }
   })();
-  if (!body?.id || !body?.agentId || !body?.resourceId || !body?.action || !decisions.has(body?.decision)) {
+  if (!body || typeof body !== "object" || Array.isArray(body) ||
+      typeof body.id !== "string" || typeof body.agentId !== "string" ||
+      typeof body.resourceId !== "string" || typeof body.action !== "string" ||
+      body.id.length > 128 || body.agentId.length > 128 || body.resourceId.length > 128 || body.action.length > 128 ||
+      !decisions.has(body.decision)) {
     return NextResponse.json({ error: "invalid_gateway_event" }, { status: 400 });
   }
 
