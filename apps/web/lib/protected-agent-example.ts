@@ -51,7 +51,7 @@ async function decideWithGemini(goal:string):Promise<ModelDecision>{
   const model=process.env.NODRA_AGENT_MODEL??"gemini-2.5-flash";
   const response=await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,{
     method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
-    body:JSON.stringify({contents:[{parts:[{text:instruction(goal)}]}],generationConfig:{responseMimeType:"application/json"}})
+    body:JSON.stringify({contents:[{parts:[{text:instruction(goal)}]}],generationConfig:{responseMimeType:"application/json",maxOutputTokens:256,temperature:0}})
   });
   if(!response.ok) throw new Error(`Gemini request failed: ${response.status}`);
   const data=await response.json() as any;
