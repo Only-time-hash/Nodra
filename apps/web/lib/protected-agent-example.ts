@@ -9,11 +9,19 @@ const rules = [
   { agentId: "research", resourceId: "browser", actions: ["read"] },
 ];
 
+function isPlainObject(value:unknown):value is Record<string,unknown>{
+  return typeof value==="object" && value!==null && !Array.isArray(value) && Object.getPrototypeOf(value)===Object.prototype;
+}
+
 function parseDecision(text:string):ModelDecision{
   const cleaned=text.replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"").trim();
   const parsed=JSON.parse(cleaned) as ModelDecision;
   const valid=(parsed.resourceId==="browser"&&parsed.action==="read")||(parsed.resourceId==="notes"&&parsed.action==="write");
-  if(!valid || typeof parsed.input!=="object" || parsed.input===null) throw new Error("Model returned an invalid sandbox action.");
+  if(!valid || !isPlainObject(parsed.input)) throw new Error("Model returned an invalid sandbox action.");
+  const keys=Object.keys(parsed.input);
+  if(keys.length>12) throw new Error("Model returned an invalid sandbox action.");
+  const serialized=JSON.stringify(parsed.input);
+  if(serialized.length>8192) throw new Error("Model returned an invalid sandbox action.");
   return parsed;
 }
 
