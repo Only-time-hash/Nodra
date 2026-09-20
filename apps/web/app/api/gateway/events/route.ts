@@ -69,6 +69,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "gateway_signing_not_configured" }, { status: 503 });
   }
   if (!verified.valid) {
+    console.warn("[Nodra] gateway request rejected", {
+      event: "gateway_signature_rejected",
+      workspaceId: ctx.workspaceId,
+      agentId: agent.id,
+      reason: verified.reason,
+    });
     return NextResponse.json({ error: verified.reason }, { status: 401 });
   }
 
@@ -81,6 +87,11 @@ export async function POST(request: Request) {
   });
   if (nonceError) {
     if (nonceError.code === "23505") {
+      console.warn("[Nodra] gateway request rejected", {
+        event: "gateway_replay_rejected",
+        workspaceId: ctx.workspaceId,
+        agentId: agent.id,
+      });
       return NextResponse.json({ error: "gateway_request_replayed" }, { status: 409 });
     }
     console.error("[Nodra] gateway nonce persistence failed", {
@@ -96,6 +107,11 @@ export async function POST(request: Request) {
   // workspace/agent quota across serverless instances.
   const rate = checkRateLimit(`gateway-events:${ctx.workspaceId}:${agent.id}`, 240, 60_000);
   if (!rate.allowed) {
+    console.warn("[Nodra] gateway quota exceeded", {
+      event: "gateway_local_rate_limit_exceeded",
+      workspaceId: ctx.workspaceId,
+      agentId: agent.id,
+    });
     return NextResponse.json(
       { error: "gateway_event_rate_limit_exceeded", retryAfterSeconds: rate.retryAfterSeconds },
       { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
@@ -116,6 +132,12 @@ export async function POST(request: Request) {
   const durableRate = Array.isArray(durableRateRows) ? durableRateRows[0] : durableRateRows;
   if (!durableRate?.allowed) {
     const retryAfterSeconds = Math.max(1, Number(durableRate?.retry_after_seconds ?? 1));
+    console.warn("[Nodra] gateway quota exceeded", {
+      event: "gateway_distributed_rate_limit_exceeded",
+      workspaceId: ctx.workspaceId,
+      agentId: agent.id,
+      retryAfterSeconds,
+    });
     return NextResponse.json(
       { error: "gateway_event_rate_limit_exceeded", retryAfterSeconds },
       { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } },
