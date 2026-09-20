@@ -19,14 +19,14 @@ A release is not considered verified until every required check below has eviden
 - [x] Direct authenticated remediation-action update denied.
 - [x] Cross-incident remediation evidence is rejected by the transactional database security suite.
 - [x] Signed gateway nonces are single-use and reject database-level replay.
-- [x] Security Advisor reviewed; any remaining warning is documented and intentional.
-
+- [x] Cross-workspace/cross-agent gateway nonce binding is rejected against the production schema using authenticated workspace-A context with a workspace-B agent; the assurance transaction was rolled back.
+- [x] Security Advisor reviewed; remaining SECURITY DEFINER warnings are documented and intentional because each function performs its own authenticated workspace/role/object-scope checks. Do not revoke EXECUTE without replacing the application RPC path.
 
 ## Adversarial assurance matrix
 - [ ] Goal/prompt hijacking cannot expand the Research agent's allowed browser:read / notes:write authority.
 - [ ] Tool arguments are schema-validated before protected adapter execution.
 - [x] Unknown, paused, offline, or unresolved agent state fails closed at the protected route; production bypass testing remains part of final end-to-end verification.
-- [x] Signed gateway request tampering plus cross-agent/cross-workspace identity substitution are rejected by the signing tests; database replay is separately rejected after nonce consumption.
+- [x] Signed gateway request tampering plus cross-agent/cross-workspace identity substitution are rejected by the signing tests; database replay and cross-workspace/cross-agent nonce binding are separately rejected against the production schema.
 - [x] Gateway replay is rejected after nonce consumption.
 - [x] Cross-workspace data access is rejected by RLS verification.
 - [x] Incident evidence remains isolated to its incident.
