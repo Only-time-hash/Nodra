@@ -20,11 +20,11 @@ type Integrity = {valid:boolean;checkedEvents:number;firstBadSequence:number|nul
 type ConnectionState = "connecting" | "live" | "offline";
 
 const initialAgents: Agent[] = [
-  { id: "manager", name: "Manager", role: "Orchestrator", status: "healthy", x: 50, y: 15, tools: ["Delegation", "Task Queue"], permissions: ["delegate:task", "read:status"] },
-  { id: "research", name: "Research", role: "Web research", status: "healthy", x: 16, y: 48, tools: ["Sandbox Browser", "Notes"], permissions: ["browser:read", "notes:write"] },
-  { id: "finance", name: "Finance", role: "Financial operations", status: "healthy", x: 25, y: 78, tools: ["Simulated Payments", "Ledger"], permissions: ["ledger:read", "payment:request"] },
-  { id: "support", name: "Support", role: "Communication", status: "healthy", x: 75, y: 78, tools: ["Simulated Email"], permissions: ["email:draft"] },
-  { id: "data", name: "Data", role: "Data operations", status: "healthy", x: 84, y: 48, tools: ["Sandbox Database"], permissions: ["database:read", "database:write"] },
+  { id: "manager", name: "Manager", role: "Orchestrator", status: "healthy", x: 50, y: 18, tools: ["Delegation", "Task Queue"], permissions: ["delegate:task", "read:status"] },
+  { id: "research", name: "Research", role: "Web research", status: "healthy", x: 20, y: 48, tools: ["Sandbox Browser", "Notes"], permissions: ["browser:read", "notes:write"] },
+  { id: "finance", name: "Finance", role: "Financial operations", status: "healthy", x: 32, y: 76, tools: ["Simulated Payments", "Ledger"], permissions: ["ledger:read", "payment:request"] },
+  { id: "support", name: "Support", role: "Communication", status: "healthy", x: 68, y: 76, tools: ["Simulated Email"], permissions: ["email:draft"] },
+  { id: "data", name: "Data", role: "Data operations", status: "healthy", x: 80, y: 48, tools: ["Sandbox Database"], permissions: ["database:read", "database:write"] },
 ];
 
 const baseEvents = [
@@ -235,7 +235,7 @@ export function NetworkLab() {
             <div className="canvas">
               <svg className="edges" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-hidden="true">
                 {causalEdges.map((edge,index)=>{ const from=agents.find(a=>a.id===edge.from); const to=agents.find(a=>a.id===edge.to); if(!from||!to) return null; const x1=from.x*10,y1=from.y*6,x2=to.x*10,y2=to.y*6; const affectedEdge=from.status!=="healthy"||to.status!=="healthy"; return <path key={edge.from+"-"+edge.to+"-"+index} d={`M${x1} ${y1} L${x2} ${y2}`} className={(affectedEdge?"dangerEdge ":"")+(edge.relation==="influenced"?"dashed":"")} />; })}
-                {causalEdges.length===0 ? agents.filter(a=>a.id!=="manager").map((agent,index)=><path key={"baseline-"+agent.id} d={`M500 90 L${agent.x*10} ${agent.y*6}`} className={index===0&&phase!=="ready"?"dangerEdge":""} />) : null}
+                {causalEdges.length===0 ? agents.filter(a=>a.id!=="manager").map((agent,index)=><path key={"baseline-"+agent.id} d={`M500 108 L${agent.x*10} ${agent.y*6}`} className={index===0&&phase!=="ready"?"dangerEdge":""} />) : null}
               </svg>
               <div className="humanNode">Human authority</div>
               {agents.map((agent) => (
