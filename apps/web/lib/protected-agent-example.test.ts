@@ -98,3 +98,20 @@ test("rejects unsafe notes capability inputs", () => {
   assert.throws(()=>parseProtectedModelDecision(JSON.stringify({resourceId:"notes",action:"write",input:{text:"ok",path:"/etc/passwd"}})),/invalid sandbox action/);
   assert.throws(()=>parseProtectedModelDecision(JSON.stringify({resourceId:"notes",action:"write",input:{text:"x".repeat(4097)}})),/invalid sandbox action/);
 });
+
+
+test("Gemini oversized provider response fails closed", async () => {
+  const originalFetch=globalThis.fetch; const originalKey=process.env.GEMINI_API_KEY;
+  process.env.GEMINI_API_KEY="test-only-key";
+  globalThis.fetch=(async()=>new Response("x",{status:200,headers:{"content-length":"65537"}})) as typeof fetch;
+  try { await assert.rejects(()=>decideWithGemini("research safely"),/response too large/); }
+  finally { globalThis.fetch=originalFetch; if(originalKey===undefined) delete process.env.GEMINI_API_KEY; else process.env.GEMINI_API_KEY=originalKey; }
+});
+
+test("OpenAI oversized provider response fails closed", async () => {
+  const originalFetch=globalThis.fetch; const originalKey=process.env.OPENAI_API_KEY;
+  process.env.OPENAI_API_KEY="test-only-key";
+  globalThis.fetch=(async()=>new Response("x".repeat(65537),{status:200})) as typeof fetch;
+  try { await assert.rejects(()=>decideWithOpenAI("research safely"),/response too large/); }
+  finally { globalThis.fetch=originalFetch; if(originalKey===undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY=originalKey; }
+});
