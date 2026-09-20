@@ -9,7 +9,7 @@ A release is not considered verified until every required check below has eviden
 - [x] Next.js production build passes.
 - [x] Five-agent selective containment acceptance test passes.
 - [x] Recovery refuses restart without every system check and human approval.
-- [x] Gateway signatures reject body tampering, cross-agent identity use and expired requests.
+- [x] Gateway signatures reject body, timestamp and nonce tampering, cross-agent and cross-workspace identity use, malformed signature inputs, and expired requests.
 
 ## Database security
 - [x] Two distinct authenticated identities cannot cross workspace boundaries (re-verified against production schema with transactional cross-workspace read and privileged reset attacks).
@@ -26,7 +26,7 @@ A release is not considered verified until every required check below has eviden
 - [ ] Goal/prompt hijacking cannot expand the Research agent's allowed browser:read / notes:write authority.
 - [ ] Tool arguments are schema-validated before protected adapter execution.
 - [x] Unknown, paused, offline, or unresolved agent state fails closed at the protected route; production bypass testing remains part of final end-to-end verification.
-- [x] Signed gateway request tampering and cross-agent identity use are rejected.
+- [x] Signed gateway request tampering plus cross-agent/cross-workspace identity substitution are rejected by the signing tests; database replay is separately rejected after nonce consumption.
 - [x] Gateway replay is rejected after nonce consumption.
 - [x] Cross-workspace data access is rejected by RLS verification.
 - [x] Incident evidence remains isolated to its incident.
