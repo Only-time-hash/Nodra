@@ -12,7 +12,7 @@ A release is not considered verified until every required check below has eviden
 - [x] Gateway signatures reject body tampering, cross-agent identity use and expired requests.
 
 ## Database security
-- [x] Two distinct authenticated identities cannot cross workspace boundaries.
+- [x] Two distinct authenticated identities cannot cross workspace boundaries (re-verified against production schema with transactional cross-workspace read and privileged reset attacks).
 - [x] Anonymous execution denied for event recorder, restart assessment and laboratory reset.
 - [x] Direct authenticated security-event insert/update denied.
 - [x] Direct authenticated remediation-evidence insert denied.
