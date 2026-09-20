@@ -36,7 +36,9 @@ function validateCapabilityInput(resourceId:"notes"|"browser",action:"write"|"re
       const privateOrSpecial=a===0||a===10||a===127||(a===169&&b===254)||(a===172&&b>=16&&b<=31)||(a===192&&b===168)||a>=224;
       if(privateOrSpecial) throw new Error("Model returned an invalid sandbox action.");
     }
-    // The current sandbox does not require literal IPv6 destinations. Reject them fail-closed; a future real network adapter must resolve DNS and revalidate every redirect hop before connection.\n    if(ipHost.includes(":")) throw new Error("Model returned an invalid sandbox action.");
+    // The current sandbox does not require literal IPv6 destinations. Reject them fail-closed.
+    // A future real network adapter must resolve DNS and revalidate every redirect hop before connection.
+    if(ipHost.includes(":")) throw new Error("Model returned an invalid sandbox action.");
   }
   if(resourceId==="notes"&&action==="write"){
     if(Object.keys(input).some(key=>key!=="text")) throw new Error("Model returned an invalid sandbox action.");
