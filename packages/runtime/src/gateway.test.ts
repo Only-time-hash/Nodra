@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createObservableGateway } from "./observable-gateway.ts";
+import { PostExecutionObservationError, createObservableGateway } from "./observable-gateway.ts";
 
 test("allowed tool executes and is observed",async()=>{
  const observed:any[]=[]; let calls=0;
@@ -84,4 +84,19 @@ test("recorder intent failure prevents protected adapter execution",async()=>{
   /recorder unavailable/,
  );
  assert.equal(calls,0);
+});
+
+
+test("post-execution recorder failure is explicitly non-retryable", async()=>{
+ let calls=0;
+ const gateway=createObservableGateway(
+  [{agentId:"research",resourceId:"notes",actions:["write"]}],
+  async event=>{ if(event.phase==="result"&&event.executed) throw new Error("recorder unavailable"); },
+ );
+ gateway.register("notes",async()=>{calls++;return {saved:true}});
+ await assert.rejects(
+  ()=>gateway.execute({id:"result-recorder-fail",agentId:"research",resourceId:"notes",action:"write"},{text:"execute once"}),
+  (error:unknown)=>error instanceof PostExecutionObservationError && error.executed===true && error.requestId==="result-recorder-fail",
+ );
+ assert.equal(calls,1);
 });
