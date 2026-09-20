@@ -145,7 +145,27 @@ begin
   end;
   if not replay_blocked then raise exception 'signed gateway nonce replay was accepted'; end if;
 end
-$$;
+$;
+
+do $
+declare cross_agent_blocked boolean := false;
+begin
+  begin
+    insert into public.gateway_request_nonces (
+      workspace_id, agent_id, nonce, request_timestamp, expires_at
+    ) values (
+      'a0000000-0000-4000-8000-000000000001',
+      'b1000000-0000-4000-8000-000000000002',
+      'cross_agent_nonce_1234567890',
+      now(),
+      now() + interval '5 minutes'
+    );
+  exception when others then
+    cross_agent_blocked := true;
+  end;
+  if not cross_agent_blocked then raise exception 'cross-workspace agent nonce binding was accepted'; end if;
+end
+$;
 
 do $$
 begin
