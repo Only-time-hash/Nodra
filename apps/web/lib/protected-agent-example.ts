@@ -25,6 +25,17 @@ function validateCapabilityInput(resourceId:"notes"|"browser",action:"write"|"re
     try { url=new URL(input.url); } catch { throw new Error("Model returned an invalid sandbox action."); }
     if(url.protocol!=="https:") throw new Error("Model returned an invalid sandbox action.");
     if(url.username||url.password) throw new Error("Model returned an invalid sandbox action.");
+    const hostname=url.hostname.toLowerCase().replace(/\.$/,"");
+    if(hostname==="localhost"||hostname.endsWith(".localhost")||hostname.endsWith(".local")||hostname.endsWith(".internal")) throw new Error("Model returned an invalid sandbox action.");
+    const ipv4=hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    if(ipv4){
+      const octets=ipv4.slice(1).map(Number);
+      if(octets.some(n=>n>255)) throw new Error("Model returned an invalid sandbox action.");
+      const [a,b]=octets;
+      const privateOrSpecial=a===0||a===10||a===127||(a===169&&b===254)||(a===172&&b>=16&&b<=31)||(a===192&&b===168)||a>=224;
+      if(privateOrSpecial) throw new Error("Model returned an invalid sandbox action.");
+    }
+    if(hostname==="::1"||hostname.startsWith("fc")||hostname.startsWith("fd")||hostname.startsWith("fe80:")) throw new Error("Model returned an invalid sandbox action.");
   }
   if(resourceId==="notes"&&action==="write"){
     if(Object.keys(input).some(key=>key!=="text")) throw new Error("Model returned an invalid sandbox action.");
