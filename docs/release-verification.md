@@ -24,8 +24,8 @@ A release is not considered verified until every required check below has eviden
 ## Production
 - [x] GitHub OAuth completes callback and onboarding.
 - [ ] Gemini model call succeeds through the protected runtime path.
-- [ ] Incident → containment → investigation → remediation → approval → restart succeeds.
-- [ ] Support remains healthy in the five-agent scenario.
+- [x] Incident → containment → investigation → remediation → approval → restart succeeds.
+- [x] Support remains healthy in the five-agent scenario.
 - [ ] Desktop, tablet and mobile layouts are visually tested.
 - [x] Stable production alias serves the verified commit.
 
