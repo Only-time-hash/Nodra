@@ -46,11 +46,19 @@
 /* Nodra agentic-AI shield dashboard */
 .accentText{background:linear-gradient(90deg,#70a8ff,#806cff);-webkit-background-clip:text;color:transparent}
 .dashboardSub{margin:6px 0 0!important;color:#7789a6!important;font-size:12px!important;letter-spacing:0!important}
-.shieldStats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:22px}
-.shieldStats article{min-width:0;display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #172847;border-radius:8px;background:linear-gradient(145deg,#081328,#07101f);box-shadow:inset 0 1px rgba(255,255,255,.025)}
-.shieldStats strong{display:block;font-size:20px;line-height:1}.shieldStats p{margin:4px 0 3px;font-size:11px;font-weight:700;color:#dce8ff}.shieldStats small{display:block;color:#61728f;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.statIcon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:50%;font-size:14px;background:#0c2034;border:1px solid #1b4465}
-.statIcon.healthy{color:#46e4a1;background:#09251f;border-color:#12684d}.statIcon.danger{color:#ff5d78;background:#2b111b;border-color:#702039}.statIcon.protectedIcon{color:#809cff;background:#111b3a;border-color:#293c82}.statIcon.events{color:#57b8ff;background:#0b2035;border-color:#164b72}
+.shieldStats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:18px}
+.shieldStats article{min-width:0;min-height:96px;display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid #17304f;border-radius:9px;background:#071225;box-shadow:inset 0 1px rgba(255,255,255,.025)}
+.shieldStats article>div{min-width:0;display:flex;flex-direction:column;justify-content:center}
+.shieldStats strong{display:block;font-size:20px;line-height:1;color:#fff}.shieldStats p{margin:5px 0 3px;font-size:11px;font-weight:800;color:#e8f0ff;line-height:1.15}.shieldStats small{display:block;color:#6980a6;font-size:9px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.statIcon{display:grid;place-items:center;flex:0 0 40px;width:40px;height:40px;border-radius:50%;background:#0b2137;border:1px solid #1f557c;box-shadow:0 0 0 1px rgba(255,255,255,.015),inset 0 0 16px rgba(74,149,255,.05)}
+.statIcon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.statIcon.healthy{color:#35e29b;background:#08291f;border-color:#0d7b56}
+.statIcon.healthy svg:first-child path{fill:currentColor;stroke:none}
+.statIcon.danger{color:#ff5e73;background:#2a1119;border-color:#7f2138}
+.statIcon.protectedIcon{color:#4f91ff;background:#0c2550;border-color:#234e9a}
+.statIcon.events{color:#b177ff;background:#261742;border-color:#59358a}
+.statIcon.integrityIcon{color:#40e6a2;background:#08291f;border-color:#0d7b56}
+.statIcon.integrityIcon svg{width:21px;height:21px;stroke-width:2.2}
 .labHeader h1{font-size:27px;letter-spacing:-.035em}.labHeader{align-items:flex-end}.labMain{background:radial-gradient(circle at 50% 0,rgba(20,64,145,.12),transparent 30%),#050b16}
 .sidebar{background:linear-gradient(180deg,#071328,#050b16);border-color:#12213a}.sideNav a.active{background:linear-gradient(90deg,#0d52d8,#12367f);box-shadow:0 0 22px rgba(27,100,255,.18)}
 .canvasPanel,.inspector,.activityPanel{border-color:#152845;background:#071225}.canvas{background-color:#061020}.panelTop,.activityHead{border-color:#142541}
