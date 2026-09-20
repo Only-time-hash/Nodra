@@ -43,14 +43,20 @@ export async function POST(request: Request) {
   if (!body.goal && (typeof body.resourceId !== "string" || typeof body.action !== "string")) {
     return NextResponse.json({ error: "invalid_resource_or_action" }, { status: 400 });
   }
-  if (!body.goal && (typeof body.resourceId !== "string" || typeof body.action !== "string")) {
-    return NextResponse.json({ error: "invalid_resource_or_action" }, { status: 400 });
-  }
-  if (!body.goal && (body.resourceId.length > 64 || body.action.length > 64)) {
-    return NextResponse.json({ error: "invalid_resource_or_action" }, { status: 400 });
-  }
-  if (!body.goal && !((body.resourceId === "browser" && body.action === "read") || (body.resourceId === "notes" && body.action === "write"))) {
-    return NextResponse.json({ error: "tool_action_not_allowed" }, { status: 403 });
+  let directResourceId: string | null = null;
+  let directAction: string | null = null;
+  if (!body.goal) {
+    if (typeof body.resourceId !== "string" || typeof body.action !== "string") {
+      return NextResponse.json({ error: "invalid_resource_or_action" }, { status: 400 });
+    }
+    directResourceId = body.resourceId;
+    directAction = body.action;
+    if (directResourceId.length > 64 || directAction.length > 64) {
+      return NextResponse.json({ error: "invalid_resource_or_action" }, { status: 400 });
+    }
+    if (!((directResourceId === "browser" && directAction === "read") || (directResourceId === "notes" && directAction === "write"))) {
+      return NextResponse.json({ error: "tool_action_not_allowed" }, { status: 403 });
+    }
   }
 
   const resolveAgentState = async (externalId: string) => {
@@ -100,7 +106,7 @@ export async function POST(request: Request) {
   try {
     const result = body.goal
       ? await agent.actFromGoal(String(body.goal))
-      : await agent.act(String(body.resourceId), String(body.action), body.input ?? {});
+      : await agent.act(directResourceId!, directAction!, body.input ?? {});
     return NextResponse.json(result, {
       status: result.event.decision === "deny" ? 403 : result.event.decision === "require-approval" ? 202 : 200,
     });
