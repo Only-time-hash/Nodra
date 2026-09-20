@@ -7,6 +7,12 @@ export async function POST(request: Request) {
   const ctx = await getWorkspaceContext();
   if (!ctx) return NextResponse.json({ error: "authentication_or_workspace_required" }, { status: 401 });
 
+  // Agent identity is server-owned. Never accept caller-supplied identity headers.
+  const claimedAgent = request.headers.get("x-nodra-agent-id") || request.headers.get("x-agent-id");
+  if (claimedAgent && claimedAgent.toLowerCase() !== "research") {
+    return NextResponse.json({ error: "agent_identity_mismatch" }, { status: 403 });
+  }
+
   const contentLength = Number(request.headers.get("content-length") ?? "0");
   if (Number.isFinite(contentLength) && contentLength > 16_384) {
     return NextResponse.json({ error: "request_too_large" }, { status: 413 });
