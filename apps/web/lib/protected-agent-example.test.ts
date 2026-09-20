@@ -86,3 +86,15 @@ test("OpenAI provider non-OK response fails closed", async () => {
     if(originalKey===undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY=originalKey;
   }
 });
+
+
+test("rejects unsafe browser capability inputs", () => {
+  assert.throws(()=>parseProtectedModelDecision(JSON.stringify({resourceId:"browser",action:"read",input:{url:"http://example.com"}})),/invalid sandbox action/);
+  assert.throws(()=>parseProtectedModelDecision(JSON.stringify({resourceId:"browser",action:"read",input:{url:"https://user:pass@example.com"}})),/invalid sandbox action/);
+  assert.throws(()=>parseProtectedModelDecision(JSON.stringify({resourceId:"browser",action:"read",input:{url:"https://example.com",method:"POST"}})),/invalid sandbox action/);
+});
+
+test("rejects unsafe notes capability inputs", () => {
+  assert.throws(()=>parseProtectedModelDecision(JSON.stringify({resourceId:"notes",action:"write",input:{text:"ok",path:"/etc/passwd"}})),/invalid sandbox action/);
+  assert.throws(()=>parseProtectedModelDecision(JSON.stringify({resourceId:"notes",action:"write",input:{text:"x".repeat(4097)}})),/invalid sandbox action/);
+});
