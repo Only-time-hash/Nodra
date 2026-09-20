@@ -7,7 +7,14 @@ export async function POST(request: Request) {
   const ctx = await getWorkspaceContext();
   if (!ctx) return NextResponse.json({ error: "authentication_or_workspace_required" }, { status: 401 });
 
+  const contentLength = Number(request.headers.get("content-length") ?? "0");
+  if (Number.isFinite(contentLength) && contentLength > 16_384) {
+    return NextResponse.json({ error: "request_too_large" }, { status: 413 });
+  }
   const body = await request.json().catch(() => null);
+  if (body?.goal && String(body.goal).length > 4_096) {
+    return NextResponse.json({ error: "goal_too_large" }, { status: 413 });
+  }
   if (!body?.goal && (!body?.resourceId || !body?.action)) {
     return NextResponse.json({ error: "goal_or_resourceId_and_action_required" }, { status: 400 });
   }
