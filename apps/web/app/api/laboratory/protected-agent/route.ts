@@ -59,6 +59,26 @@ export async function POST(request: Request) {
     }
   }
 
+  if (!body.goal) {
+    const input = body.input ?? {};
+    if (!input || typeof input !== "object" || Array.isArray(input)) {
+      return NextResponse.json({ error: "invalid_tool_input" }, { status: 400 });
+    }
+    const inputRecord = input as Record<string, unknown>;
+    if (Object.keys(inputRecord).length > 12) {
+      return NextResponse.json({ error: "tool_input_too_complex" }, { status: 413 });
+    }
+    let serializedInput = "";
+    try {
+      serializedInput = JSON.stringify(inputRecord);
+    } catch {
+      return NextResponse.json({ error: "invalid_tool_input" }, { status: 400 });
+    }
+    if (Buffer.byteLength(serializedInput, "utf8") > 8_192) {
+      return NextResponse.json({ error: "tool_input_too_large" }, { status: 413 });
+    }
+  }
+
   const resolveAgentState = async (externalId: string) => {
     const { data, error } = await ctx.supabase
       .from("agents")
