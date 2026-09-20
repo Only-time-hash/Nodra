@@ -20,6 +20,32 @@ export async function POST(request: Request) {
     );
   }
 
+  // Enforce the same fixed policy in PostgreSQL so horizontally scaled
+  // serverless instances cannot multiply the provider/model budget.
+  const { data: durableRateRows, error: durableRateError } = await ctx.supabase.rpc("consume_protected_agent_rate_limit", {
+    p_workspace_id: ctx.workspaceId,
+  });
+  if (durableRateError) {
+    console.error("[Nodra] distributed protected-agent rate limit unavailable", {
+      code: durableRateError.code ?? null,
+      message: durableRateError.message ?? "unknown_error",
+    });
+    return NextResponse.json({ error: "rate_limit_unavailable" }, { status: 503 });
+  }
+  const durableRate = Array.isArray(durableRateRows) ? durableRateRows[0] : durableRateRows;
+  if (!durableRate?.allowed) {
+    const retryAfterSeconds = Math.max(1, Number(durableRate?.retry_after_seconds ?? 1));
+    console.warn("[Nodra] protected-agent quota exceeded", {
+      event: "protected_agent_distributed_rate_limit_exceeded",
+      workspaceId: ctx.workspaceId,
+      retryAfterSeconds,
+    });
+    return NextResponse.json(
+      { error: "rate_limit_exceeded", retryAfterSeconds },
+      { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } },
+    );
+  }
+
   // Agent identity is server-owned. Never accept caller-supplied identity headers.
   const claimedAgent = request.headers.get("x-nodra-agent-id") || request.headers.get("x-agent-id");
   if (claimedAgent && claimedAgent.toLowerCase() !== "research") {
