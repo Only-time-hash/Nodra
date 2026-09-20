@@ -17,26 +17,36 @@ export async function POST(request: Request) {
   if (Number.isFinite(contentLength) && contentLength > 16_384) {
     return NextResponse.json({ error: "request_too_large" }, { status: 413 });
   }
-  const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object" || Array.isArray(body)) {
+  const rawBody = await request.text().catch(() => "");
+  if (Buffer.byteLength(rawBody, "utf8") > 16_384) {
+    return NextResponse.json({ error: "request_too_large" }, { status: 413 });
+  }
+  let body: Record<string, unknown> | null = null;
+  try {
+    const parsed = JSON.parse(rawBody);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) body = parsed as Record<string, unknown>;
+  } catch {
+    body = null;
+  }
+  if (!body) {
     return NextResponse.json({ error: "invalid_request_body" }, { status: 400 });
   }
   if (body.goal !== undefined && typeof body.goal !== "string") {
     return NextResponse.json({ error: "invalid_goal" }, { status: 400 });
   }
-  if (body?.goal && String(body.goal).length > 4_096) {
+  if (body.goal && String(body.goal).length > 4_096) {
     return NextResponse.json({ error: "goal_too_large" }, { status: 413 });
   }
-  if (!body?.goal && (!body?.resourceId || !body?.action)) {
+  if (!body.goal && (!body.resourceId || !body.action)) {
     return NextResponse.json({ error: "goal_or_resourceId_and_action_required" }, { status: 400 });
   }
-  if (!body?.goal && (typeof body.resourceId !== "string" || typeof body.action !== "string")) {
+  if (!body.goal && (typeof body.resourceId !== "string" || typeof body.action !== "string")) {
     return NextResponse.json({ error: "invalid_resource_or_action" }, { status: 400 });
   }
-  if (!body?.goal && (body.resourceId.length > 64 || body.action.length > 64)) {
+  if (!body.goal && (body.resourceId.length > 64 || body.action.length > 64)) {
     return NextResponse.json({ error: "invalid_resource_or_action" }, { status: 400 });
   }
-  if (!body?.goal && !((body.resourceId === "browser" && body.action === "read") || (body.resourceId === "notes" && body.action === "write"))) {
+  if (!body.goal && !((body.resourceId === "browser" && body.action === "read") || (body.resourceId === "notes" && body.action === "write"))) {
     return NextResponse.json({ error: "tool_action_not_allowed" }, { status: 403 });
   }
 
