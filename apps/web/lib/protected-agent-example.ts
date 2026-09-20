@@ -26,6 +26,7 @@ function validateCapabilityInput(resourceId:"notes"|"browser",action:"write"|"re
     if(url.protocol!=="https:") throw new Error("Model returned an invalid sandbox action.");
     if(url.username||url.password) throw new Error("Model returned an invalid sandbox action.");
     const hostname=url.hostname.toLowerCase().replace(/\.$/,"");
+    const ipHost=hostname.startsWith("[")&&hostname.endsWith("]")?hostname.slice(1,-1):hostname;
     if(hostname==="localhost"||hostname.endsWith(".localhost")||hostname.endsWith(".local")||hostname.endsWith(".internal")) throw new Error("Model returned an invalid sandbox action.");
     const ipv4=hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
     if(ipv4){
@@ -35,7 +36,7 @@ function validateCapabilityInput(resourceId:"notes"|"browser",action:"write"|"re
       const privateOrSpecial=a===0||a===10||a===127||(a===169&&b===254)||(a===172&&b>=16&&b<=31)||(a===192&&b===168)||a>=224;
       if(privateOrSpecial) throw new Error("Model returned an invalid sandbox action.");
     }
-    if(hostname==="::1"||hostname.startsWith("fc")||hostname.startsWith("fd")||hostname.startsWith("fe80:")) throw new Error("Model returned an invalid sandbox action.");
+    if(ipHost==="::1"||ipHost.startsWith("fc")||ipHost.startsWith("fd")||ipHost.startsWith("fe80:")||ipHost.startsWith("::ffff:127.")||ipHost.startsWith("::ffff:10.")||ipHost.startsWith("::ffff:192.168.")||/^::ffff:172\\.(1[6-9]|2\\d|3[01])\\./.test(ipHost)||ipHost.startsWith("::ffff:169.254.")) throw new Error("Model returned an invalid sandbox action.");
   }
   if(resourceId==="notes"&&action==="write"){
     if(Object.keys(input).some(key=>key!=="text")) throw new Error("Model returned an invalid sandbox action.");
