@@ -1003,6 +1003,19 @@ export type Database = {
           external_id: string
         }[]
       }
+      consume_gateway_rate_limit: {
+        Args: {
+          p_agent_id: string
+          p_limit?: number
+          p_window_seconds?: number
+          p_workspace_id: string
+        }
+        Returns: {
+          allowed: boolean
+          remaining: number
+          retry_after_seconds: number
+        }[]
+      }
       record_gateway_intent: {
         Args: {
           p_agent_id: string
