@@ -59,3 +59,41 @@ test("rejects missing signature headers", () => {
     { valid: false, reason: "signature_headers_missing" },
   );
 });
+
+
+test("rejects another workspace identity", () => {
+  const signed = signGatewayRequest(body, identity, { timestamp, nonce });
+  const result = verifyGatewayRequest(body, {
+    timestamp: signed["x-nodra-timestamp"],
+    nonce: signed["x-nodra-nonce"],
+    signature: signed["x-nodra-signature"],
+  }, { ...identity, workspaceId: "workspace-b" }, timestamp);
+  assert.deepEqual(result, { valid: false, reason: "signature_invalid" });
+});
+
+test("rejects timestamp tampering", () => {
+  const signed = signGatewayRequest(body, identity, { timestamp, nonce });
+  const result = verifyGatewayRequest(body, {
+    timestamp: String(timestamp + 1),
+    nonce: signed["x-nodra-nonce"],
+    signature: signed["x-nodra-signature"],
+  }, identity, timestamp + 1);
+  assert.deepEqual(result, { valid: false, reason: "signature_invalid" });
+});
+
+test("rejects nonce tampering", () => {
+  const signed = signGatewayRequest(body, identity, { timestamp, nonce });
+  const result = verifyGatewayRequest(body, {
+    timestamp: signed["x-nodra-timestamp"],
+    nonce: "different_nonce_1234567890",
+    signature: signed["x-nodra-signature"],
+  }, identity, timestamp);
+  assert.deepEqual(result, { valid: false, reason: "signature_invalid" });
+});
+
+test("rejects malformed nonce and signature formats", () => {
+  assert.deepEqual(
+    verifyGatewayRequest(body, { timestamp: String(timestamp), nonce: "short", signature: "v1=bad" }, identity, timestamp),
+    { valid: false, reason: "signature_nonce_invalid" },
+  );
+});
