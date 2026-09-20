@@ -23,8 +23,8 @@ A release is not considered verified until every required check below has eviden
 - [x] Security Advisor reviewed; remaining SECURITY DEFINER warnings are documented and intentional because each function performs its own authenticated workspace/role/object-scope checks. Do not revoke EXECUTE without replacing the application RPC path.
 
 ## Adversarial assurance matrix
-- [ ] Goal/prompt hijacking cannot expand the Research agent's allowed browser:read / notes:write authority.
-- [ ] Tool arguments are schema-validated before protected adapter execution.
+- [x] Goal/prompt hijacking cannot expand the Research agent's allowed browser:read / notes:write authority. Dedicated adversarial regression tests preserve the goal as untrusted data while the executable allowlist remains browser:read / notes:write; both CI workflows passed at `e7d1c9770fb18111d7bbdbd8a9f7b6d534980a8b`.
+- [x] Tool arguments are schema-validated before protected adapter execution. Regression tests reject unauthorized resource/action pairs, malformed/non-object input, excessive keys, oversized UTF-8 input, malformed JSON, and oversized model output; both CI workflows passed at `e7d1c9770fb18111d7bbdbd8a9f7b6d534980a8b`.
 - [x] Unknown, paused, offline, or unresolved agent state fails closed at the protected route; production bypass testing remains part of final end-to-end verification.
 - [x] Signed gateway request tampering plus cross-agent/cross-workspace identity substitution are rejected by the signing tests; database replay and cross-workspace/cross-agent nonce binding are separately rejected against the production schema.
 - [x] Gateway replay is rejected after nonce consumption.
