@@ -19,11 +19,18 @@ function parseDecision(text:string):ModelDecision{
 
 const instruction=(goal:string)=>`You are the Research agent inside a controlled Nodra laboratory. Choose exactly one safe sandbox action for this goal: ${goal}. Return JSON only: {"resourceId":"browser"|"notes","action":"read"|"write","input":{}}. browser must use read; notes must use write.`;
 
+async function fetchWithTimeout(url:string, init:RequestInit, timeoutMs=15000){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeoutMs);
+  try { return await fetch(url,{...init,signal:controller.signal}); }
+  finally { clearTimeout(timer); }
+}
+
 async function decideWithGemini(goal:string):Promise<ModelDecision>{
   const key=process.env.GEMINI_API_KEY;
   if(!key) throw new Error("GEMINI_API_KEY is not configured.");
   const model=process.env.NODRA_AGENT_MODEL??"gemini-2.5-flash";
-  const response=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,{
+  const response=await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,{
     method:"POST",headers:{"content-type":"application/json"},
     body:JSON.stringify({contents:[{parts:[{text:instruction(goal)}]}],generationConfig:{responseMimeType:"application/json"}})
   });
@@ -37,7 +44,7 @@ async function decideWithGemini(goal:string):Promise<ModelDecision>{
 async function decideWithOpenAI(goal:string):Promise<ModelDecision>{
   const key=process.env.OPENAI_API_KEY;
   if(!key) throw new Error("OPENAI_API_KEY is not configured.");
-  const response=await fetch("https://api.openai.com/v1/responses",{
+  const response=await fetchWithTimeout("https://api.openai.com/v1/responses",{
     method:"POST",headers:{"content-type":"application/json",authorization:`Bearer ${key}`},
     body:JSON.stringify({model:process.env.NODRA_AGENT_MODEL??"gpt-5-mini",input:instruction(goal)})
   });
