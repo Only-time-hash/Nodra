@@ -72,11 +72,28 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: verified.reason }, { status: 401 });
   }
 
-  // Only authenticated, signature-verified recorder traffic can consume the
-  // shared workspace/agent event budget. Invalid signatures must not be able
-  // to starve legitimate Flight Recorder traffic.
-  // This remains a process-local first layer; production still requires a
-  // durable distributed limiter across serverless instances.
+  const { error: nonceError } = await ctx.supabase.from("gateway_request_nonces").insert({
+    workspace_id: ctx.workspaceId,
+    agent_id: agent.id,
+    nonce: verified.nonce,
+    request_timestamp: new Date(verified.timestamp * 1000).toISOString(),
+    expires_at: new Date((verified.timestamp + GATEWAY_SIGNATURE_MAX_AGE_SECONDS) * 1000).toISOString(),
+  });
+  if (nonceError) {
+    if (nonceError.code === "23505") {
+      return NextResponse.json({ error: "gateway_request_replayed" }, { status: 409 });
+    }
+    console.error("[Nodra] gateway nonce persistence failed", {
+      code: nonceError.code ?? null,
+      message: nonceError.message ?? "unknown_error",
+    });
+    return NextResponse.json({ error: "gateway_replay_protection_unavailable" }, { status: 503 });
+  }
+
+  // Only unique, authenticated, signature-verified requests consume recorder
+  // quota. Replays are rejected above and cannot starve legitimate traffic.
+  // The process-local layer absorbs bursts; PostgreSQL enforces the shared
+  // workspace/agent quota across serverless instances.
   const rate = checkRateLimit(`gateway-events:${ctx.workspaceId}:${agent.id}`, 240, 60_000);
   if (!rate.allowed) {
     return NextResponse.json(
@@ -103,24 +120,6 @@ export async function POST(request: Request) {
       { error: "gateway_event_rate_limit_exceeded", retryAfterSeconds },
       { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } },
     );
-  }
-
-  const { error: nonceError } = await ctx.supabase.from("gateway_request_nonces").insert({
-    workspace_id: ctx.workspaceId,
-    agent_id: agent.id,
-    nonce: verified.nonce,
-    request_timestamp: new Date(verified.timestamp * 1000).toISOString(),
-    expires_at: new Date((verified.timestamp + GATEWAY_SIGNATURE_MAX_AGE_SECONDS) * 1000).toISOString(),
-  });
-  if (nonceError) {
-    if (nonceError.code === "23505") {
-      return NextResponse.json({ error: "gateway_request_replayed" }, { status: 409 });
-    }
-    console.error("[Nodra] gateway nonce persistence failed", {
-      code: nonceError.code ?? null,
-      message: nonceError.message ?? "unknown_error",
-    });
-    return NextResponse.json({ error: "gateway_replay_protection_unavailable" }, { status: 503 });
   }
 
   let { data: resource } = await ctx.supabase
