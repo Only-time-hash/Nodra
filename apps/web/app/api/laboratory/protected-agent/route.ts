@@ -43,6 +43,9 @@ export async function POST(request: Request) {
   if (!body.goal && (typeof body.resourceId !== "string" || typeof body.action !== "string")) {
     return NextResponse.json({ error: "invalid_resource_or_action" }, { status: 400 });
   }
+  if (!body.goal && (typeof body.resourceId !== "string" || typeof body.action !== "string")) {
+    return NextResponse.json({ error: "invalid_resource_or_action" }, { status: 400 });
+  }
   if (!body.goal && (body.resourceId.length > 64 || body.action.length > 64)) {
     return NextResponse.json({ error: "invalid_resource_or_action" }, { status: 400 });
   }
