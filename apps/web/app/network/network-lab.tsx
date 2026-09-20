@@ -245,7 +245,7 @@ export function NetworkLab() {
                   style={{ left: agent.x + "%", top: agent.y + "%" }}
                   onClick={() => setSelectedId(agent.id)}
                 >
-                  <span className="agentIcon">{agent.name.slice(0, 1)}</span>
+                  <span className={"agentIcon agentIcon-"+agent.id} aria-hidden="true">{agent.id==="manager" ? <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6"/><path d="M12 10v4"/></svg> : agent.id==="research" ? <svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="5"/><path d="m14 14 5 5"/><path d="M7 10h6M10 7v6"/></svg> : agent.id==="finance" ? <svg viewBox="0 0 24 24"><path d="M4 8h16M6 8V20M18 8V20M3 20h18M12 4 4 8h16l-8-4Z"/></svg> : agent.id==="support" ? <svg viewBox="0 0 24 24"><path d="M4 6h16v10H8l-4 4V6Z"/><path d="M8 10h8M8 13h5"/></svg> : <svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>}</span>
                   <span><strong>{agent.name}</strong><small>{agent.role}</small></span>
                   <i />
                 </button>
