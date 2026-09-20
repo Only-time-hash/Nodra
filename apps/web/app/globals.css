@@ -157,3 +157,15 @@
 .agentIcon-finance{background:#2d2410;color:#ffc95d}
 .agentIcon-support{background:#2b183e;color:#c58cff}
 .agentIcon-data{background:#12273f;color:#65b8ff}
+
+/* #24/35 dashboard visual alignment */
+.statIcon.securityEventsIcon{display:flex;align-items:center;justify-content:center;padding:0;line-height:0}
+.statIcon.securityEventsIcon svg{width:19px;height:19px;transform:none}
+.edges path{stroke-linecap:round}
+.agentIcon svg,.inspectorAgentIcon svg{display:block;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.agentNode .agentIcon-manager,.inspectorAgentIcon.agentIcon-manager{background:#0b2743;color:#59a8ff}
+.agentNode .agentIcon-research,.inspectorAgentIcon.agentIcon-research{background:#0a3a32;color:#35e0b0}
+.agentNode .agentIcon-finance,.inspectorAgentIcon.agentIcon-finance{background:#2d2410;color:#ffc95d}
+.agentNode .agentIcon-support,.inspectorAgentIcon.agentIcon-support{background:#2b183e;color:#c58cff}
+.agentNode .agentIcon-data,.inspectorAgentIcon.agentIcon-data{background:#12273f;color:#65b8ff}
+.inspectorAgentIcon{display:grid;place-items:center}
