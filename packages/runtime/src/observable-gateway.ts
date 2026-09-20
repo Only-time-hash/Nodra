@@ -11,6 +11,16 @@ export type GatewayObservation = RecordedEvent & {
 };
 export type GatewayObserver = (event: GatewayObservation) => Promise<void> | void;
 
+export class PostExecutionObservationError extends Error {
+  readonly requestId:string;
+  readonly executed=true;
+  constructor(requestId:string,cause:unknown){
+    super("Tool executed but result recording failed; do not retry automatically.",{cause});
+    this.name="PostExecutionObservationError";
+    this.requestId=requestId;
+  }
+}
+
 export class ObservableNodraGateway extends NodraGateway {
   private observer?: GatewayObserver;
 
@@ -39,13 +49,18 @@ export class ObservableNodraGateway extends NodraGateway {
 
     try {
       const result = await super.execute<T>(request, input);
-      await this.observer?.({
-        ...result.event,
-        phase: "result",
-        executed: result.executed,
-        outcome: result.executed ? "succeeded" : "blocked",
-        occurredAt: new Date().toISOString(),
-      });
+      try {
+        await this.observer?.({
+          ...result.event,
+          phase: "result",
+          executed: result.executed,
+          outcome: result.executed ? "succeeded" : "blocked",
+          occurredAt: new Date().toISOString(),
+        });
+      } catch (error) {
+        if(result.executed) throw new PostExecutionObservationError(request.id,error);
+        throw error;
+      }
       return result;
     } catch (error) {
       await this.observer?.({
