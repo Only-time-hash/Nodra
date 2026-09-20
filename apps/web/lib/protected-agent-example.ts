@@ -15,7 +15,13 @@ function isPlainObject(value:unknown):value is Record<string,unknown>{
 
 function parseDecision(text:string):ModelDecision{
   const cleaned=text.replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"").trim();
-  const parsed=JSON.parse(cleaned) as ModelDecision;
+  let parsed: ModelDecision;
+  try {
+    parsed=JSON.parse(cleaned) as ModelDecision;
+  } catch {
+    throw new Error("Model returned an invalid sandbox action.");
+  }
+  if(!isPlainObject(parsed)) throw new Error("Model returned an invalid sandbox action.");
   const valid=(parsed.resourceId==="browser"&&parsed.action==="read")||(parsed.resourceId==="notes"&&parsed.action==="write");
   if(!valid || !isPlainObject(parsed.input)) throw new Error("Model returned an invalid sandbox action.");
   const keys=Object.keys(parsed.input);
