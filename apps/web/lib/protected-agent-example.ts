@@ -48,8 +48,8 @@ async function decideWithGemini(goal:string):Promise<ModelDecision>{
   const key=process.env.GEMINI_API_KEY;
   if(!key) throw new Error("GEMINI_API_KEY is not configured.");
   const model=process.env.NODRA_AGENT_MODEL??"gemini-2.5-flash";
-  const response=await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,{
-    method:"POST",headers:{"content-type":"application/json"},
+  const response=await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,{
+    method:"POST",headers:{"content-type":"application/json","x-goog-api-key":key},
     body:JSON.stringify({contents:[{parts:[{text:instruction(goal)}]}],generationConfig:{responseMimeType:"application/json"}})
   });
   if(!response.ok) throw new Error(`Gemini request failed: ${response.status}`);
