@@ -70,3 +70,18 @@ test("input validator blocks adapter before invocation",async()=>{
  const result=await gateway.execute({id:"validation-block",agentId:"data",resourceId:"database",action:"write"},{bad:true});
  assert.equal(result.executed,false); assert.equal(calls,0); assert.match(result.event.reason,/validation failed/i);
 });
+
+
+test("recorder intent failure prevents protected adapter execution",async()=>{
+ let calls=0;
+ const gateway=createObservableGateway(
+  [{agentId:"research",resourceId:"notes",actions:["write"]}],
+  async event=>{ if(event.phase==="intent") throw new Error("recorder unavailable"); },
+ );
+ gateway.register("notes",async()=>{calls++;return {saved:true}});
+ await assert.rejects(
+  ()=>gateway.execute({id:"recorder-fail",agentId:"research",resourceId:"notes",action:"write"},{text:"must not execute"}),
+  /recorder unavailable/,
+ );
+ assert.equal(calls,0);
+});
