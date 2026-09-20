@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { createFlightRecorderObserver } from "./gateway-observer.ts";
 
 const identity={workspaceId:"11111111-1111-4111-8111-111111111111",agentId:"22222222-2222-4222-8222-222222222222",masterSecret:"x".repeat(32)};
-const event={id:"evt-1",agentId:"research",resourceId:"browser",action:"read",decision:"allow" as const,reason:"authorized test observation",timestamp:new Date().toISOString()};
+const event={id:"evt-1",agentId:"research",resourceId:"browser",action:"read",decision:"allow" as const,reason:"authorized test observation",phase:"intent" as const,executed:false,occurredAt:new Date().toISOString(),timestamp:new Date().toISOString()};
 
 test("flight recorder rejection fails closed", async()=>{
   const originalFetch=globalThis.fetch;
