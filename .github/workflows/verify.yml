@@ -31,6 +31,8 @@ jobs:
         run: npm ci
       - name: Unit and acceptance tests
         run: npm test
+      - name: Coverage measurement
+        run: npm run test:coverage
       - name: Migration integrity
         run: npm run verify:migrations
       - name: TypeScript
