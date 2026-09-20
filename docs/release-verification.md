@@ -25,7 +25,7 @@ A release is not considered verified until every required check below has eviden
 ## Adversarial assurance matrix
 - [ ] Goal/prompt hijacking cannot expand the Research agent's allowed browser:read / notes:write authority.
 - [ ] Tool arguments are schema-validated before protected adapter execution.
-- [ ] Unknown, paused, offline, or unresolved agent state fails closed.
+- [x] Unknown, paused, offline, or unresolved agent state fails closed at the protected route; production bypass testing remains part of final end-to-end verification.
 - [x] Signed gateway request tampering and cross-agent identity use are rejected.
 - [x] Gateway replay is rejected after nonce consumption.
 - [x] Cross-workspace data access is rejected by RLS verification.
