@@ -55,3 +55,30 @@ test("provider timeout aborts fail closed", async () => {
     globalThis.fetch=originalFetch;
   }
 });
+
+
+test("Gemini provider non-OK response fails closed", async () => {
+  const originalFetch=globalThis.fetch;
+  const originalKey=process.env.GEMINI_API_KEY;
+  process.env.GEMINI_API_KEY="test-only-key";
+  globalThis.fetch=(async()=>new Response("provider unavailable",{status:503})) as typeof fetch;
+  try {
+    await assert.rejects(()=>decideWithGemini("research safely"),/Gemini request failed: 503/);
+  } finally {
+    globalThis.fetch=originalFetch;
+    if(originalKey===undefined) delete process.env.GEMINI_API_KEY; else process.env.GEMINI_API_KEY=originalKey;
+  }
+});
+
+test("OpenAI provider non-OK response fails closed", async () => {
+  const originalFetch=globalThis.fetch;
+  const originalKey=process.env.OPENAI_API_KEY;
+  process.env.OPENAI_API_KEY="test-only-key";
+  globalThis.fetch=(async()=>new Response("provider unavailable",{status:429})) as typeof fetch;
+  try {
+    await assert.rejects(()=>decideWithOpenAI("research safely"),/OpenAI request failed: 429/);
+  } finally {
+    globalThis.fetch=originalFetch;
+    if(originalKey===undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY=originalKey;
+  }
+});
