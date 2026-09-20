@@ -50,7 +50,7 @@ export async function fetchWithTimeout(url:string, init:RequestInit, timeoutMs=1
   finally { clearTimeout(timer); }
 }
 
-async function decideWithGemini(goal:string):Promise<ModelDecision>{
+export async function decideWithGemini(goal:string):Promise<ModelDecision>{
   const key=process.env.GEMINI_API_KEY;
   if(!key) throw new Error("GEMINI_API_KEY is not configured.");
   const model=process.env.NODRA_AGENT_MODEL??"gemini-2.5-flash";
@@ -67,7 +67,7 @@ async function decideWithGemini(goal:string):Promise<ModelDecision>{
   return parseProtectedModelDecision(text);
 }
 
-async function decideWithOpenAI(goal:string):Promise<ModelDecision>{
+export async function decideWithOpenAI(goal:string):Promise<ModelDecision>{
   const key=process.env.OPENAI_API_KEY;
   if(!key) throw new Error("OPENAI_API_KEY is not configured.");
   const response=await fetchWithTimeout("https://api.openai.com/v1/responses",{
