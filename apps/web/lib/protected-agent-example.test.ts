@@ -92,7 +92,7 @@ test("rejects unsafe browser capability inputs", () => {
   assert.throws(()=>parseProtectedModelDecision(JSON.stringify({resourceId:"browser",action:"read",input:{url:"http://example.com"}})),/invalid sandbox action/);
   assert.throws(()=>parseProtectedModelDecision(JSON.stringify({resourceId:"browser",action:"read",input:{url:"https://user:pass@example.com"}})),/invalid sandbox action/);
   assert.throws(()=>parseProtectedModelDecision(JSON.stringify({resourceId:"browser",action:"read",input:{url:"https://example.com",method:"POST"}})),/invalid sandbox action/);
-  for (const url of ["https://localhost/admin","https://api.internal/secrets","https://10.0.0.1/","https://127.0.0.1/","https://169.254.169.254/latest/meta-data/","https://172.16.0.1/","https://192.168.1.1/","https://224.0.0.1/"]) {
+  for (const url of ["https://localhost/admin","https://api.internal/secrets","https://10.0.0.1/","https://127.0.0.1/","https://169.254.169.254/latest/meta-data/","https://172.16.0.1/","https://192.168.1.1/","https://224.0.0.1/","https://[::1]/","https://[fc00::1]/","https://[fd00::1]/","https://[fe80::1]/","https://[::ffff:127.0.0.1]/","https://2130706433/","https://0x7f000001/"]) {
     assert.throws(()=>parseProtectedModelDecision(JSON.stringify({resourceId:"browser",action:"read",input:{url}})),/invalid sandbox action/);
   }
 });
