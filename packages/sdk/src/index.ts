@@ -1,8 +1,34 @@
-import { createHmac, randomUUID } from "node:crypto";
+import { createHash, createHmac, randomUUID } from "node:crypto";
+
 export type NodraDecision="allow"|"deny"|"require-approval";
 export type NodraEvent={id?:string;agentId:string;resourceId:string;action:string;decision:NodraDecision;phase?:"intent"|"result";executed?:boolean;outcome?:string;reason?:string;causedBy?:string;causedByEventId?:string;incidentId?:string;occurredAt?:string};
+
+type Config={baseUrl:string;signingSecret:string;workspaceId:string};
+function sign(body:string,config:Config,agentId:string){
+ if(config.signingSecret.length<32)throw new Error("Nodra signing secret must contain at least 32 characters.");
+ const timestamp=String(Math.floor(Date.now()/1000)),nonce=randomUUID();
+ const key=createHmac("sha256",config.signingSecret).update("nodra-agent-key-v1\n"+config.workspaceId+"\n"+agentId).digest();
+ const bodyDigest=createHash("sha256").update(body).digest("hex");
+ const canonical="v1\n"+timestamp+"\n"+nonce+"\n"+bodyDigest;
+ const digest=createHmac("sha256",key).update(canonical).digest("hex");
+ return {"x-nodra-timestamp":timestamp,"x-nodra-nonce":nonce,"x-nodra-signature":"v1="+digest};
+}
+
 export class Nodra {
- constructor(private config:{baseUrl:string;signingSecret:string;workspaceId:string}){}
- protect(agent:{id:string;name?:string}){return {record:(event:Omit<NodraEvent,"agentId">)=>this.record({...event,agentId:agent.id})}}
- async record(event:NodraEvent){const body=JSON.stringify({...event,id:event.id??randomUUID()});const timestamp=Math.floor(Date.now()/1000).toString(),nonce=randomUUID();const key=createHmac("sha256",this.config.signingSecret).update("nodra:"+this.config.workspaceId+":"+event.agentId).digest();const signature=createHmac("sha256",key).update(timestamp+"."+nonce+"."+body).digest("hex");const res=await fetch(new URL("/api/gateway/events",this.config.baseUrl),{method:"POST",headers:{"content-type":"application/json","x-nodra-timestamp":timestamp,"x-nodra-nonce":nonce,"x-nodra-signature":signature},body});if(!res.ok)throw new Error("Nodra gateway rejected event ("+res.status+")");return res.json()}
+ constructor(private config:Config){}
+ protect(agent:{id:string;name?:string}){
+  return {
+   record:(event:Omit<NodraEvent,"agentId">)=>this.record({...event,agentId:agent.id}),
+   intent:(event:Omit<NodraEvent,"agentId"|"phase"|"executed">)=>this.record({...event,agentId:agent.id,phase:"intent",executed:false}),
+   result:(event:Omit<NodraEvent,"agentId"|"phase">)=>this.record({...event,agentId:agent.id,phase:"result"})
+  };
+ }
+ async record(event:NodraEvent){
+  const payload={...event,id:event.id??randomUUID()};
+  const body=JSON.stringify(payload),headers=sign(body,this.config,event.agentId);
+  const res=await fetch(new URL("/api/gateway/events",this.config.baseUrl),{method:"POST",headers:{"content-type":"application/json",...headers},body});
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok)throw new Error(String(data?.error??("Nodra gateway rejected event ("+res.status+")")));
+  return data;
+ }
 }
