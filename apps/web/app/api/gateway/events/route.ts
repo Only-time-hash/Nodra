@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
-import { getWorkspaceContext } from "../../../../lib/persistence";
-import { GATEWAY_SIGNATURE_MAX_AGE_SECONDS, verifyGatewayRequest } from "../../../../lib/gateway-signing";
+import { authenticateIntegrationRequest } from "../../../../lib/integration-auth";
+import { GATEWAY_SIGNATURE_MAX_AGE_SECONDS } from "../../../../lib/gateway-signing";
 import { checkRateLimit } from "../../../../lib/rate-limit";
 
 const decisions = new Set(["allow", "deny", "require-approval"]);
 
 export async function POST(request: Request) {
-  const ctx = await getWorkspaceContext();
-  if (!ctx) return NextResponse.json({ error: "authentication_or_workspace_required" }, { status: 401 });
-
   const declaredLength = Number(request.headers.get("content-length") ?? "0");
   if (declaredLength > 65_536) {
     return NextResponse.json({ error: "gateway_event_too_large" }, { status: 413 });
@@ -28,62 +25,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_gateway_event" }, { status: 400 });
   }
 
-  const { data: agent, error: agentError } = await ctx.supabase
-    .from("agents")
-    .select("id")
-    .eq("workspace_id", ctx.workspaceId)
-    .eq("external_id", body.agentId)
-    .maybeSingle();
+  const auth = await authenticateIntegrationRequest(request, rawBody, body.agentId);
+  if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+  const ctx = { supabase: auth.admin, workspaceId: auth.workspaceId };
+  const agent = { id: auth.agentId };
 
-  // Never accept an unlinked runtime identity. A missing agent would weaken
-  // containment enforcement, incident attribution, and forensic provenance.
-  if (agentError || !agent?.id) {
-    console.error("[Nodra] gateway agent linkage failed", {
-      code: agentError?.code ?? null,
-      message: agentError?.message ?? "unknown_agent",
-      externalId: body.agentId,
-    });
-    return NextResponse.json({ error: "gateway_agent_linkage_failed" }, { status: 409 });
-  }
-
-  const signingSecret = process.env.NODRA_GATEWAY_SIGNING_SECRET;
-  if (!signingSecret) {
-    console.error("[Nodra] gateway signing secret is not configured");
-    return NextResponse.json({ error: "gateway_signing_not_configured" }, { status: 503 });
-  }
-  let verified;
-  try {
-    verified = verifyGatewayRequest(rawBody, {
-      timestamp: request.headers.get("x-nodra-timestamp"),
-      nonce: request.headers.get("x-nodra-nonce"),
-      signature: request.headers.get("x-nodra-signature"),
-    }, {
-      workspaceId: ctx.workspaceId,
-      agentId: agent.id,
-      masterSecret: signingSecret,
-    });
-  } catch (error) {
-    console.error("[Nodra] gateway signature configuration failed", {
-      message: error instanceof Error ? error.message : "unknown_error",
-    });
-    return NextResponse.json({ error: "gateway_signing_not_configured" }, { status: 503 });
-  }
-  if (!verified.valid) {
-    console.warn("[Nodra] gateway request rejected", {
-      event: "gateway_signature_rejected",
-      workspaceId: ctx.workspaceId,
-      agentId: agent.id,
-      reason: verified.reason,
-    });
-    return NextResponse.json({ error: verified.reason }, { status: 401 });
-  }
-
-  const { error: nonceError } = await ctx.supabase.from("gateway_request_nonces").insert({
+  const { error: nonceError } = await auth.admin.from("gateway_request_nonces").insert({
     workspace_id: ctx.workspaceId,
     agent_id: agent.id,
-    nonce: verified.nonce,
-    request_timestamp: new Date(verified.timestamp * 1000).toISOString(),
-    expires_at: new Date((verified.timestamp + GATEWAY_SIGNATURE_MAX_AGE_SECONDS) * 1000).toISOString(),
+    nonce: auth.verified.nonce,
+    request_timestamp: new Date(auth.verified.timestamp * 1000).toISOString(),
+    expires_at: new Date((auth.verified.timestamp + GATEWAY_SIGNATURE_MAX_AGE_SECONDS) * 1000).toISOString(),
   });
   if (nonceError) {
     if (nonceError.code === "23505") {
