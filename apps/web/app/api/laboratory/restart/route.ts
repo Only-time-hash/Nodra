@@ -21,7 +21,13 @@ export async function POST(request:Request){
   if(typeof body.checks?.humanApproved==="boolean") {
     checks.humanApproved=body.checks.humanApproved;
   }
-  const {count:pendingSteps,error:stepsError}=await ctx.supabase.from("recovery_steps").select("id",{count:"exact",head:true}).eq("recovery_plan_id",plan.id).neq("status","ready");
+  // Verified remediation can legitimately leave a step either ready or completed.
+  // Keep the API preflight aligned with the atomic database restart function.
+  const {count:pendingSteps,error:stepsError}=await ctx.supabase
+    .from("recovery_steps")
+    .select("id",{count:"exact",head:true})
+    .eq("recovery_plan_id",plan.id)
+    .not("status","in",'("ready","completed")');
   if(stepsError) return NextResponse.json({error:"recovery_evidence_unavailable"},{status:503});
   if((pendingSteps??0)>0 && body.checks?.humanApproved===true) return NextResponse.json({error:"remediation_steps_incomplete"},{status:409});
   const humanApproved=checks.humanApproved===true;
