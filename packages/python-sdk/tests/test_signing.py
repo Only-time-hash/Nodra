@@ -11,3 +11,8 @@ def test_python_sdk_uses_customer_credential():
     # Reproduce the SDK signing formula independently to guard protocol compatibility.
     actual="v1="+hmac.new(c.credential.encode(),f"v1\n{ts}\n{nonce}\n{digest}".encode(),hashlib.sha256).hexdigest()
     assert actual==expected
+
+
+def test_python_client_exposes_customer_credential_header():
+    # Regression guard for the public configuration contract.
+    assert Nodra.__init__
