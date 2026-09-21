@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fiveAgentScenario, verifySelectiveContainment } from "./laboratory.ts";
+import { containLaboratoryIncident, fiveAgentScenario, simulateIncident, verifySelectiveContainment } from "./laboratory.ts";
 
 test("five-agent scenario preserves Support outside the blast radius",()=>{
   const affected = new Set<string>([
@@ -29,4 +29,21 @@ test("selective containment fails if Support is affected",()=>{
     data:"at-risk",
     support:"at-risk",
   }),false);
+});
+
+
+test("compromise simulation cannot expand beyond the evidence-derived branch",()=>{
+  const incident = simulateIncident();
+  assert.equal(incident.attemptedAction.decision,"deny");
+  assert.deepEqual([...incident.affectedAgentIds].sort(),[...fiveAgentScenario.expectedContained].sort());
+  assert.equal(incident.affectedAgentIds.includes("support"),false);
+
+  const containment = containLaboratoryIncident();
+  const byId = Object.fromEntries(containment.targets.map((agent)=>[agent.id,agent]));
+  for (const id of fiveAgentScenario.expectedContained) {
+    assert.equal(byId[id]?.delegatedAuthority,false, `${id} retained delegated authority`);
+  }
+  assert.equal(byId.support?.status,"healthy");
+  assert.equal(byId.support?.delegatedAuthority,true);
+  assert.deepEqual(containment.preserved,["support"]);
 });
