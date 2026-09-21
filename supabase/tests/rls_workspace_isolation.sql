@@ -146,9 +146,9 @@ begin
   end;
   if not replay_blocked then raise exception 'signed gateway nonce replay was accepted'; end if;
 end
-$;
+$$;
 
-do $
+do $$
 declare cross_agent_blocked boolean := false;
 begin
   begin
@@ -166,9 +166,9 @@ begin
   end;
   if not cross_agent_blocked then raise exception 'cross-workspace agent nonce binding was accepted'; end if;
 end
-$;
+$$;
 
-do $
+do $$
 begin
   if (select count(*) from public.workspaces) <> 1 then
     raise exception 'tenant A can enumerate another workspace';
