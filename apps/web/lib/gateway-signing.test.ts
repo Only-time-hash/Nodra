@@ -97,3 +97,41 @@ test("rejects malformed nonce and signature formats", () => {
     { valid: false, reason: "signature_nonce_invalid" },
   );
 });
+
+
+test("rejects future-dated signatures outside the allowed clock-skew window", () => {
+  const futureTimestamp = timestamp + 301;
+  const signed = signGatewayRequest(body, identity, { timestamp: futureTimestamp, nonce });
+  assert.deepEqual(
+    verifyGatewayRequest(body, {
+      timestamp: signed["x-nodra-timestamp"],
+      nonce: signed["x-nodra-nonce"],
+      signature: signed["x-nodra-signature"],
+    }, identity, timestamp),
+    { valid: false, reason: "signature_expired" },
+  );
+});
+
+test("rejects timestamps with non-canonical width before signature comparison", () => {
+  const signed = signGatewayRequest(body, identity, { timestamp, nonce });
+  assert.deepEqual(
+    verifyGatewayRequest(body, {
+      timestamp: "01800000000",
+      nonce: signed["x-nodra-nonce"],
+      signature: signed["x-nodra-signature"],
+    }, identity, timestamp),
+    { valid: false, reason: "signature_timestamp_invalid" },
+  );
+});
+
+test("rejects oversized nonces before signature comparison", () => {
+  const signed = signGatewayRequest(body, identity, { timestamp, nonce });
+  assert.deepEqual(
+    verifyGatewayRequest(body, {
+      timestamp: signed["x-nodra-timestamp"],
+      nonce: "a".repeat(129),
+      signature: signed["x-nodra-signature"],
+    }, identity, timestamp),
+    { valid: false, reason: "signature_nonce_invalid" },
+  );
+});
