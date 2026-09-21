@@ -217,61 +217,10 @@ export function NetworkLab() {
           <article><span className={"statIcon "+(integrityState === "verified" ? "integrityIcon" : integrityState === "failed" ? "danger" : "events")} aria-hidden="true"><svg viewBox="0 0 24 24">{integrityState === "verified" ? <path d="m5 12 4 4 10-10"/> : integrityState === "failed" ? <><path d="M12 4 20 19H4L12 4Z"/><path d="M12 9V14"/></> : <path d="M12 5v7l4 2"/>}</svg></span><div><strong>{integrityState === "verified" ? "100%" : integrityState === "failed" ? "FAILED" : "—"}</strong><p>Evidence Integrity</p><small>{integrityState === "verified" ? "Hash chain verified" : integrityState === "failed" ? integrity?.reason ?? "Verification failed" : "Verification in progress"}</small></div></article>
         </section>
 
-        <section className="commandGrid">
-          <article className="commandCard postureCard">
-            <div className="commandTitle"><div><strong>Security Posture</strong><small>Verified protection state</small></div><span className={postureHealthy ? "postureGood" : "postureRisk"}>{postureHealthy ? "Protected" : "Attention"}</span></div>
-            <div className="postureBody"><div className={"postureRing "+(postureHealthy?"good":"risk")}><strong>{postureScore}</strong><span>/100</span></div><div className="postureChecks"><p><i /> Runtime connection {connection}</p><p><i /> Flight Recorder {connection === "live" ? "reachable" : "unavailable"}</p><p><i /> Evidence chain {integrityState}</p><p><i /> Containment state {phase}</p></div></div>
-          </article>
-          <article className="commandCard containmentCard" id="containment">
-            <div className="commandTitle"><div><strong>Containment Status</strong><small>Blast-radius control</small></div><span className={"containmentBadge "+phase}>{phase === "ready" || phase === "resolved" ? "Standby" : phase}</span></div>
-            <div className="containmentRows"><p><span>Quarantined</span><strong>{agents.filter(a=>a.status==="quarantined").length}</strong></p><p><span>Restricted / at risk</span><strong>{agents.filter(a=>a.status==="restricted"||a.status==="at-risk").length}</strong></p><p><span>Healthy</span><strong>{agents.filter(a=>a.status==="healthy").length}</strong></p></div>
-            <small className="containmentNote">{phase==="incident" ? "Propagation detected. Selective containment is available." : phase==="contained"||phase==="recovering" ? "Affected authority has been reduced while healthy agents remain available." : "No active containment action required."}</small>
-          </article>
+        <section className="dashboardReferenceNetwork">
+          <div className="dashboardNetworkHead"><div><strong>Agent Network</strong><span>Live view of AI agents, connections and security posture</span></div><div className="legend"><i />Healthy <i className="warn" />At risk <i className="isolated" />Quarantined</div></div>
+          <div className="dashboardNetworkGrid"><div className="dashboardOrbital"><svg className="dashboardOrbitalEdges" viewBox="0 0 100 100" aria-hidden="true">{agents.filter(a=>a.id!=="manager").map((agent,index)=><path key={agent.id} d={`M50 50 Q${(50+agent.x)/2} ${(50+agent.y)/2-4} ${agent.x} ${agent.y}`} className={"dashPath dashPath"+index}/>)}</svg><div className="dashboardCore"><img src="/nodra-logo.png" alt=""/><strong>Nodra</strong><small>Security Core</small></div>{agents.map(agent=><button key={agent.id} className={"dashboardOrbAgent dashboardOrbAgent-"+agent.id+" "+agent.status+(selectedId===agent.id?" selected":"")} style={{left:agent.x+"%",top:agent.y+"%"}} onClick={()=>setSelectedId(agent.id)}><span><AgentGlyph id={agent.id}/></span><strong>{agent.name} Agent</strong><small>{agent.status}</small></button>)}</div><aside className="dashboardAgentCard"><div className="identity"><span className={"bigIcon inspectorAgentIcon agentIcon-"+selected.id+" "+selected.status}><AgentGlyph id={selected.id}/></span><div><h2>{selected.name} Agent</h2><p>{selected.role}</p></div></div><div className="agentTrust"><span><small>STATUS</small><strong>{selected.status}</strong></span><span><small>TOOLS</small><strong>{selected.tools.length}</strong></span></div><div className="inspectSection"><p className="label">PERMISSIONS</p>{selected.permissions.map(p=><code key={p}>{p}</code>)}</div><div className="dashboardAgentActions"><Link href="/activity">View Logs</Link><Link href="/agents">Manage Agent</Link></div></aside></div>
         </section>
-
-        <div className="labGrid">
-          <section className="canvasPanel" id="network">
-            <div className="panelTop">
-              <div><strong>Agent Network</strong><span>Live authority, trust and propagation paths</span></div>
-              <div className="legend"><i />Healthy <i className="warn" />At risk <i className="isolated" />Quarantined</div>
-            </div>
-            <div className="canvas">
-              <svg className="edges" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                {causalEdges.map((edge,index)=>{ const from=agents.find(a=>a.id===edge.from); const to=agents.find(a=>a.id===edge.to); if(!from||!to) return null; const affectedEdge=from.status!=="healthy"||to.status!=="healthy"; return <path key={edge.from+"-"+edge.to+"-"+index} d={curvedPath(from,to)} className={(affectedEdge?"dangerEdge ":"")+(edge.relation==="influenced"?"dashed":"")} />; })}
-                {causalEdges.length===0 ? agents.filter(a=>a.id!=="manager").map((agent,index)=><path key={"baseline-"+agent.id} d={curvedPath(agents[0],agent)} className={index===0&&phase!=="ready"?"dangerEdge":""} />) : null}
-              </svg>
-              <div className="humanNode">Human authority</div>
-              {agents.map((agent) => (
-                <button
-                  key={agent.id}
-                  className={"agentNode " + agent.status + (selectedId === agent.id ? " selected" : "")}
-                  style={{ left: agent.x + "%", top: agent.y + "%" }}
-                  onClick={() => setSelectedId(agent.id)}
-                >
-                  <span className={"agentIcon agentIcon-"+agent.id} aria-hidden="true"><AgentGlyph id={agent.id}/></span>
-                  <span><strong>{agent.name}</strong><small>{agent.role}</small></span>
-                  <i />
-                </button>
-              ))}
-              <div className="canvasHint"><span className="canvasLive"><i/> LIVE NETWORK</span> Select an agent to inspect authority, tools, and containment state.</div>
-            </div>
-            <div className="incidentBar" id="incidents">
-              <div><span className="shield">◇</span><p><strong>{phase === "ready" ? "Controlled incident scenario ready" : phase === "incident" ? "Potential propagation detected" : "Affected branch isolated"}</strong><small>{phase === "ready" ? "Simulate untrusted content reaching the Research agent." : phase === "incident" ? "Nodra traced the observable causal path and blocked an unauthorized action." : "Research is quarantined. Manager, Finance and Data have restricted authority; Support remains healthy and available."}</small></p></div>
-              {phase === "ready" ? <button className="runBtn" onClick={runIncident} disabled={loading}>{loading ? "Loading state…" : "Run controlled incident"}</button> : phase === "incident" ? <button className="containBtn" onClick={containIncident}>Contain incident</button> : phase === "contained" ? <button className="runBtn" onClick={beginRecovery}>Prepare recovery</button> : phase === "resolved" ? <button className="runBtn" onClick={resetLab}>Run again</button> : null}
-            </div>
-          </section>
-
-          <aside className="inspector" id="agents">
-            <div className="inspectorHead"><p>AGENT INSPECTOR</p><span className={"statusPill " + selected.status}>{selected.status.replace("-", " ")}</span></div>
-            <div className="identity"><span className={"bigIcon inspectorAgentIcon agentIcon-"+selected.id+" "+selected.status} aria-hidden="true"><AgentGlyph id={selected.id}/></span><div><h2>{selected.name}</h2><p>{selected.role}</p></div></div>
-            <div className="agentTrust"><span><small>TRUST STATE</small><strong>{selected.status==="healthy" ? "Trusted" : selected.status==="quarantined" ? "Isolated" : "Reduced"}</strong></span><span><small>TOOLS</small><strong>{selected.tools.length}</strong></span><span><small>PERMISSIONS</small><strong>{selected.permissions.length}</strong></span></div>
-            <div className="inspectSection"><p className="label">TOOLS</p>{selected.tools.map((tool) => <div className="row" key={tool}><span>{tool}</span><b>connected</b></div>)}</div>
-            <div className="inspectSection" id="policies"><p className="label">EXPLICIT PERMISSIONS</p>{selected.permissions.map((permission) => <code key={permission}>{permission}</code>)}</div>
-            <div className="inspectSection"><p className="label">AUTHORITY</p><div className="authority"><span>Delegated by</span><strong>{selected.id === "manager" ? "Human" : "Manager"}</strong></div><div className="authority"><span>Execution state</span><strong>{selected.status === "healthy" ? "Normal" : selected.status === "quarantined" ? "Blocked" : "Restricted"}</strong></div><div className="authority"><span>Blast-radius membership</span><strong>{selected.status === "healthy" ? "Outside affected branch" : "Affected"}</strong></div></div>
-            <div className="inspectSection"><p className="label">CAUSAL RELATIONSHIPS</p>{selectedEdges.length ? selectedEdges.map((edge,index)=><div className="row" key={edge.from+"-"+edge.to+"-"+index}><span>{edge.from} → {edge.to}</span><b>{edge.relation}</b></div>) : <div className="row"><span>No persisted incident edge</span><b>clean</b></div>}</div>
-            {selected.status === "quarantined" ? <div className="quarantineNote"><strong>Quarantine active</strong><p>New tool actions and delegated authority are blocked pending recovery review.</p></div> : null}
-          </aside>
-        </div>
 
         <section className="controlStrip">
           <article id="credentials"><div><span className="controlIcon">▱</span><p><strong>Credentials</strong><small>Scoped runtime authority</small></p></div><b className={affected ? "warnText" : "okText"}>{affected ? "Review" : "Protected"}</b></article>
