@@ -27,10 +27,14 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
+      - name: Refresh workspace lock metadata
+        run: npm install --package-lock-only --ignore-scripts
       - name: Install locked dependencies
         run: npm ci
       - name: Unit and acceptance tests
         run: npm test
+      - name: Python SDK tests
+        run: PYTHONPATH=packages/python-sdk/src python -m unittest discover -s packages/python-sdk/tests -p "test_*.py"
       - name: Coverage measurement
         run: npm run test:coverage
       - name: Migration integrity
