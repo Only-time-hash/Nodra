@@ -10,7 +10,7 @@ export type RateLimitResult = {
 };
 
 export function checkRateLimit(key: string, limit: number, windowMs: number, now = Date.now()): RateLimitResult {
-  if (!Number.isInteger(limit) || limit < 1 || !Number.isFinite(windowMs) || windowMs < 1) {
+  if (!key || key.length > 512 || !Number.isInteger(limit) || limit < 1 || !Number.isFinite(windowMs) || windowMs < 1) {
     throw new Error("invalid rate limit configuration");
   }
 
