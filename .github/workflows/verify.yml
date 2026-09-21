@@ -53,8 +53,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
-      - name: Start isolated local Supabase
-        run: npx supabase@latest start
+      - name: Start isolated local Supabase database
+        run: npx supabase@latest db start
       - name: Apply repository migrations
         run: npx supabase@latest db reset
       - name: Database lint
