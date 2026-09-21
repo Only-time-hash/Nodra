@@ -22,10 +22,16 @@ export async function GET() {
   }
   let containmentActions:any[]=[];
   if(incident){ const {data:actions}=await ctx.supabase.from("containment_actions").select("id,action_type,target_type,target_ref,reason,executed_at").eq("incident_id",incident.id).order("executed_at",{ascending:true}); containmentActions=actions??[]; }
-  let recovery=null;
+  let recovery:any=null;
   if(incident){
     const {data:plan}=await ctx.supabase.from("recovery_plans").select("id,safe_to_restart,restart_checks,approved_by,approved_at").eq("incident_id",incident.id).maybeSingle();
-    if(plan){ const {data:steps}=await ctx.supabase.from("recovery_steps").select("id,title,reason,requires_human,status,completed_at").eq("recovery_plan_id",plan.id).order("id"); recovery={...plan,steps:steps??[]}; }
+    if(plan){
+      const {data:steps}=await ctx.supabase.from("recovery_steps").select("id,title,reason,requires_human,status,completed_at").eq("recovery_plan_id",plan.id).order("id");
+      const recoverySteps=steps??[];
+      const blockingSteps=recoverySteps.filter((step:any)=>!["ready","completed"].includes(String(step.status)));
+      const invariantValid=!(incident.state==="resolved" && (blockingSteps.length>0 || plan.safe_to_restart!==true));
+      recovery={...plan,steps:recoverySteps,blockingSteps:blockingSteps.map((step:any)=>({id:step.id,title:step.title,status:step.status})),invariantValid};
+    }
   }
   const incidentEvents=incident ? (events??[]).filter((event:any)=>event.incident_id===incident.id) : [];
   let remediationActions:any[]=[]; let remediationEvidence:any[]=[];
@@ -42,5 +48,10 @@ export async function GET() {
     ...remediationActions.map((action:any)=>({kind:"remediation",id:action.id,at:action.completed_at??action.started_at,label:action.action_type,detail:action.status,target:action.target})),
     ...remediationEvidence.map((e:any)=>({kind:"evidence",id:e.id,at:e.verified_at,label:e.check_key,detail:`${e.evidence_type} · ${e.source}`,target:e.evidence_ref}))
   ].sort((a:any,b:any)=>String(a.at).localeCompare(String(b.at)));
-  return NextResponse.json({agents:agents??[],incident,events:events??[],causalEdges,affected,containmentActions,remediationActions,remediationEvidence,forensicTimeline,recovery,integrity});
+  const health={
+    eventChainValid:integrity.valid,
+    recoveryInvariantValid:recovery?.invariantValid??true,
+    blockingRecoverySteps:recovery?.blockingSteps?.length??0
+  };
+  return NextResponse.json({agents:agents??[],incident,events:events??[],causalEdges,affected,containmentActions,remediationActions,remediationEvidence,forensicTimeline,recovery,integrity,health});
 }
