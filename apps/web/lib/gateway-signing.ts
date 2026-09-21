@@ -80,3 +80,19 @@ export function verifyGatewayRequest(
 
   return { valid: true, timestamp: timestampNumber, nonce };
 }
+
+export function verifyCredentialRequest(body:string,headers:{timestamp:string|null;nonce:string|null;signature:string|null},credential:string,nowSeconds=Math.floor(Date.now()/1000)){
+ if(credential.length<32)return {valid:false as const,reason:"credential_invalid"};
+ const {timestamp,nonce,signature}=headers;
+ if(!timestamp||!nonce||!signature)return {valid:false as const,reason:"signature_headers_missing"};
+ if(!/^\d{10}$/.test(timestamp))return {valid:false as const,reason:"signature_timestamp_invalid"};
+ if(!/^[A-Za-z0-9_-]{20,128}$/.test(nonce))return {valid:false as const,reason:"signature_nonce_invalid"};
+ const timestampNumber=Number(timestamp);
+ if(Math.abs(nowSeconds-timestampNumber)>GATEWAY_SIGNATURE_MAX_AGE_SECONDS)return {valid:false as const,reason:"signature_expired"};
+ const match=/^v1=([a-f0-9]{64})$/.exec(signature);if(!match)return {valid:false as const,reason:"signature_format_invalid"};
+ const bodyDigest=createHash("sha256").update(body).digest("hex");
+ const expected=createHmac("sha256",credential).update("v1\n"+timestamp+"\n"+nonce+"\n"+bodyDigest).digest();
+ const supplied=Buffer.from(match[1],"hex");
+ if(supplied.length!==expected.length||!timingSafeEqual(supplied,expected))return {valid:false as const,reason:"signature_invalid"};
+ return {valid:true as const,timestamp:timestampNumber,nonce};
+}
