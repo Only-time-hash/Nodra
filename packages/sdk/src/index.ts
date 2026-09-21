@@ -10,7 +10,7 @@ function sign(body:string,config:Config,agentId:string){
  const bodyDigest=createHash("sha256").update(body).digest("hex");
  const canonical="v1\n"+timestamp+"\n"+nonce+"\n"+bodyDigest;
  const digest=createHmac("sha256",config.credential).update(canonical).digest("hex");
- return {"x-nodra-timestamp":timestamp,"x-nodra-nonce":nonce,"x-nodra-signature":"v1="+digest};
+ return {"x-nodra-credential":config.credential,"x-nodra-timestamp":timestamp,"x-nodra-nonce":nonce,"x-nodra-signature":"v1="+digest};
 }
 
 export class Nodra {
@@ -39,4 +39,5 @@ export class Nodra {
   return data;
  }
 }
-\nexport {protectTool,mcpGuard,openAIGuard,langChainGuard,crewAIGuard,restGuard} from "./adapters";\n
+
+export {protectTool,mcpGuard,openAIGuard,langChainGuard,crewAIGuard,restGuard} from "./adapters";
