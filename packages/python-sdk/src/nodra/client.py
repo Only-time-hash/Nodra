@@ -5,6 +5,7 @@ class Nodra:
         if len(credential)<32: raise ValueError("Nodra credential must contain at least 32 characters.")
         self.base_url=base_url.rstrip("/");self.workspace_id=workspace_id;self.credential=credential
     def protect(self,agent_id): return NodraAgent(self,agent_id)
+    def authorize(self,agent_id,resource_id,action): return self.protect(agent_id).authorize(resource_id,action)
     def _post(self,path,payload,agent_id):
         body=json.dumps(payload,separators=(",",":")).encode()
         ts=str(int(time.time()));nonce=secrets.token_urlsafe(24)
