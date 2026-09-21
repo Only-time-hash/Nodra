@@ -331,7 +331,7 @@ $service_role_gateway$;
 
 reset role;
 
-do $
+do $expired_nonce_check$
 begin
   if exists (
     select 1 from public.gateway_request_nonces
@@ -340,7 +340,7 @@ begin
     raise exception 'expired gateway nonce was not pruned';
   end if;
 end
-$$;
+$expired_nonce_check$;
 
 rollback;
 
