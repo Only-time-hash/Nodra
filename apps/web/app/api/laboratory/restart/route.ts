@@ -5,7 +5,7 @@ const evidenceKeys=["originPatched","credentialsRotated","memoryReviewed","pendi
 
 export async function POST(request:Request){
   const ctx=await getWorkspaceContext();
-  if(!ctx) return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
+  if(!ctx) return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});\n  if(!["owner","admin"].includes(ctx.role)) return NextResponse.json({error:"owner_or_admin_restart_required"},{status:403});
   const body=await request.json().catch(()=>null);
   if(!body?.incidentId) return NextResponse.json({error:"incidentId_required"},{status:400});
   const {data:plan}=await ctx.supabase.from("recovery_plans").select("id,restart_checks").eq("incident_id",body.incidentId).eq("workspace_id",ctx.workspaceId).maybeSingle();
