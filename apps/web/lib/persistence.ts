@@ -3,9 +3,26 @@ import { createClient } from "./supabase/server";
 export async function getWorkspaceContext() {
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
-  if (!claims?.claims) return null;
-  const { data } = await supabase.from("workspace_members").select("workspace_id,role").limit(1).maybeSingle();
-  return data ? { supabase, workspaceId: data.workspace_id as string, role: data.role as string, userId: claims.claims.sub as string } : null;
+  const userId = claims?.claims?.sub as string | undefined;
+  if (!userId) return null;
+
+  // RLS already limits membership visibility, but keep the ownership predicate
+  // explicit here so workspace selection remains fail-closed if policies evolve.
+  const { data, error } = await supabase
+    .from("workspace_members")
+    .select("workspace_id,role")
+    .eq("user_id", userId)
+    .order("workspace_id", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return {
+    supabase,
+    workspaceId: data.workspace_id as string,
+    role: data.role as string,
+    userId,
+  };
 }
 
 export async function ensureLabAgents() {
@@ -24,4 +41,3 @@ export async function ensureLabAgents() {
   }
   return { ...ctx, agents: found };
 }
-
