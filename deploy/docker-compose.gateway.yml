@@ -1,14 +1,23 @@
 services:
   nodra-gateway:
-    image: node:22-alpine
-    working_dir: /app
-    command: ["node","gateway.mjs"]
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.gateway
     restart: unless-stopped
     environment:
       NODRA_BASE_URL: ${NODRA_BASE_URL}
-      NODRA_WORKSPACE_ID: ${NODRA_WORKSPACE_ID}
-      NODRA_GATEWAY_SIGNING_SECRET: ${NODRA_GATEWAY_SIGNING_SECRET}
-    volumes:
-      - ./gateway.mjs:/app/gateway.mjs:ro
+      NODRA_CREDENTIAL: ${NODRA_CREDENTIAL}
+      PORT: 8787
     ports:
-      - "8787:8787"
+      - "127.0.0.1:8787:8787"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8787/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
