@@ -13,7 +13,7 @@ export default function HomePage() {
   return (
     <main>
       <header className="nav shell">
-        <a className="brand imageBrand publicBrand" href="#top" aria-label="Nodra home"><img src="/nodra-logo.webp" alt="Nodra — The Shield for Agentic AI"/></a>
+        <a className="brand imageBrand publicBrand" href="#top" aria-label="Nodra home"><img src="/nodra-logo.png" alt="Nodra — The Shield for Agentic AI"/></a>
         <nav aria-label="Primary navigation">
           <a href="#product">Product</a>
           <a href="#developers">Developers</a>
@@ -100,7 +100,7 @@ export default function HomePage() {
       </section>
 
       <footer className="footer shell" id="signin">
-        <a className="brand imageBrand publicBrand" href="#top"><img src="/nodra-logo.webp" alt="Nodra — The Shield for Agentic AI"/></a>
+        <a className="brand imageBrand publicBrand" href="#top"><img src="/nodra-logo.png" alt="Nodra — The Shield for Agentic AI"/></a>
         <p>Containment, provenance, and recovery infrastructure for autonomous AI agents.</p>
         <p className="muted">V0.1 · Built in public</p>
       </footer>
