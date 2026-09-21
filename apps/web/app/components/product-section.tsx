@@ -11,7 +11,7 @@ const desc:any={map:"Visualize agent authority, trust relationships and propagat
 
 export function ProductSection({section}:{section:string}){
  const [state,setState]=useState<any>(null),[query,setQuery]=useState(""),[busy,setBusy]=useState(""),[message,setMessage]=useState(""),[networkView,setNetworkView]=useState<"network"|"table"|"evidence">("network"),[selectedAgent,setSelectedAgent]=useState<string|null>(null),[uiTab,setUiTab]=useState("all"),[uiFilter,setUiFilter]=useState(""),[uiPage,setUiPage]=useState(1),[accent,setAccent]=useState("blue"),[density,setDensity]=useState("comfortable");
- const logout=async()=>{setBusy("Signing out");setMessage("");try{const supabase=createClient();const {error}=await supabase.auth.signOut({scope:"local"});if(error)throw error;window.location.replace("/")}catch{setMessage("Sign out failed");setBusy("")}};
+ const logout=async()=>{setBusy("Signing out");setMessage("");try{const supabase=createClient();const {error}=await supabase.auth.signOut();if(error)throw error;window.location.replace("/")}catch{setMessage("Sign out failed");setBusy("")}};
  const load=()=>fetch("/api/laboratory/state",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(setState).catch(()=>setState(null));
  useEffect(()=>{load()},[]);
  const act=async(label:string,url:string,body:any={})=>{setBusy(label);setMessage("");try{const r=await fetch(url,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});const j=await r.json().catch(()=>({}));setMessage(r.ok?label+" completed":j.error??label+" failed");await load()}catch{setMessage(label+" failed")}finally{setBusy("")}};
