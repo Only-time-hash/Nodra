@@ -57,6 +57,8 @@ jobs:
         run: npx supabase@latest start
       - name: Apply repository migrations
         run: npx supabase@latest db reset
+      - name: Database lint
+        run: npx supabase@latest db lint --level error
       - name: Workspace isolation and replay tests
         shell: bash
         run: |
