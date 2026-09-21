@@ -32,9 +32,10 @@ export async function PUT(request:Request){
  const {data:old}=await createAdminClient().from("integration_credentials").select("id,agent_id,label,status").eq("workspace_id",ctx.workspaceId).eq("id",body.credentialId).eq("status","active").maybeSingle();
  if(!old)return NextResponse.json({error:"credential_not_found"},{status:404});
  const issued=issueIntegrationSecret();
- const {data:next,error}=await createAdminClient().from("integration_credentials").insert({workspace_id:ctx.workspaceId,agent_id:old.agent_id,label:old.label,secret_hash:issued.hash,secret_prefix:issued.prefix,created_by:ctx.userId,rotated_from:old.id}).select("id,label,secret_prefix,status,created_at").single();
+ const admin=createAdminClient();
+ const {data:next,error}=await admin.from("integration_credentials").insert({workspace_id:ctx.workspaceId,agent_id:old.agent_id,label:old.label,secret_hash:issued.hash,secret_prefix:issued.prefix,created_by:ctx.userId,rotated_from:old.id}).select("id,label,secret_prefix,status,created_at").single();
  if(error||!next)return NextResponse.json({error:"credential_rotation_failed"},{status:500});
- const {error:revokeError}=await createAdminClient().from("integration_credentials").update({status:"revoked",revoked_at:new Date().toISOString()}).eq("workspace_id",ctx.workspaceId).eq("id",old.id).eq("status","active");
- if(revokeError){await createAdminClient().from("integration_credentials").delete().eq("workspace_id",ctx.workspaceId).eq("id",next.id);return NextResponse.json({error:"credential_rotation_failed"},{status:500})}
+ const {error:revokeError}=await admin.from("integration_credentials").update({status:"revoked",revoked_at:new Date().toISOString()}).eq("workspace_id",ctx.workspaceId).eq("id",old.id).eq("status","active");
+ if(revokeError){await admin.from("integration_credentials").delete().eq("workspace_id",ctx.workspaceId).eq("id",next.id);return NextResponse.json({error:"credential_rotation_failed"},{status:500})}
  return NextResponse.json({credential:next,secret:issued.secret,warning:"Store this rotated secret now. Nodra will not return it again."});
 }
