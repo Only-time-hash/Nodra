@@ -5,6 +5,7 @@ import { ensureLabAgents } from "../../../../lib/persistence";
 export async function POST() {
   const ctx=await ensureLabAgents();
   if(!ctx) return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
+  if(!["owner","admin","analyst"].includes(ctx.role)) return NextResponse.json({error:"insufficient_role"},{status:403});
   const simulated=simulateIncident();
   const research=ctx.agents.get("research"), manager=ctx.agents.get("manager"), finance=ctx.agents.get("finance"), data=ctx.agents.get("data"), support=ctx.agents.get("support");
   if(!research||!manager||!finance||!data||!support) return NextResponse.json({error:"laboratory_agents_missing"},{status:500});
