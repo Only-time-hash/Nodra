@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {hashIntegrationSecret,issueIntegrationSecret} from "./integration-credentials";
+import {hashIntegrationSecret,issueIntegrationSecret} from "./integration-credentials.ts";
 
 test("customer credential lookup uses a one-way hash",()=>{
  const issued=issueIntegrationSecret();
