@@ -115,6 +115,27 @@ begin
 end
 $$;
 
+-- Privileged SECURITY DEFINER functions must never become anonymously executable.
+do $
+declare leaked text[];
+begin
+  select array_agg(p.proname order by p.proname)
+  into leaked
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname = 'public'
+    and p.prosecdef
+    and (
+      has_function_privilege('anon', p.oid, 'execute')
+      or has_function_privilege('public', p.oid, 'execute')
+    );
+
+  if leaked is not null then
+    raise exception 'SECURITY DEFINER functions exposed to anon/public: %', leaked;
+  end if;
+end
+$;
+
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"10000000-0000-4000-8000-000000000001","role":"authenticated"}', true);
 
