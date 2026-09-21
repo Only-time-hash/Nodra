@@ -183,3 +183,15 @@
   .networkWorkspace{grid-template-columns:minmax(0,1fr) 280px}
   .topology{height:560px}
 }
+
+/* #35.13 desktop accessibility and zoom resilience */
+@media(min-width:701px){
+  .commandTopbar,.labHeader,.headerActions,.buttonRow{flex-wrap:wrap}
+  .commandGrid>*,.dashboardLower>*,.labGrid>*,.networkWorkspace>*{min-width:0}
+  .sectionTable>div,.settingsRows>div{overflow-wrap:anywhere}
+}
+@media(min-width:1051px) and (max-width:1279px){
+  .networkWorkspace{grid-template-columns:minmax(0,1fr) 240px}
+  .topologyNode.west{left:18%}
+  .topologyNode.east{left:82%}
+}
