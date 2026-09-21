@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { signGatewayRequest, verifyGatewayRequest, verifyCredentialRequest } from "./gateway-signing.ts";
+import { createHash, createHmac } from "node:crypto";\nimport { signGatewayRequest, verifyGatewayRequest, verifyCredentialRequest } from "./gateway-signing.ts";
 
 const identity = {
   workspaceId: "workspace-a",
