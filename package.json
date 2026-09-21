@@ -10,10 +10,16 @@
     "test": "node --experimental-strip-types --test packages/*/src/*.test.ts apps/web/lib/*.test.ts",
     "verify:migrations": "node scripts/verify-migrations.mjs",
     "verify:database": "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f supabase/tests/rls_workspace_isolation.sql",
-    "test:coverage": "node --experimental-test-coverage --experimental-strip-types --test packages/*/src/*.test.ts apps/web/lib/*.test.ts"
+    "test:coverage": "node --experimental-test-coverage --experimental-strip-types --test packages/*/src/*.test.ts apps/web/lib/*.test.ts",
+    "test:python": "PYTHONPATH=packages/python-sdk/src python -m unittest discover -s packages/python-sdk/tests -p \"test_*.py\""
   },
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/containment",
+    "packages/policy",
+    "packages/recovery",
+    "packages/runtime",
+    "packages/sdk",
+    "packages/cli"
   ]
 }
