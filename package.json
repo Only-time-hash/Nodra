@@ -19,6 +19,7 @@
     "packages/policy",
     "packages/recovery",
     "packages/runtime",
+    "packages/provenance",
     "packages/sdk",
     "packages/cli"
   ]
