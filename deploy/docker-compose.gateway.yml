@@ -1,0 +1,14 @@
+services:
+  nodra-gateway:
+    image: node:22-alpine
+    working_dir: /app
+    command: ["node","gateway.mjs"]
+    restart: unless-stopped
+    environment:
+      NODRA_BASE_URL: ${NODRA_BASE_URL}
+      NODRA_WORKSPACE_ID: ${NODRA_WORKSPACE_ID}
+      NODRA_GATEWAY_SIGNING_SECRET: ${NODRA_GATEWAY_SIGNING_SECRET}
+    volumes:
+      - ./gateway.mjs:/app/gateway.mjs:ro
+    ports:
+      - "8787:8787"
