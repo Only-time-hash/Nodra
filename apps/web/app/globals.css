@@ -384,3 +384,24 @@
  .incidentRef .refSidePanel{min-height:auto}
  .referenceCanvas{min-height:500px}
 }
+
+
+/* Functional policy/settings and final orbital fidelity */
+.policyRefSide .refSidePanel>p{display:grid!important;grid-template-columns:12px minmax(0,1fr) auto!important;gap:10px!important;align-items:center!important;min-height:28px;padding:8px 0!important;margin:0!important;line-height:1.25;border-bottom:1px solid #102a44}
+.policyRefSide .refSidePanel>p>span{min-width:0}
+.policyRefSide .refSidePanel>p>b{justify-self:end;white-space:nowrap}
+.policyRef .refTabs{display:flex;align-items:stretch;gap:4px;flex-wrap:nowrap;overflow-x:auto}
+.policyRef .refTabs>button{min-width:110px;white-space:normal;line-height:1.15;min-height:52px}
+.policyRef .refTabs>label{min-width:260px;flex:1}
+.appearanceControls{display:grid;gap:12px;margin-top:14px}
+.appearanceControls>section{border:1px solid #12365c;border-radius:8px;background:#07182a;padding:14px;display:grid;gap:5px}
+.appearanceControls small{color:#8099b5}
+.appearanceChoices{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.appearanceChoices button{display:flex;align-items:center;gap:7px;border:1px solid #174a76;border-radius:7px;background:#061426;color:#a9bfd6;padding:8px 11px;text-transform:capitalize;cursor:pointer}
+.appearanceChoices button.selected{border-color:var(--nodra-blue);color:#fff;box-shadow:0 0 0 1px var(--nodra-blue)}
+.swatch{width:12px;height:12px;border-radius:50%;display:block}.swatch.blue{background:#1478ff}.swatch.cyan{background:#28b9ff}.swatch.green{background:#31df9a}.swatch.purple{background:#9d6cff}
+.lab.accent-cyan{--nodra-blue:#28b9ff}.lab.accent-green{--nodra-blue:#31df9a}.lab.accent-purple{--nodra-blue:#9d6cff}
+.lab.density-compact .settingsContent,.lab.density-compact .refMainPanel,.lab.density-compact .refSidePanel{padding-top:11px;padding-bottom:11px}
+.agentsMiniNetwork .miniOrbital{min-height:390px}
+.agentsMiniNetwork .miniOrbitalEdges{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.agentsMiniNetwork .miniPath{fill:none;stroke-width:.8;stroke-dasharray:3 2;stroke-linecap:round}
