@@ -254,3 +254,8 @@
 .labBrand.textBrand .brandCopy{display:grid;place-items:start;width:auto;height:auto;background:transparent;border-radius:0;margin:0!important}
 .labBrand.textBrand .brandCopy strong{font-size:19px;line-height:1;letter-spacing:.12em;color:#f5f8ff}
 .labBrand.textBrand .brandCopy small{font-size:9px;line-height:1.15;letter-spacing:.08em;color:#7487a5;font-weight:700;margin-top:5px}
+
+/* Exact approved Nodra artwork. The image contains the symbol, wordmark and tagline; never crop or reconstruct it. */
+.labBrand.exactBrand{display:flex;align-items:center;justify-content:center;width:100%;min-height:118px;padding:12px 14px!important;overflow:hidden}
+.labBrand.exactBrand>img{display:block;width:100%;max-width:210px;height:auto;max-height:96px;object-fit:contain;object-position:center;background:transparent}
+@media(max-width:1050px){.labBrand.exactBrand{min-height:72px;padding:10px!important}.labBrand.exactBrand>img{max-width:62px;max-height:54px}}
