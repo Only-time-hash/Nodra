@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { signGatewayRequest, verifyGatewayRequest } from "./gateway-signing.ts";
+import { signGatewayRequest, verifyGatewayRequest, verifyCredentialRequest } from "./gateway-signing.ts";
 
 const identity = {
   workspaceId: "workspace-a",
@@ -134,4 +134,17 @@ test("rejects oversized nonces before signature comparison", () => {
     }, identity, timestamp),
     { valid: false, reason: "signature_nonce_invalid" },
   );
+});
+
+test("accepts credential-signed customer runtime request",()=>{
+ const credential="ndra_customer_secret_that_is_long_enough_123456";
+ const digest=(await import("node:crypto")).createHash("sha256").update(body).digest("hex");
+ const signature=(await import("node:crypto")).createHmac("sha256",credential).update("v1\n"+timestamp+"\n"+nonce+"\n"+digest).digest("hex");
+ assert.deepEqual(verifyCredentialRequest(body,{timestamp:String(timestamp),nonce,signature:"v1="+signature},credential,timestamp),{valid:true,timestamp,nonce});
+});
+test("rejects tampered credential runtime body",()=>{
+ const credential="ndra_customer_secret_that_is_long_enough_123456";
+ const crypto=await import("node:crypto"),digest=crypto.createHash("sha256").update(body).digest("hex");
+ const signature=crypto.createHmac("sha256",credential).update("v1\n"+timestamp+"\n"+nonce+"\n"+digest).digest("hex");
+ assert.deepEqual(verifyCredentialRequest(body+" ",{timestamp:String(timestamp),nonce,signature:"v1="+signature},credential,timestamp),{valid:false,reason:"signature_invalid"});
 });
