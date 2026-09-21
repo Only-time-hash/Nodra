@@ -10,6 +10,9 @@ export async function POST(request:Request){
   if(!body?.incidentId) return NextResponse.json({error:"incidentId_required"},{status:400});
   const {data:plan}=await ctx.supabase.from("recovery_plans").select("id,restart_checks").eq("incident_id",body.incidentId).eq("workspace_id",ctx.workspaceId).maybeSingle();
   if(!plan) return NextResponse.json({error:"recovery_plan_not_found"},{status:404});
+  const {data:incident}=await ctx.supabase.from("incidents").select("id,state").eq("id",body.incidentId).eq("workspace_id",ctx.workspaceId).maybeSingle();
+  if(!incident) return NextResponse.json({error:"incident_not_found"},{status:404});
+  if(incident.state!=="recovering") return NextResponse.json({error:"incident_not_ready_for_restart"},{status:409});
   const checks = plan.restart_checks && typeof plan.restart_checks === "object" && !Array.isArray(plan.restart_checks)
     ? { ...plan.restart_checks }
     : {};
@@ -18,13 +21,16 @@ export async function POST(request:Request){
     if(!["owner","admin"].includes(ctx.role)) return NextResponse.json({error:"owner_or_admin_approval_required"},{status:403});
     checks.humanApproved=body.checks.humanApproved;
   }
+  const {count:pendingSteps,error:stepsError}=await ctx.supabase.from("recovery_steps").select("id",{count:"exact",head:true}).eq("recovery_plan_id",plan.id).neq("status","ready");
+  if(stepsError) return NextResponse.json({error:"recovery_evidence_unavailable"},{status:503});
+  if((pendingSteps??0)>0 && body.checks?.humanApproved===true) return NextResponse.json({error:"remediation_steps_incomplete"},{status:409});
   const humanApproved=checks.humanApproved===true;
   await ctx.supabase.from("recovery_plans").update({restart_checks:checks,approved_by:humanApproved?ctx.userId:null,approved_at:humanApproved?new Date().toISOString():null}).eq("id",plan.id);
   const {data:safe,error}=await ctx.supabase.rpc("assess_incident_restart",{p_incident_id:body.incidentId});
   if(error) return NextResponse.json({error:"restart_assessment_failed"},{status:500});
-  if(safe){
+  if(safe && (pendingSteps??0)===0){
     await ctx.supabase.from("incidents").update({state:"resolved",resolved_at:new Date().toISOString()}).eq("id",body.incidentId);
     await ctx.supabase.from("agents").update({status:"healthy",authority_scope:{recovery_verified:true}}).eq("workspace_id",ctx.workspaceId).eq("kind","laboratory");
   }
-  return NextResponse.json({incidentId:body.incidentId,restartChecks:checks,safeToRestart:Boolean(safe),state:safe?"resolved":"recovering"});
+  return NextResponse.json({incidentId:body.incidentId,restartChecks:checks,safeToRestart:Boolean(safe) && (pendingSteps??0)===0,state:safe && (pendingSteps??0)===0?"resolved":"recovering"});
 }
