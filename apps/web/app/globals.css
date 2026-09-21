@@ -259,3 +259,8 @@
 .labBrand.exactBrand{display:flex;align-items:center;justify-content:center;width:100%;min-height:118px;padding:12px 14px!important;overflow:hidden}
 .labBrand.exactBrand>img{display:block;width:100%;max-width:210px;height:auto;max-height:96px;object-fit:contain;object-position:center;background:transparent}
 @media(max-width:1050px){.labBrand.exactBrand{min-height:72px;padding:10px!important}.labBrand.exactBrand>img{max-width:62px;max-height:54px}}
+
+/* Approved Nodra artwork in first-time onboarding. */
+.onboardingBrand.exactOnboardingBrand{display:flex;align-items:center;width:min(220px,42vw);height:74px;background:none!important;border:0!important;padding:0!important}
+.onboardingBrand.exactOnboardingBrand>img{display:block;width:100%;height:100%;object-fit:contain;object-position:left center}
+@media(max-width:700px){.onboardingBrand.exactOnboardingBrand{width:150px;height:56px}}
