@@ -17,3 +17,15 @@ export async function POST(request:Request){
  if(error)return NextResponse.json({error:error.code==="23505"?"agent_id_already_exists":"agent_registration_failed"},{status:error.code==="23505"?409:500});
  return NextResponse.json({agent:data},{status:201});
 }
+
+export async function PATCH(request:Request){
+ const ctx=await getWorkspaceContext();if(!ctx)return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
+ if(!["owner","admin"].includes(ctx.role))return NextResponse.json({error:"insufficient_role"},{status:403});
+ let body:any;try{body=await request.json()}catch{return NextResponse.json({error:"invalid_agent_update"},{status:400})}
+ if(!validId(body?.externalId)||!Array.isArray(body?.authorityScope)||body.authorityScope.length>64)return NextResponse.json({error:"invalid_authority_scope"},{status:400});
+ const scope=[...new Set(body.authorityScope.filter((v:any)=>typeof v==="string"&&v.length>0&&v.length<=128))];
+ if(scope.length!==body.authorityScope.length)return NextResponse.json({error:"invalid_authority_scope"},{status:400});
+ const {data,error}=await ctx.supabase.from("agents").update({authority_scope:scope}).eq("workspace_id",ctx.workspaceId).eq("external_id",body.externalId).select("id,external_id,name,status,authority_scope").maybeSingle();
+ if(error||!data)return NextResponse.json({error:"agent_update_failed"},{status:error?500:404});
+ return NextResponse.json({agent:data});
+}
