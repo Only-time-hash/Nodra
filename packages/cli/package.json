@@ -1,0 +1,1 @@
+{"name":"@nodra/cli","version":"0.1.0","private":true,"type":"module","bin":{"nodra":"./src/cli.js"}}
