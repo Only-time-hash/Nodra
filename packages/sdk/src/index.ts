@@ -18,10 +18,18 @@ export class Nodra {
  constructor(private config:Config){}
  protect(agent:{id:string;name?:string}){
   return {
+   authorize:(request:{resourceId:string;action:string})=>this.authorize({agentId:agent.id,...request}),
    record:(event:Omit<NodraEvent,"agentId">)=>this.record({...event,agentId:agent.id}),
    intent:(event:Omit<NodraEvent,"agentId"|"phase"|"executed">)=>this.record({...event,agentId:agent.id,phase:"intent",executed:false}),
    result:(event:Omit<NodraEvent,"agentId"|"phase">)=>this.record({...event,agentId:agent.id,phase:"result"})
   };
+ }
+ async authorize(request:{agentId:string;resourceId:string;action:string}){
+  const body=JSON.stringify(request),headers=sign(body,this.config,request.agentId);
+  const res=await fetch(new URL("/api/gateway/authorize",this.config.baseUrl),{method:"POST",headers:{"content-type":"application/json",...headers},body});
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok)throw new Error(String(data?.error??("Nodra authorization failed ("+res.status+")")));
+  return data as {decision:NodraDecision;reason:string;agentId:string;resourceId:string;action:string};
  }
  async record(event:NodraEvent){
   const payload={...event,id:event.id??randomUUID()};
