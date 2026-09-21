@@ -4,6 +4,7 @@ import { getWorkspaceContext } from "../../../../lib/persistence";
 export async function POST(request:Request) {
   const ctx=await getWorkspaceContext();
   if(!ctx) return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
+  if(!["owner","admin","analyst"].includes(ctx.role)) return NextResponse.json({error:"insufficient_role"},{status:403});
   const {incidentId}=await request.json().catch(()=>({incidentId:null}));
   if(!incidentId) return NextResponse.json({error:"incidentId_required"},{status:400});
 
