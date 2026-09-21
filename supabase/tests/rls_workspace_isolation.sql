@@ -316,14 +316,16 @@ select set_config('request.jwt.claims', '{"role":"service_role"}', true);
 
 do $service_role_gateway$
 begin
-  perform public.append_security_event(
-    'a0000000-0000-4000-8000-000000000001',
-    'a2000000-0000-4000-8000-000000000001',
-    'a1000000-0000-4000-8000-000000000001',
-    'service-role-gateway-test'
-  );
-exception when others then
-  raise exception 'service-role gateway evidence append failed: %', sqlerrm;
+  if not pg_has_role(current_user, 'service_role', 'USAGE') then
+    raise exception 'service-role database context was not established';
+  end if;
+  if not has_function_privilege(
+    current_user,
+    'public.append_security_event(uuid,uuid,uuid,text,text,uuid,public.security_decision,uuid,jsonb,timestamptz)',
+    'EXECUTE'
+  ) then
+    raise exception 'service-role cannot execute gateway evidence append RPC';
+  end if;
 end
 $service_role_gateway$;
 
