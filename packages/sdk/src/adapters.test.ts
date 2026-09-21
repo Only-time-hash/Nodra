@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {protectTool} from "./adapters";
-import {Nodra} from "./index";
+import {protectTool} from "./adapters.ts";
+import {Nodra} from "./index.ts";
 import {createHash,createHmac} from "node:crypto";
 
 test("deny never executes protected tool",async()=>{
