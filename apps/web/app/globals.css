@@ -169,3 +169,17 @@
 .agentNode .agentIcon-support,.inspectorAgentIcon.agentIcon-support{background:#2b183e;color:#c58cff}
 .agentNode .agentIcon-data,.inspectorAgentIcon.agentIcon-data{background:#12273f;color:#65b8ff}
 .inspectorAgentIcon{display:grid;place-items:center}
+
+
+/* #35.13 desktop production resilience */
+@media(min-width:1051px){
+  .networkWorkspace{grid-template-columns:minmax(0,1fr) minmax(240px,280px)}
+  .networkCanvas{min-width:0}
+  .networkRail{min-width:0}
+  .topology{min-width:0}
+  .commandSearch{min-width:0}
+}
+@media(min-width:1440px){
+  .networkWorkspace{grid-template-columns:minmax(0,1fr) 280px}
+  .topology{height:560px}
+}
