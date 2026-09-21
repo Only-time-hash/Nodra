@@ -16,3 +16,5 @@ create index if not exists integration_credentials_workspace_agent_idx on public
 alter table public.integration_credentials enable row level security;
 revoke all on public.integration_credentials from anon;
 revoke all on public.integration_credentials from authenticated;
+
+create policy integration_credentials_no_direct_client_access on public.integration_credentials for all to authenticated using (false) with check (false);
