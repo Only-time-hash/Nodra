@@ -35,6 +35,9 @@ function curvedPath(from: Agent, to: Agent) { const mx=(from.x+to.x)/2, my=(from
   return <svg viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg>;
 }
 
+const dashboardNav=[["/network","Dashboard"],["/network/map","Network"],["/agents","Agents"],["/incidents","Incidents"],["/activity","Activity"],["/policies","Policies"],["/credentials","Credentials"],["/containment","Containment"],["/recovery","Recovery"],["/reports","Reports"],["/settings","Settings"]];
+function DashboardNavIcon({name}:{name:string}){const p:any={Dashboard:<><path d="M4 11 12 4l8 7"/><path d="M6.5 10v9h11v-9"/></>,Network:<><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h8M6 8v8M18 8v8M8 18h8"/></>,Agents:<><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></>,Incidents:<><path d="M12 4 20 19H4L12 4Z"/></>,Activity:<><path d="M3 8c3-5 5 5 8 0s5 5 10 0M3 13c3-5 5 5 8 0s5 5 10 0M3 18c3-5 5 5 8 0s5 5 10 0"/></>,Policies:<><path d="m12 4 7 8-7 8-7-8 7-8Z"/></>,Credentials:<><path d="M5 7h15l-2 10H3L5 7Z"/></>,Containment:<><path d="m12 4 7 4v8l-7 4-7-4V8l7-4Z"/></>,Recovery:<><path d="M6 8a7 7 0 1 1-1 7"/><path d="M6 4v5H2"/></>,Reports:<><path d="M5 5h14v14H5zM8 5v14M11 5v14M14 5v14M17 5v14"/></>,Settings:<><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></>};return <svg viewBox="0 0 24 24" aria-hidden="true">{p[name]}</svg>}
+
 const baseEvents = [
   { time: "00:00", kind: "system", text: "Laboratory initialized with five isolated agents." },
   { time: "00:01", kind: "policy", text: "Deterministic policy gateway active." },
@@ -187,17 +190,7 @@ export function NetworkLab() {
         <Link className="labBrand exactBrand" href="/network" aria-label="Nodra dashboard"><img src="/nodra-logo.png" alt="Nodra — The Shield for Agentic AI"/></Link>
         <p className="workspace">AGENTIC AI SHIELD</p>
         <nav className="sideNav" aria-label="Nodra application">
-          <Link className="active" href="/network">⌂ <span>Dashboard</span></Link>
-          <Link href="/network/map">⌘ <span>Network</span></Link>
-          <Link href="/agents">◎ <span>Agents</span></Link>
-          <Link href="/incidents">△ <span>Incidents</span>{affected > 0 ? <b>{affected}</b> : null}</Link>
-          <Link href="/activity">≋ <span>Activity</span></Link>
-          <Link href="/policies">◇ <span>Policies</span></Link>
-          <Link href="/credentials">▱ <span>Credentials</span></Link>
-          <Link href="/containment">⬡ <span>Containment</span></Link>
-          <Link href="/recovery">↻ <span>Recovery</span></Link>
-          <Link href="/reports">▥ <span>Reports</span></Link>
-          <Link href="/settings">⚙ <span>Settings</span></Link>
+          {dashboardNav.map(([href,label])=><Link key={href} className={href==="/network"?"active":""} href={href}><i><DashboardNavIcon name={label}/></i><span>{label}</span>{label==="Incidents"&&affected>0?<b>{affected}</b>:null}</Link>)}
         </nav>
         <div className="labScope"><strong>Nodra Shield</strong><p>Containment, provenance and recovery controls for autonomous agents.</p></div>
       </aside>
