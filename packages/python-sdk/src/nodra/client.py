@@ -11,8 +11,8 @@ class Nodra:
         key=hmac.new(self.credential.encode(),("nodra-agent-key-v1\n"+self.workspace_id+"\n"+agent_id).encode(),hashlib.sha256).digest()
         digest=hashlib.sha256(body).hexdigest()
         canonical=("v1\n"+ts+"\n"+nonce+"\n"+digest).encode()
-        signature="v1="+hmac.new(key,canonical,hashlib.sha256).hexdigest()
-        req=urllib.request.Request(self.base_url+path,data=body,method="POST",headers={"Content-Type":"application/json","x-nodra-timestamp":ts,"x-nodra-nonce":nonce,"x-nodra-signature":signature})
+        signature="v1="+hmac.new(self.credential.encode(),canonical,hashlib.sha256).hexdigest()
+        req=urllib.request.Request(self.base_url+path,data=body,method="POST",headers={"Content-Type":"application/json","x-nodra-credential":self.credential,"x-nodra-timestamp":ts,"x-nodra-nonce":nonce,"x-nodra-signature":signature})
         try:
             with urllib.request.urlopen(req,timeout=15) as r:return json.loads(r.read())
         except urllib.error.HTTPError as e: raise RuntimeError("Nodra request failed: "+e.read().decode()) from e
