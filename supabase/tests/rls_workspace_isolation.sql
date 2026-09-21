@@ -116,7 +116,7 @@ end
 $$;
 
 -- Privileged SECURITY DEFINER functions must never become anonymously executable.
-do $
+do $tag$
 declare leaked text[];
 begin
   select array_agg(p.proname order by p.proname)
@@ -134,7 +134,7 @@ begin
     raise exception 'SECURITY DEFINER functions exposed to anon/public: %', leaked;
   end if;
 end
-$;
+$tag$;
 
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"10000000-0000-4000-8000-000000000001","role":"authenticated"}', true);
