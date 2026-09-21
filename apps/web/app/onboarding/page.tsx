@@ -27,13 +27,8 @@ export default async function Onboarding() {
       <div className="onboardingPlanet" />
 
       <header className="onboardingHeader">
-        <a className="onboardingBrand" href="/" aria-label="Nodra home">
-          <span className="onboardingBrandMark" aria-hidden="true">
-            <i />
-            <i />
-            <i />
-          </span>
-          <span>NODRA</span>
+        <a className="onboardingBrand exactOnboardingBrand" href="/" aria-label="Nodra home">
+          <img src="/nodra-logo.png" alt="Nodra — The Shield for Agentic AI" />
         </a>
 
         <div className="githubIdentity">
