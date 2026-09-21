@@ -195,3 +195,16 @@
   .topologyNode.west{left:18%}
   .topologyNode.east{left:82%}
 }
+
+/* #35.14 tablet reflow baseline: preserve controls and content without page-level horizontal overflow */
+@media(min-width:701px) and (max-width:1050px){
+  .labMain{overflow-x:hidden}
+  .networkWorkspace,.commandGrid,.dashboardLower,.labGrid{grid-template-columns:minmax(0,1fr)}
+  .networkRail{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .networkRail>*{min-width:0}
+  .detailGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sectionTable{max-width:100%;overflow-x:auto}
+  .sectionTable>div{min-width:0}
+  .buttonRow,.headerActions,.commandTopbar{flex-wrap:wrap}
+  .actionToast{max-width:calc(100vw - 32px)}
+}
