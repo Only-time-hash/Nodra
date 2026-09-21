@@ -27,7 +27,9 @@ const initialAgents: Agent[] = [
   { id: "data", name: "Data", role: "Data operations", status: "healthy", x: 78, y: 49, tools: ["Sandbox Database"], permissions: ["database:read", "database:write"] },
 ];
 
-function curvedPath(from: Agent, to: Agent) { const mx=(from.x+to.x)/2, my=(from.y+to.y)/2, dx=to.x-from.x, dy=to.y-from.y, bend=.09; return `M${from.x} ${from.y} Q${mx-dy*bend} ${my+dx*bend} ${to.x} ${to.y}`; }\n\nfunction AgentGlyph({ id }: { id: string }) {
+function curvedPath(from: Agent, to: Agent) { const mx=(from.x+to.x)/2, my=(from.y+to.y)/2, dx=to.x-from.x, dy=to.y-from.y, bend=.09; return `M${from.x} ${from.y} Q${mx-dy*bend} ${my+dx*bend} ${to.x} ${to.y}`; }
+
+function AgentGlyph({ id }: { id: string }) {
   if (id === "manager") return <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M5 20c.8-4 3.2-6 7-6s6.2 2 7 6"/><path d="M12 10v4"/></svg>;
   if (id === "research") return <svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="5"/><path d="m14 14 5 5"/><path d="M7 10h6M10 7v6"/></svg>;
   if (id === "finance") return <svg viewBox="0 0 24 24"><path d="M4 8h16M6 8V20M18 8V20M3 20h18M12 4 4 8h16l-8-4Z"/></svg>;
