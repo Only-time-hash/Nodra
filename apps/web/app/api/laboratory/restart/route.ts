@@ -27,13 +27,7 @@ export async function POST(request:Request){
   const humanApproved=checks.humanApproved===true;
   const {error:approvalError}=await ctx.supabase.from("recovery_plans").update({restart_checks:checks,approved_by:humanApproved?ctx.userId:null,approved_at:humanApproved?new Date().toISOString():null}).eq("id",plan.id);
   if(approvalError) return NextResponse.json({error:"restart_approval_persist_failed"},{status:503});
-  const {data:safe,error}=await ctx.supabase.rpc("assess_incident_restart",{p_incident_id:body.incidentId});
-  if(error) return NextResponse.json({error:"restart_assessment_failed"},{status:500});
-  if(safe && (pendingSteps??0)===0){
-    const {error:incidentResolveError}=await ctx.supabase.from("incidents").update({state:"resolved",resolved_at:new Date().toISOString()}).eq("id",body.incidentId).eq("workspace_id",ctx.workspaceId);
-    if(incidentResolveError) return NextResponse.json({error:"incident_resolution_failed"},{status:503});
-    const {error:agentRestoreError}=await ctx.supabase.from("agents").update({status:"healthy"}).eq("workspace_id",ctx.workspaceId).eq("kind","laboratory");
-    if(agentRestoreError) return NextResponse.json({error:"agent_restart_failed"},{status:503});
-  }
-  return NextResponse.json({incidentId:body.incidentId,restartChecks:checks,safeToRestart:Boolean(safe) && (pendingSteps??0)===0,state:safe && (pendingSteps??0)===0?"resolved":"recovering"});
+  const {data:safe,error}=await ctx.supabase.rpc("complete_incident_restart",{p_incident_id:body.incidentId});
+  if(error) return NextResponse.json({error:"restart_completion_failed"},{status:503});
+  return NextResponse.json({incidentId:body.incidentId,restartChecks:checks,safeToRestart:Boolean(safe),state:safe?"resolved":"recovering"});
 }
