@@ -314,7 +314,7 @@ reset role;
 set local role service_role;
 select set_config('request.jwt.claims', '{"role":"service_role"}', true);
 
-do $
+do $service_role_gateway$
 begin
   perform public.append_security_event(
     'a0000000-0000-4000-8000-000000000001',
@@ -325,7 +325,7 @@ begin
 exception when others then
   raise exception 'service-role gateway evidence append failed: %', sqlerrm;
 end
-$;
+$service_role_gateway$;
 
 reset role;
 
