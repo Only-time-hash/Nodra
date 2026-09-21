@@ -242,3 +242,15 @@
   .topologyNode.east{left:85%}
   .sectionNetwork,.incidentBar,.events{padding-inline:8px}
 }
+
+/* Nodra brand: keep the armadillo mark self-contained and prevent inherited labBrand span rules from turning it into a generic gradient tile. */
+.labBrand .armadilloMark{position:relative;display:block;flex:0 0 42px;width:42px;height:34px;background:transparent;border-radius:0}
+.labBrand .armadilloMark:before{content:"";position:absolute;left:4px;top:8px;width:30px;height:20px;border-radius:18px 18px 10px 11px;background:linear-gradient(145deg,#b87849,#6e4430);box-shadow:0 0 16px rgba(184,120,73,.22)}
+.labBrand .armadilloMark:after{content:"";position:absolute;right:0;top:15px;width:11px;height:8px;border-radius:0 8px 6px 0;background:#925c3d;transform:rotate(8deg)}
+.labBrand .armadilloMark b{position:absolute;right:4px;top:16px;width:2px;height:2px;border-radius:50%;background:#fff1df;z-index:4}
+.labBrand .armadilloMark .shellSeg{position:absolute;z-index:3;top:11px;height:14px;width:1px;background:rgba(36,20,14,.62);transform:rotate(-10deg)}
+.labBrand .armadilloMark .s1{left:11px}.labBrand .armadilloMark .s2{left:17px}.labBrand .armadilloMark .s3{left:23px}.labBrand .armadilloMark .s4{left:29px}
+.labBrand.textBrand{display:flex;align-items:center;gap:12px;padding:20px 20px 16px!important;min-height:78px}
+.labBrand.textBrand .brandCopy{display:grid;place-items:start;width:auto;height:auto;background:transparent;border-radius:0;margin:0!important}
+.labBrand.textBrand .brandCopy strong{font-size:19px;line-height:1;letter-spacing:.12em;color:#f5f8ff}
+.labBrand.textBrand .brandCopy small{font-size:9px;line-height:1.15;letter-spacing:.08em;color:#7487a5;font-weight:700;margin-top:5px}
