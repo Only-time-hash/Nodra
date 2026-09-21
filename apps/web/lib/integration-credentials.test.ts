@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {hashIntegrationSecret,issueIntegrationSecret} from "./integration-credentials";
+import {hashIntegrationSecret,issueIntegrationSecret} from "./integration-credentials.ts";
 
 test("issued integration secrets are strong, prefixed and one-way stored",()=>{
  const issued=issueIntegrationSecret();
