@@ -1,6 +1,7 @@
 import {NextResponse} from "next/server";
 import {getWorkspaceContext} from "../../../../lib/persistence";
-import {issueIntegrationSecret} from "../../../../lib/integration-credentials";\nimport {createAdminClient} from "../../../../lib/supabase/admin";
+import {issueIntegrationSecret} from "../../../../lib/integration-credentials";
+import {createAdminClient} from "../../../../lib/supabase/admin";
 
 export async function POST(request:Request){
  const ctx=await getWorkspaceContext();if(!ctx)return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
