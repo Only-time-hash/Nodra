@@ -45,23 +45,24 @@ jobs:
 
   database-isolation:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - name: Detect database test configuration
-        id: database
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+      - name: Start isolated local Supabase
+        run: npx supabase@latest start
+      - name: Apply repository migrations
+        run: npx supabase@latest db reset
+      - name: Workspace isolation and replay tests
         shell: bash
         run: |
-          if [ -n "$DATABASE_URL" ]; then
-            echo "configured=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::DATABASE_URL is not configured; transactional database isolation tests are skipped."
-          fi
-      - name: Workspace isolation and replay tests
-        if: steps.database.outputs.configured == 'true'
-        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_workspace_isolation.sql
+          DB_URL="$(npx supabase@latest status -o env | sed -n 's/^DB_URL=//p' | tr -d '"')"
+          test -n "$DB_URL"
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_workspace_isolation.sql
+      - name: Stop local Supabase
+        if: always()
+        run: npx supabase@latest stop --no-backup
