@@ -25,7 +25,7 @@ export async function POST(request:Request){
   if(stepsError) return NextResponse.json({error:"recovery_evidence_unavailable"},{status:503});
   if((pendingSteps??0)>0 && body.checks?.humanApproved===true) return NextResponse.json({error:"remediation_steps_incomplete"},{status:409});
   const humanApproved=checks.humanApproved===true;
-  await ctx.supabase.from("recovery_plans").update({restart_checks:checks,approved_by:humanApproved?ctx.userId:null,approved_at:humanApproved?new Date().toISOString():null}).eq("id",plan.id);
+  const {error:approvalError}=await ctx.supabase.from("recovery_plans").update({restart_checks:checks,approved_by:humanApproved?ctx.userId:null,approved_at:humanApproved?new Date().toISOString():null}).eq("id",plan.id);\n  if(approvalError) return NextResponse.json({error:"restart_approval_persist_failed"},{status:503});
   const {data:safe,error}=await ctx.supabase.rpc("assess_incident_restart",{p_incident_id:body.incidentId});
   if(error) return NextResponse.json({error:"restart_assessment_failed"},{status:500});
   if(safe && (pendingSteps??0)===0){
