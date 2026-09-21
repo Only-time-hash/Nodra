@@ -14,7 +14,8 @@ function sign(body:string,config:Config,agentId:string){
 }
 
 export class Nodra {
- constructor(private config:Config){}
+ private config:Config;
+ constructor(config:Config){this.config=config;}
  protect(agent:{id:string;name?:string}){
   return {
    authorize:(request:{resourceId:string;action:string})=>this.authorize({agentId:agent.id,...request}),
@@ -40,4 +41,4 @@ export class Nodra {
  }
 }
 
-export {protectTool,mcpGuard,openAIGuard,langChainGuard,crewAIGuard,restGuard} from "./adapters";
+export {protectTool,mcpGuard,openAIGuard,langChainGuard,crewAIGuard,restGuard} from "./adapters.ts";
