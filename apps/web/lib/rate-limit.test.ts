@@ -30,5 +30,5 @@ test("rate limiter resets after its window", () => {
 test("rate limiter rejects unsafe configuration", () => {
   resetRateLimitsForTests();
   assert.throws(() => checkRateLimit("x", 0, 1_000), /invalid rate limit configuration/);
-  assert.throws(() => checkRateLimit("x", 1, 0), /invalid rate limit configuration/);
+  assert.throws(() => checkRateLimit("x", 1, 0), /invalid rate limit configuration/);\n  assert.throws(() => checkRateLimit("", 1, 1_000), /invalid rate limit configuration/);\n  assert.throws(() => checkRateLimit("x".repeat(513), 1, 1_000), /invalid rate limit configuration/);
 });
