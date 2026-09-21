@@ -351,3 +351,36 @@
 
 /* Settings command center */
 .settingsHero{display:flex;justify-content:space-between;align-items:center}.settingsHero h2{margin:0;font-size:22px}.settingsHero p{margin:4px 0;color:#8ba5c3}.settingsHero>.statusGreen{display:flex;align-items:center;gap:7px}.settingsHero>.statusGreen i{width:8px;height:8px;border-radius:50%;background:#20d9bd;box-shadow:0 0 10px #20d9bd}.settingsRefGrid{display:grid;grid-template-columns:190px minmax(0,1fr) 280px;gap:12px}.settingsMenu,.settingsContent,.settingsStatus{border:1px solid #12365c;border-radius:10px;background:#061426}.settingsMenu{padding:8px;align-self:start}.settingsMenu button{width:100%;display:flex;align-items:center;gap:10px;border:0;border-radius:7px;background:transparent;color:#91a8c2;padding:11px;text-align:left}.settingsMenu button svg{width:17px}.settingsMenu button.active,.settingsMenu button:hover{background:#0b5baa;color:#fff}.settingsContent{padding:17px}.settingsSectionHead{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:1px solid #12304d}.settingsSectionHead h3{margin:0}.settingsSectionHead p{margin:4px 0;color:#8ba5c3;font-size:11px}.settingsSectionHead>span{border:1px solid #174a76;border-radius:18px;padding:5px 10px;color:#57b7ff;font-size:10px}.settingsFormGrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:16px}.settingsFormGrid label{display:grid;gap:6px;color:#9bb0c8;font-size:11px}.settingsFormGrid input{border:1px solid #17436b;border-radius:7px;background:#04101e;color:#dceaff;padding:10px}.settingsCards{display:grid;gap:9px;margin-top:15px}.settingsCards article,.appearancePreview{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;border:1px solid #12365c;border-radius:8px;background:#07182a;padding:13px}.settingsCards svg,.appearancePreview svg{width:22px;color:#57b7ff}.settingsCards article>div,.appearancePreview>div{display:grid;gap:3px}.settingsCards small,.appearancePreview small{color:#8099b5}.settingsCards em{font-style:normal;font-size:10px}.settingsCards a{color:#57b7ff;text-decoration:none}.refSecurityConfig{margin-top:15px}.refSecurityConfig article>svg{width:24px;color:#57b7ff}.appearancePreview{margin-top:15px}.appearancePreview>span{border:1px solid #174a76;border-radius:18px;padding:5px 10px;color:#57b7ff}.settingsStatus{padding:0;background:transparent;border:0}.settingsStatus .refSidePanel>p{display:flex;justify-content:space-between;margin:0;padding:8px 0;border-bottom:1px solid #102a44;color:#9bb0c8}@media(max-width:1200px){.settingsRefGrid{grid-template-columns:170px 1fr}.settingsStatus{grid-column:1/-1}.settingsStatus .refSidePanel{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.settingsStatus .refSidePanel h3,.settingsStatus .systemStatusRing,.settingsStatus .sideWideLink{grid-column:1/-1}}@media(max-width:800px){.settingsRefGrid{grid-template-columns:1fr}.settingsMenu{display:flex;overflow:auto}.settingsMenu button{min-width:130px}.settingsFormGrid{grid-template-columns:1fr}.settingsStatus .refSidePanel{display:block}}
+
+
+/* Screenshot fidelity corrections: command-center geometry */
+.incidentRef{min-width:0;overflow:hidden}
+.incidentRef .refTwoCol{grid-template-columns:minmax(0,1fr) minmax(300px,34%)}
+.incidentRef .refMainPanel{min-width:0;overflow:hidden}
+.incidentRef .refTable{width:100%;max-width:100%;overflow-x:auto}
+.incidentRef .refTableHead,.incidentRef .refTableRow{grid-template-columns:110px minmax(145px,1.35fr) 95px 105px 95px 145px 105px;min-width:820px}
+.incidentRef .refHeaderActions{padding-right:10px}
+.incidentRef .refMetricGrid>*{min-width:0}
+.incidentRef .refMetricGrid span,.incidentRef .refMetricGrid small{overflow-wrap:anywhere}
+
+.referenceCanvas{min-height:560px}
+.referenceCanvas>svg{overflow:visible}
+.referenceCanvas .networkPath{stroke-dasharray:3 2;stroke-linecap:round;stroke-width:.8;fill:none}
+.refAgent{z-index:5}
+.refAgent0{transform:translate(-50%,-50%)}
+.refAgent1{transform:translate(-50%,-50%)}
+.refAgent2{transform:translate(-50%,-50%)}
+.refAgent3{transform:translate(-50%,-50%)}
+.refAgent4{transform:translate(-50%,-50%)}
+
+.settingsRef{padding-top:0}
+.settingsHero{margin-bottom:18px}
+.settingsMenu button{cursor:pointer;transition:background .16s ease,color .16s ease}
+.settingsMenu button.active{background:#0b66bd;color:#fff;box-shadow:inset 3px 0 0 #35a7ff}
+.settingsContent{min-height:440px}
+.settingsCards a{border:1px solid #174a76;border-radius:6px;padding:6px 10px}
+@media(max-width:1150px){
+ .incidentRef .refTwoCol{grid-template-columns:1fr}
+ .incidentRef .refSidePanel{min-height:auto}
+ .referenceCanvas{min-height:500px}
+}
