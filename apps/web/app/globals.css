@@ -413,3 +413,8 @@
 .sidebarSession button:hover{background:#10233a;color:#fff;border-color:#285b8d}
 .sidebarSession button:disabled{opacity:.55;cursor:wait}
 .sidebarSession svg{width:18px;height:18px}
+
+.restartControl{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid #1f9d7a;border-radius:7px;background:#0a342e;color:#7ff2ce;padding:10px 12px;font-weight:700;cursor:pointer}
+.restartControl:hover:not(:disabled){background:#0e463d}
+.restartControl:disabled{opacity:.45;cursor:not-allowed}
+.restartControl svg{width:17px;height:17px}
