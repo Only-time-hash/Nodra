@@ -184,7 +184,7 @@ export function NetworkLab() {
   return (
     <main className="lab">
       <aside className="sidebar">
-        <Link className="labBrand textBrand" href="/network" aria-label="Nodra dashboard"><span className="brandCopy"><strong>NODRA</strong><small>THE SHIELD FOR<br/>AGENTIC AI</small></span></Link>
+        <Link className="labBrand imageBrand" href="/network" aria-label="Nodra dashboard"><img src="/nodra-logo-approved.svg" alt="Nodra — The Shield for Agentic AI"/></Link>
         <p className="workspace">AGENTIC AI SHIELD</p>
         <nav className="sideNav" aria-label="Nodra application">
           <Link className="active" href="/network">⌂ <span>Dashboard</span></Link>
