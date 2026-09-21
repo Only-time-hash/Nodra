@@ -6,7 +6,7 @@ export async function GET() {
   if(!ctx) return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
   const [{data:agents},{data:incidents},{data:events}] = await Promise.all([
     ctx.supabase.from("agents").select("external_id,name,status,authority_scope").eq("workspace_id",ctx.workspaceId).eq("kind","laboratory"),
-    ctx.supabase.from("incidents").select("id,state,title,severity,opened_at,contained_at,resolved_at").eq("workspace_id",ctx.workspaceId).order("opened_at",{ascending:false}).limit(1),
+    ctx.supabase.from("incidents").select("id,state,title,severity,opened_at,contained_at,resolved_at,metadata").eq("workspace_id",ctx.workspaceId).order("opened_at",{ascending:false}).limit(1),
     ctx.supabase.from("security_events").select("id,incident_id,agent_id,event_type,action,decision,payload,sequence_no,occurred_at,event_hash,resource_id").eq("workspace_id",ctx.workspaceId).order("sequence_no",{ascending:true}).limit(100)
   ]);
   const incident=incidents?.[0]??null;
