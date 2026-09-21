@@ -7,10 +7,9 @@ type Config={baseUrl:string;credential:string;workspaceId:string};
 function sign(body:string,config:Config,agentId:string){
  if(config.credential.length<32)throw new Error("Nodra credential must contain at least 32 characters.");
  const timestamp=String(Math.floor(Date.now()/1000)),nonce=randomUUID();
- const key=createHmac("sha256",config.credential).update("nodra-agent-key-v1\n"+config.workspaceId+"\n"+agentId).digest();
  const bodyDigest=createHash("sha256").update(body).digest("hex");
  const canonical="v1\n"+timestamp+"\n"+nonce+"\n"+bodyDigest;
- const digest=createHmac("sha256",key).update(canonical).digest("hex");
+ const digest=createHmac("sha256",config.credential).update(canonical).digest("hex");
  return {"x-nodra-timestamp":timestamp,"x-nodra-nonce":nonce,"x-nodra-signature":"v1="+digest};
 }
 
