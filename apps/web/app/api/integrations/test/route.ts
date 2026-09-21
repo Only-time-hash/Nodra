@@ -14,5 +14,5 @@ export async function POST(request:Request){
  const runtimeEvidence=Boolean(event);
  const authorityConfigured=Array.isArray(agent.authority_scope)?agent.authority_scope.length>0:Boolean(agent.authority_scope&&Object.keys(agent.authority_scope).length);
  const connected=credentialUsed&&runtimeEvidence&&authorityConfigured&&agent.status==="healthy";
- return NextResponse.json({connected,checks:{activeCredential:Boolean(credential),credentialUsed,runtimeEvidence,authorityConfigured,agentHealthy:agent.status==="healthy"},agent,lastEvent:event??null,message:connected?"Signed protected runtime verified.":"Protection is not active until an active credential is used, protected runtime evidence is recorded, authority is configured, and the agent is healthy."});
+ return NextResponse.json({connected,checks:{activeCredential:Boolean(credential),credentialUsed,runtimeEvidence,authorityConfigured,agentHealthy:agent.status==="healthy"},agent,lastEvent:event??null,message:connected?"Signed protected runtime verified in the last five minutes.":"Protection is not active until a recent credential use and runtime evidence are present, authority is configured, and the agent is healthy."});
 }
