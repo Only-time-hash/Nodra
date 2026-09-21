@@ -13,6 +13,7 @@ export async function authenticateIntegrationRequest(request:Request,rawBody:str
  if(error||!data||!agent||agent.external_id!==externalAgentId)return {ok:false as const,status:401,error:"invalid_credential"};
  const verified=verifyCredentialRequest(rawBody,{timestamp:request.headers.get("x-nodra-timestamp"),nonce:request.headers.get("x-nodra-nonce"),signature:request.headers.get("x-nodra-signature")},credential);
  if(!verified.valid)return {ok:false as const,status:401,error:verified.reason};
- await admin.from("integration_credentials").update({last_used_at:new Date().toISOString()}).eq("id",data.id);
+ const {error:touchError}=await admin.from("integration_credentials").update({last_used_at:new Date().toISOString()}).eq("id",data.id);
+ if(touchError)return {ok:false as const,status:503,error:"credential_usage_persistence_failed"};
  return {ok:true as const,admin,workspaceId:data.workspace_id as string,agentId:data.agent_id as string,agent,credentialId:data.id as string,verified};
 }
