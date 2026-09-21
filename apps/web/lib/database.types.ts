@@ -982,6 +982,10 @@ export type Database = {
         Args: { p_incident_id: string }
         Returns: boolean
       }
+      complete_incident_restart: {
+        Args: { p_incident_id: string }
+        Returns: boolean
+      }
       containment_scope: {
         Args: { p_incident_id: string }
         Returns: {
