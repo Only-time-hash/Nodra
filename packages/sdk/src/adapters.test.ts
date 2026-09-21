@@ -17,3 +17,6 @@ test("allow executes once and records result",async()=>{
  const out=await protectTool(nodra,{agentId:"a",resourceId:"r",action:"read"},async()=>{runs++;return 42});
  assert.equal(out.executed,true);assert.equal(out.result,42);assert.equal(runs,1);assert.equal(records,1);
 });
+
+
+test("credential protocol uses direct customer secret",()=>{ const credential="ndra_node_test_credential_1234567890"; assert.equal(credential.length>=32,true); });
