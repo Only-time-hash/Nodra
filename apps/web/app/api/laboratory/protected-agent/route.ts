@@ -8,6 +8,9 @@ import { checkRateLimit } from "../../../../lib/rate-limit";
 export async function POST(request: Request) {
   const ctx = await getWorkspaceContext();
   if (!ctx) return NextResponse.json({ error: "authentication_or_workspace_required" }, { status: 401 });
+  if (!["owner", "admin", "analyst"].includes(ctx.role)) {
+    return NextResponse.json({ error: "insufficient_role" }, { status: 403 });
+  }
 
   // Best-effort per-workspace abuse/denial-of-wallet guard. Authorization remains
   // independent of this limiter. Distributed production deployments should add a
