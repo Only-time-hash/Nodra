@@ -3,11 +3,11 @@ import { createHash, createHmac, randomUUID } from "node:crypto";
 export type NodraDecision="allow"|"deny"|"require-approval";
 export type NodraEvent={id?:string;agentId:string;resourceId:string;action:string;decision:NodraDecision;phase?:"intent"|"result";executed?:boolean;outcome?:string;reason?:string;causedBy?:string;causedByEventId?:string;incidentId?:string;occurredAt?:string};
 
-type Config={baseUrl:string;signingSecret:string;workspaceId:string};
+type Config={baseUrl:string;credential:string;workspaceId:string};
 function sign(body:string,config:Config,agentId:string){
- if(config.signingSecret.length<32)throw new Error("Nodra signing secret must contain at least 32 characters.");
+ if(config.credential.length<32)throw new Error("Nodra credential must contain at least 32 characters.");
  const timestamp=String(Math.floor(Date.now()/1000)),nonce=randomUUID();
- const key=createHmac("sha256",config.signingSecret).update("nodra-agent-key-v1\n"+config.workspaceId+"\n"+agentId).digest();
+ const key=createHmac("sha256",config.credential).update("nodra-agent-key-v1\n"+config.workspaceId+"\n"+agentId).digest();
  const bodyDigest=createHash("sha256").update(body).digest("hex");
  const canonical="v1\n"+timestamp+"\n"+nonce+"\n"+bodyDigest;
  const digest=createHmac("sha256",key).update(canonical).digest("hex");
