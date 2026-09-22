@@ -876,6 +876,15 @@ export type Database = {
           },
         ]
       }
+      approval_decisions: {
+        Row: { id:string; workspace_id:string; security_event_id:string; decided_by:string; decision:string; reason:string|null; decided_at:string }
+        Insert: { id?:string; workspace_id:string; security_event_id:string; decided_by:string; decision:string; reason?:string|null; decided_at?:string }
+        Update: { id?:string; workspace_id?:string; security_event_id?:string; decided_by?:string; decision?:string; reason?:string|null; decided_at?:string }
+        Relationships: [
+          { foreignKeyName:"approval_decisions_workspace_id_fkey"; columns:["workspace_id"]; isOneToOne:false; referencedRelation:"workspaces"; referencedColumns:["id"] },
+          { foreignKeyName:"approval_decisions_security_event_id_fkey"; columns:["security_event_id"]; isOneToOne:false; referencedRelation:"security_events"; referencedColumns:["id"] }
+        ]
+      }
       integration_credentials: {
         Row: {
           id: string
