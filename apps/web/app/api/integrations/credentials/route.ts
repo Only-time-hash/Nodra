@@ -3,6 +3,13 @@ import {getWorkspaceContext} from "../../../../lib/persistence";
 import {issueIntegrationSecret} from "../../../../lib/integration-credentials";
 import {createAdminClient} from "../../../../lib/supabase/admin";
 
+export async function GET(){
+ const ctx=await getWorkspaceContext();if(!ctx)return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
+ const {data,error}=await ctx.supabase.from("integration_credentials").select("id,agent_id,label,secret_prefix,status,created_at,last_used_at,revoked_at").eq("workspace_id",ctx.workspaceId).order("created_at",{ascending:false});
+ if(error)return NextResponse.json({error:"credential_list_failed"},{status:500});
+ return NextResponse.json({credentials:data??[]});
+}
+
 export async function POST(request:Request){
  const ctx=await getWorkspaceContext();if(!ctx)return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
  if(!["owner","admin"].includes(ctx.role))return NextResponse.json({error:"insufficient_role"},{status:403});
