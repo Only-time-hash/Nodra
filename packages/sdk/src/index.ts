@@ -30,7 +30,7 @@ export class Nodra {
   const res=await fetch(new URL("/api/gateway/authorize",this.config.baseUrl),{method:"POST",headers:{"content-type":"application/json",...headers},body});
   const data=await res.json().catch(()=>({}));
   if(!res.ok)throw new Error(String(data?.error??("Nodra authorization failed ("+res.status+")")));
-  return data as {decision:NodraDecision;reason:string;agentId:string;resourceId:string;action:string};
+  return data as {decision:NodraDecision;reason:string;agentId:string;resourceId:string;action:string;authorizationEventId:string};
  }
  async executeApproved(request:{agentId:string;resourceId:string;action:string;authorizationEventId:string;executionToken:string}){
   const body=JSON.stringify(request),headers=sign(body,this.config,request.agentId);
