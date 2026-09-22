@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "../../lib/supabase/server";
 import { createWorkspace } from "./actions";
+import Link from "next/link";
 
 export default async function Onboarding() {
   const supabase = await createClient();
@@ -11,7 +12,7 @@ export default async function Onboarding() {
     .from("workspace_members")
     .select("workspace_id")
     .limit(1);
-  if (memberships?.length) redirect("/network");
+  if (memberships?.length) redirect("/onboarding/integrate");
 
   const metadata = (data.claims.user_metadata ?? {}) as Record<string, unknown>;
   const accountName =
