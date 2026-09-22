@@ -877,9 +877,9 @@ export type Database = {
         ]
       }
       approval_decisions: {
-        Row: { id:string; workspace_id:string; security_event_id:string; decided_by:string; decision:string; reason:string|null; decided_at:string }
-        Insert: { id?:string; workspace_id:string; security_event_id:string; decided_by:string; decision:string; reason?:string|null; decided_at?:string }
-        Update: { id?:string; workspace_id?:string; security_event_id?:string; decided_by?:string; decision?:string; reason?:string|null; decided_at?:string }
+        Row: { id:string; workspace_id:string; security_event_id:string; decided_by:string; decision:string; reason:string|null; decided_at:string; execution_token_hash:string|null; execution_token_expires_at:string|null; consumed_at:string|null }
+        Insert: { id?:string; workspace_id:string; security_event_id:string; decided_by:string; decision:string; reason?:string|null; decided_at?:string; execution_token_hash?:string|null; execution_token_expires_at?:string|null; consumed_at?:string|null }
+        Update: { id?:string; workspace_id?:string; security_event_id?:string; decided_by?:string; decision?:string; reason?:string|null; decided_at?:string; execution_token_hash?:string|null; execution_token_expires_at?:string|null; consumed_at?:string|null }
         Relationships: [
           { foreignKeyName:"approval_decisions_workspace_id_fkey"; columns:["workspace_id"]; isOneToOne:false; referencedRelation:"workspaces"; referencedColumns:["id"] },
           { foreignKeyName:"approval_decisions_security_event_id_fkey"; columns:["security_event_id"]; isOneToOne:false; referencedRelation:"security_events"; referencedColumns:["id"] }
