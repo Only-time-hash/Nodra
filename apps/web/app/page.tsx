@@ -1,109 +1,17 @@
 import { GitHubAuthButton } from "../components/github-auth-button";
 
-const lifecycle = [
-  ["01", "Control", "Define explicit boundaries around what agents may access and do."],
-  ["02", "Observe", "Record consequential agent actions and the systems they touch."],
-  ["03", "Trace", "Follow authority, delegation, and propagation across an agent network."],
-  ["04", "Contain", "Isolate affected branches while leaving safe parts of the system available."],
-  ["05", "Investigate", "Reconstruct observable events and determine the incident blast radius."],
-  ["06", "Recover", "Build a reviewable plan for credentials, state, jobs, and affected resources."],
+const capabilities=[
+["shield","Permission Control","Define what your agents can access and do."],
+["eye","Real-time Monitoring","Track consequential actions and security events."],
+["trace","Provenance & Trace","Follow authority and action paths across agent networks."],
+["alert","Threat Containment","Isolate affected agents before incidents spread."],
+["recover","Safe Recovery","Review recovery state and restart operations safely."]
 ];
-
-export default function HomePage() {
-  return (
-    <main>
-      <header className="nav shell">
-        <a className="brand imageBrand publicBrand" href="#top" aria-label="Nodra home"><img src="/nodra-logo.png" alt="Nodra — The Shield for Agentic AI"/></a>
-        <nav aria-label="Primary navigation">
-          <a href="#product">Product</a>
-          <a href="#developers">Developers</a>
-          <a href="#docs">Docs</a>
-        </nav>
-        <div className="navActions">
-          <GitHubAuthButton className="textButton">Sign in</GitHubAuthButton>
-          <GitHubAuthButton className="button small">Sign up with GitHub</GitHubAuthButton>
-        </div>
-      </header>
-
-      <section className="hero shell" id="top">
-        <div className="eyebrow"><span /> Security infrastructure for autonomous agents</div>
-        <h1>Control the blast radius<br />of <em>autonomous AI.</em></h1>
-        <p className="heroCopy">
-          Nodra controls what agents can access and do, traces dangerous actions across connected
-          systems, contains affected agents, and supports safe recovery.
-        </p>
-        <div className="heroActions">
-          <GitHubAuthButton>Sign up with GitHub <b>→</b></GitHubAuthButton>
-          <a className="secondaryButton" href="#product">Explore Nodra</a>
-        </div>
-
-        <div className="networkCard" aria-label="Conceptual Nodra agent network">
-          <div className="networkGlow" />
-          <div className="networkTitle"><span className="liveDot" /> Nodra control plane <small>Conceptual architecture</small></div>
-          <div className="network">
-            <div className="node human">Human</div><div className="line l1" />
-            <div className="node manager">Manager Agent</div>
-            <div className="line branch b1" /><div className="line branch b2" /><div className="line branch b3" />
-            <div className="node research risk">Research <span>at risk</span></div>
-            <div className="node finance">Finance <span>healthy</span></div>
-            <div className="node support">Support <span>healthy</span></div>
-          </div>
-          <div className="networkFoot">
-            <span>Authority and action paths become visible.</span>
-            <span className="status"><i /> Healthy <i className="amber" /> At risk</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="section shell" id="product">
-        <div className="sectionIntro">
-          <p className="kicker">THE PROBLEM</p>
-          <h2>AI agents do more than answer.<br /><span>They take action.</span></h2>
-          <p>Once an agent can use tools, credentials, databases, email, code, or other agents, a bad instruction can become a system incident. Nodra is being built for that boundary.</p>
-        </div>
-        <div className="principleGrid">
-          <article><strong>01</strong><h3>Hard boundaries</h3><p>Deterministic policy decides whether consequential actions are allowed, denied, or require human approval.</p></article>
-          <article><strong>02</strong><h3>Visible consequences</h3><p>Track which agent touched which resource and what downstream actions may depend on it.</p></article>
-          <article><strong>03</strong><h3>Selective response</h3><p>Contain the affected branch instead of treating every incident as a reason to shut down everything.</p></article>
-        </div>
-      </section>
-
-      <section className="section darkBand" id="developers">
-        <div className="shell">
-          <p className="kicker">NODRA LIFECYCLE</p>
-          <h2>From permission to recovery.</h2>
-          <div className="lifecycle">
-            {lifecycle.map(([number, title, body]) => (
-              <article key={number}><span>{number}</span><div><h3>{title}</h3><p>{body}</p></div></article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section shell buildSection" id="docs">
-        <div>
-          <p className="kicker">BUILDING V0.1</p>
-          <h2>Prove containment<br />before making promises.</h2>
-        </div>
-        <div className="buildCopy">
-          <p>Our first milestone is intentionally narrow: an owned five-agent laboratory where a simulated compromised agent can be traced and selectively contained without unnecessarily stopping unaffected agents.</p>
-          <div className="terminal">
-            <div><i /><i /><i /></div>
-            <code><span>$</span> nodra laboratory start<br /><b>✓</b> 5 agents connected<br /><b>✓</b> policy gateway active<br /><b>✓</b> event recording active<br /><span>→</span> ready for controlled security tests</code>
-          </div>
-        </div>
-      </section>
-
-      <section className="cta shell" id="github">
-        <div><p className="kicker">BUILD WITH US</p><h2>Autonomous agents need<br /><span>real boundaries.</span></h2></div>
-        <div><p>Nodra is early-stage. Join through GitHub as we build the first working containment and recovery system.</p><GitHubAuthButton>Sign up with GitHub →</GitHubAuthButton></div>
-      </section>
-
-      <footer className="footer shell" id="signin">
-        <a className="brand imageBrand publicBrand" href="#top"><img src="/nodra-logo.png" alt="Nodra — The Shield for Agentic AI"/></a>
-        <p>Containment, provenance, and recovery infrastructure for autonomous AI agents.</p>
-        <p className="muted">V0.1 · Built in public</p>
-      </footer>
-    </main>
-  );
-}
+export default function HomePage(){return <main className="devHome">
+<header className="devNav shell"><a className="devBrand" href="#top"><img src="/nodra-logo.png" alt="Nodra — The Shield for Agentic AI"/></a><nav><a href="#product">Product</a><a href="#developers">Developers</a><a href="#docs">Documentation</a><a href="#security">Security</a></nav><div className="devNavActions"><GitHubAuthButton className="devSign">Sign in</GitHubAuthButton><GitHubAuthButton className="devPrimary small">Get started</GitHubAuthButton></div></header>
+<section className="devHero shell" id="top"><div className="heroText"><div className="devPill">SECURITY INFRASTRUCTURE FOR AUTONOMOUS AGENTS</div><h1>A safer foundation<br/>for <em>agentic AI.</em></h1><p>Nodra provides security, control, and observability for AI agents that can take real actions. Enforce permissions, record consequential actions, trace propagation, contain affected agents, and recover safely.</p><div className="devHeroActions"><GitHubAuthButton className="devPrimary">Get started <b>→</b></GitHubAuthButton><a className="devSecondary" href="#docs">Read the documentation</a></div><small>Built for controlled, observable agent operations.</small></div><div className="heroVisual"><div className="halo"/><img src="/nodra-logo.png" alt="Nodra"/><div className="heroWords">SECURE<br/>CONTROLLED<br/>OBSERVABLE<br/>RESILIENT</div></div></section>
+<section className="integration shell" id="developers"><div className="integrationMain"><h2>Start integrating</h2><p>Use Nodra with your preferred environment.</p><div className="sdkTabs"><span className="active">JavaScript / TypeScript</span><span>Python</span><span>REST API</span></div><div className="installLine"><code>npm install @nodra/sdk</code><button aria-label="Copy install command">⧉</button></div><a href="#docs" className="inlineLink">View JavaScript quickstart →</a></div><aside><h3>Developer resources</h3><a href="#docs">▣ &nbsp; Installation guides</a><a href="#docs">◇ &nbsp; API reference</a><a href="#docs">▤ &nbsp; Examples and tutorials</a><a href="https://github.com/Only-time-hash/Nodra">⌘ &nbsp; Source on GitHub</a></aside></section>
+<section className="capSection shell" id="product"><div className="sectionHead"><div><h2>Core capabilities</h2><p>Security controls for agent systems from development through operation.</p></div><a href="#security">Explore capabilities →</a></div><div className="capGrid">{capabilities.map(([icon,title,body])=><article key={title} className={"cap "+icon}><i/><h3>{title}</h3><p>{body}</p></article>)}</div></section>
+<section className="how shell" id="security"><div className="howMain"><h2>How Nodra works</h2><p>A security layer between your agents and consequential tools.</p><div className="flow"><div className="flowBox">◎<span>AI Agent<small>your application</small></span></div><b>→</b><div className="flowBox gateway"><img src="/nodra-logo.png" alt=""/><span>NODRA GATEWAY<small>Identity · Policy · Security</small></span></div><b>→</b><div className="flowBox">◉<span>Tools / APIs / Databases</span></div></div><div className="decisions"><div>✓ <span>Allow</span></div><div>⊘ <span>Block</span></div><div>◷ <span>Require approval</span></div></div><div className="evidence">▤ &nbsp; <strong>Audit & Evidence</strong><small>Recorded security events and provenance</small></div></div><aside><h2>Built for real-world use</h2><ul><li>Explicit agent authority boundaries</li><li>Policy-gated consequential actions</li><li>Traceable security evidence</li><li>Selective incident containment</li><li>Reviewable recovery workflow</li><li>JavaScript and Python SDK workspaces</li></ul><a href="#docs" className="devSecondary">Learn more →</a></aside></section>
+<section className="devCta" id="docs"><div className="shell ctaInner"><div><h2>Build the next generation of AI agents safely.</h2><p>Integrate Nodra, define explicit boundaries, and keep consequential agent actions observable.</p><div className="devHeroActions"><GitHubAuthButton className="devPrimary">Get started →</GitHubAuthButton><a className="devSecondary" href="https://github.com/Only-time-hash/Nodra">View source</a></div></div><div className="openSource"><strong>Built in public.<br/>Built for what's next.</strong><p>Explore the source and follow Nodra's development.</p><a href="https://github.com/Only-time-hash/Nodra">View on GitHub →</a></div></div></section>
+<footer className="devFooter shell"><a className="devBrand" href="#top"><img src="/nodra-logo.png" alt="Nodra"/></a><div><a href="#product">Product</a><a href="#developers">Developers</a><a href="#docs">Documentation</a><a href="#security">Security</a></div><p>© 2026 Nodra.</p></footer></main>}
