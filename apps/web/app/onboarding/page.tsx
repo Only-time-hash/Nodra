@@ -29,7 +29,7 @@ export default async function Onboarding() {
 
       <header className="onboardingHeader">
         <a className="onboardingBrand exactOnboardingBrand" href="/" aria-label="Nodra home">
-          <img src="/nodra-logo.png" alt="Nodra — The Shield for Agentic AI" />
+          <img src="/nodra-logo-approved.svg" alt="Nodra — The Shield for Agentic AI" />
         </a>
 
         <div className="githubIdentity">
@@ -66,10 +66,9 @@ export default async function Onboarding() {
         </div>
 
         <div className="onboardingIntro">
-          <h1>Create your security workspace</h1>
+          <h1>Create Your Workspace</h1>
           <p>
-            This workspace will contain your agents, policies, incidents, evidence
-            and recovery state.
+            A workspace keeps your agents, data and team organized.
           </p>
         </div>
 
@@ -89,15 +88,15 @@ export default async function Onboarding() {
                 required
                 minLength={2}
                 maxLength={120}
-                placeholder="My Nodra Workspace"
-                defaultValue="My Nodra Workspace"
+                placeholder="Acme Corporation"
+                defaultValue=""
                 autoComplete="organization"
               />
               <p>Choose a descriptive name for your workspace. You can change this later in settings.</p>
             </div>
           </div>
           <button className="createWorkspaceButton" type="submit">
-            <span>Create workspace</span>
+            <span>Create Workspace</span>
             <span aria-hidden="true">→</span>
           </button>
         </form>
