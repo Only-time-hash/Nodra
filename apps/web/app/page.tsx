@@ -12,7 +12,7 @@ const features=[
 
 export default function HomePage(){return <main className="refHome" id="top">
   <header className="refNav refShell">
-    <a className="refBrand" href="#top"><img src="/nodra-logo.webp" alt="Nodra"/><b>NODRA</b></a>
+    <a className="refBrand" href="#top" aria-label="Nodra home"><span className="refBrandMark" aria-hidden="true">N</span><b>NODRA</b></a>
     <nav><a href="#product">Product</a><a href="#solutions">Solutions</a><a href="#developers">Developers</a><a href="#security">Security</a><a href="/docs">Resources</a></nav>
     <div className="refNavActions"><GitHubAuthButton className="refSign">Sign in</GitHubAuthButton><GitHubAuthButton className="refPrimary">Get Started <ArrowRight/></GitHubAuthButton></div>
   </header>
@@ -67,5 +67,5 @@ if (decision.decision !== "allow") stop();`}</pre><small>Public package release 
 
   <section className="refFinal"><div className="mountains"/><div className="refShell"><h2>A safer future for autonomous AI.</h2><p>Start securing your agents today.</p><div><GitHubAuthButton className="refPrimary">Get Started for Free <ArrowRight/></GitHubAuthButton><a className="refOutline" href="/docs">Read the Docs</a></div></div></section>
 
-  <footer className="refFooter refShell"><div><a className="refBrand" href="#top"><img src="/nodra-logo.webp" alt="Nodra"/><b>NODRA</b></a><small>© 2026 Nodra. All rights reserved.</small></div><div><b>Product</b><a href="#product">Overview</a><a href="#product">Features</a><a href="#security">Security</a></div><div><b>Developers</b><a href="/docs">Docs</a><a href="#developers">SDKs</a><a href="/docs">API Reference</a></div><div><b>Resources</b><a href="/docs">Documentation</a><a href="#security">Security model</a></div><div><b>Company</b><a href="#solutions">Who it is for</a><GitHubAuthButton className="footerButton">Get Started</GitHubAuthButton></div><div className="footerEnd"><b>Secure agents. Safer outcomes.</b><span>Security control infrastructure for autonomous AI.</span></div></footer>
+  <footer className="refFooter refShell"><div><a className="refBrand" href="#top" aria-label="Nodra home"><span className="refBrandMark" aria-hidden="true">N</span><b>NODRA</b></a><small>© 2026 Nodra. All rights reserved.</small></div><div><b>Product</b><a href="#product">Overview</a><a href="#product">Features</a><a href="#security">Security</a></div><div><b>Developers</b><a href="/docs">Docs</a><a href="#developers">SDKs</a><a href="/docs">API Reference</a></div><div><b>Resources</b><a href="/docs">Documentation</a><a href="#security">Security model</a></div><div><b>Company</b><a href="#solutions">Who it is for</a><GitHubAuthButton className="footerButton">Get Started</GitHubAuthButton></div><div className="footerEnd"><b>Secure agents. Safer outcomes.</b><span>Security control infrastructure for autonomous AI.</span></div></footer>
 </main>}
