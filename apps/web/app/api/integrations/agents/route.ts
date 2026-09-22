@@ -8,6 +8,16 @@ export async function GET(){
  if(error)return NextResponse.json({error:"agent_list_failed"},{status:500});
  return NextResponse.json({agents:data??[]});
 }
+export async function DELETE(request:Request){
+ const ctx=await getWorkspaceContext();if(!ctx)return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
+ if(!["owner","admin"].includes(ctx.role))return NextResponse.json({error:"insufficient_role"},{status:403});
+ let body:any;try{body=await request.json()}catch{return NextResponse.json({error:"invalid_agent"},{status:400})}
+ if(!validId(body?.externalId))return NextResponse.json({error:"invalid_agent"},{status:400});
+ const {data,error}=await ctx.supabase.from("agents").update({status:"paused"}).eq("workspace_id",ctx.workspaceId).eq("external_id",body.externalId).eq("kind","customer").select("id,external_id,name,status,authority_scope").maybeSingle();
+ if(error||!data)return NextResponse.json({error:"agent_not_found"},{status:error?500:404});
+ return NextResponse.json({agent:data});
+}
+
 export async function POST(request:Request){
  const ctx=await getWorkspaceContext();if(!ctx)return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
  if(!["owner","admin"].includes(ctx.role))return NextResponse.json({error:"insufficient_role"},{status:403});
