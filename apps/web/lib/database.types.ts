@@ -876,6 +876,73 @@ export type Database = {
           },
         ]
       }
+      integration_credentials: {
+        Row: {
+          id: string
+          workspace_id: string
+          agent_id: string
+          label: string
+          secret_hash: string
+          secret_prefix: string
+          status: string
+          created_by: string
+          created_at: string
+          last_used_at: string | null
+          revoked_at: string | null
+          rotated_from: string | null
+        }
+        Insert: {
+          id?: string
+          workspace_id: string
+          agent_id: string
+          label: string
+          secret_hash: string
+          secret_prefix: string
+          status?: string
+          created_by: string
+          created_at?: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+          rotated_from?: string | null
+        }
+        Update: {
+          id?: string
+          workspace_id?: string
+          agent_id?: string
+          label?: string
+          secret_hash?: string
+          secret_prefix?: string
+          status?: string
+          created_by?: string
+          created_at?: string
+          last_used_at?: string | null
+          revoked_at?: string | null
+          rotated_from?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_credentials_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_credentials_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_credentials_rotated_from_fkey"
+            columns: ["rotated_from"]
+            isOneToOne: false
+            referencedRelation: "integration_credentials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_members: {
         Row: {
           created_at: string
