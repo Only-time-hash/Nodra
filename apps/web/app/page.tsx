@@ -12,7 +12,7 @@ const features=[
 
 export default function HomePage(){return <main className="refHome" id="top">
   <header className="refNav refShell">
-    <a className="refBrand" href="#top" aria-label="Nodra home"><span className="refBrandMark" aria-hidden="true">N</span><b>NODRA</b></a>
+    <a className="refBrand" href="#top" aria-label="Nodra home"><span className="refBrandGlyph" aria-hidden="true"><i/><i/></span><b>NODRA</b></a>
     <nav><a href="#product">Product</a><a href="#solutions">Solutions</a><a href="#developers">Developers</a><a href="#security">Security</a><a href="/docs">Resources</a></nav>
     <div className="refNavActions"><GitHubAuthButton className="refSign">Sign in</GitHubAuthButton><GitHubAuthButton className="refPrimary">Get Started <ArrowRight/></GitHubAuthButton></div>
   </header>
@@ -27,7 +27,7 @@ export default function HomePage(){return <main className="refHome" id="top">
     </div>
     <div className="refRobot" aria-label="Nodra autonomous agent security">
       <div className="refPlanet"/>
-      <div className="refBot"><div className="botHelmet"><span className="botMark">N</span><i className="botEye"/></div><div className="botNeck"/><div className="botBody"/></div>
+      <div className="refBot" aria-hidden="true"><div className="botAntenna"/><div className="botHelmet"><span className="botTempleMark">N</span><span className="botFaceplate"/><i className="botEye"/><span className="botCheek"/><span className="botJaw"/></div><div className="botNeck"/><div className="botShoulder left"/><div className="botShoulder right"/><div className="botBody"><span className="botChestMark">N</span></div></div>
       <div className="refHeroStatement">AI AGENTS<br/>DESERVE<br/><strong>REAL SECURITY</strong></div>
       <div className="refPills"><span>Identity</span><i/> <span>Authority</span><i/> <span>Control</span><i/> <span>Evidence</span></div>
       <div className="refMiniConsole"><div className="miniTop"><b><ShieldCheck/> NODRA</b><span>CONTROL PLANE</span></div><div className="miniGrid"><div><small>IDENTITY</small><strong>Verified</strong></div><div><small>AUTHORITY</small><strong>Enforced</strong></div><div><small>EVIDENCE</small><strong>Preserved</strong></div></div><div className="miniGraph"><i/><i/><i/><i/><i/><i/></div></div>
@@ -67,5 +67,5 @@ if (decision.decision !== "allow") stop();`}</pre><small>Public package release 
 
   <section className="refFinal"><div className="mountains"/><div className="refShell"><h2>A safer future for autonomous AI.</h2><p>Start securing your agents today.</p><div><GitHubAuthButton className="refPrimary">Get Started for Free <ArrowRight/></GitHubAuthButton><a className="refOutline" href="/docs">Read the Docs</a></div></div></section>
 
-  <footer className="refFooter refShell"><div><a className="refBrand" href="#top" aria-label="Nodra home"><span className="refBrandMark" aria-hidden="true">N</span><b>NODRA</b></a><small>© 2026 Nodra. All rights reserved.</small></div><div><b>Product</b><a href="#product">Overview</a><a href="#product">Features</a><a href="#security">Security</a></div><div><b>Developers</b><a href="/docs">Docs</a><a href="#developers">SDKs</a><a href="/docs">API Reference</a></div><div><b>Resources</b><a href="/docs">Documentation</a><a href="#security">Security model</a></div><div><b>Company</b><a href="#solutions">Who it is for</a><GitHubAuthButton className="footerButton">Get Started</GitHubAuthButton></div><div className="footerEnd"><b>Secure agents. Safer outcomes.</b><span>Security control infrastructure for autonomous AI.</span></div></footer>
+  <footer className="refFooter refShell"><div><a className="refBrand" href="#top" aria-label="Nodra home"><span className="refBrandGlyph" aria-hidden="true"><i/><i/></span><b>NODRA</b></a><small>© 2026 Nodra. All rights reserved.</small></div><div><b>Product</b><a href="#product">Overview</a><a href="#product">Features</a><a href="#security">Security</a></div><div><b>Developers</b><a href="/docs">Docs</a><a href="#developers">SDKs</a><a href="/docs">API Reference</a></div><div><b>Resources</b><a href="/docs">Documentation</a><a href="#security">Security model</a></div><div><b>Company</b><a href="#solutions">Who it is for</a><GitHubAuthButton className="footerButton">Get Started</GitHubAuthButton></div><div className="footerEnd"><b>Secure agents. Safer outcomes.</b><span>Security control infrastructure for autonomous AI.</span></div></footer>
 </main>}
