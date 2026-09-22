@@ -29,7 +29,7 @@ export default async function Onboarding() {
 
       <header className="onboardingHeader">
         <a className="onboardingBrand exactOnboardingBrand" href="/" aria-label="Nodra home">
-          <img src="/nodra-logo-approved.svg" alt="Nodra — The Shield for Agentic AI" />
+          <img src="/nodra-logo.webp" alt="Nodra — The Shield for Agentic AI" />
         </a>
 
         <div className="githubIdentity">
