@@ -24,7 +24,7 @@ export async function POST(request:Request){
  const scoped=allowed.includes("*")||allowed.includes(body.action)||allowed.includes(body.resourceId)||allowed.includes(body.resourceId+":"+body.action);
  const decision=!healthy?"deny":scoped?"allow":"require-approval";
  const reason=!healthy?"agent_not_healthy":scoped?"authority_scope_allows":"outside_explicit_authority";
- const {error:evidenceError}=await auth.admin.rpc("append_security_event",{p_workspace_id:auth.workspaceId,p_incident_id:null,p_agent_id:auth.agentId,p_event_type:"gateway-authorization",p_action:body.action,p_resource_id:null,p_decision:decision==="require-approval"?"require_approval":decision,p_caused_by_event_id:null,p_payload:{resourceId:body.resourceId,reason,credentialId:auth.credentialId}});
- if(evidenceError)return NextResponse.json({error:"authorization_evidence_unavailable"},{status:503});
- return NextResponse.json({decision,reason,agentId:auth.agent.external_id,resourceId:body.resourceId,action:body.action});
+ const {data:evidence,error:evidenceError}=await auth.admin.rpc("append_security_event",{p_workspace_id:auth.workspaceId,p_incident_id:null,p_agent_id:auth.agentId,p_event_type:"gateway-authorization",p_action:body.action,p_resource_id:null,p_decision:decision==="require-approval"?"require_approval":decision,p_caused_by_event_id:null,p_payload:{resourceId:body.resourceId,reason,credentialId:auth.credentialId}});
+ if(evidenceError||!evidence?.id)return NextResponse.json({error:"authorization_evidence_unavailable"},{status:503});
+ return NextResponse.json({decision,reason,agentId:auth.agent.external_id,resourceId:body.resourceId,action:body.action,authorizationEventId:evidence.id});
 }
