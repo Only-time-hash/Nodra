@@ -12,7 +12,7 @@ export default async function Onboarding() {
     .from("workspace_members")
     .select("workspace_id")
     .limit(1);
-  if (memberships?.length) redirect("/onboarding/integrate");
+  if (memberships?.length) redirect("/onboarding/welcome");
 
   const metadata = (data.claims.user_metadata ?? {}) as Record<string, unknown>;
   const accountName =
