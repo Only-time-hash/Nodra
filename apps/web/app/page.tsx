@@ -1,5 +1,5 @@
 import { GitHubAuthButton } from "../components/github-auth-button";
-import { ArrowRight, ChevronDown, ShieldCheck, Search, Database, FileText, Radio, TriangleAlert, ScanSearch, RotateCcw } from "lucide-react";
+import { ArrowRight, ChevronDown, ShieldCheck, Search, Database, FileText, Radio, TriangleAlert, ScanSearch, RotateCcw, Building2, Code2, Landmark, HeartPulse, Linkedin, Youtube } from "lucide-react";
 import "./home-realistic.css";
 
 function NodraLogo(){return <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="nl" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#13b8ff"/><stop offset="1" stopColor="#126cff"/></linearGradient></defs><g fill="url(#nl)"><path d="M31 5C20 5 13 10 9 19c9-1 16 3 22 12V5Z"/><path d="M59 31c0-11-5-18-14-22 1 9-3 16-12 22h26Z"/><path d="M33 59c11 0 18-5 22-14-9 1-16-3-22-12v26Z"/><path d="M5 33c0 11 5 18 14 22-1-9 3-16 12-22H5Z"/></g><circle cx="32" cy="32" r="7" fill="#051b3c"/></svg>}
@@ -35,5 +35,43 @@ export default function HomePage(){return <main className="nhPage"><section clas
 <article><RotateCcw/><b>Recovery & Restart</b><p>Safely contain incidents and get your agents back to work.</p><a href="/docs" aria-label="Recovery details"><ArrowRight/></a></article>
 </div></div>
 <div className="nhBuilder"><span className="nhSectionTag">AI ECOSYSTEM</span><h3>Built for the tools AI teams use.</h3><p>Nodra is being built to protect agent workflows across modern AI and cloud stacks.</p><div className="nhLogoRow" aria-label="AI and cloud ecosystem"><span><BrandLogo slug="openai" name="OpenAI"/>OpenAI</span><span><BrandLogo slug="anthropic" name="Anthropic"/>Anthropic</span><span><BrandLogo slug="google-cloud" name="Google Cloud"/>Google Cloud</span><span><BrandLogo slug="microsoft" name="Microsoft"/>Microsoft</span><span><BrandLogo slug="aws" name="AWS"/>AWS</span><span><BrandLogo slug="vercel" name="Vercel"/>Vercel</span><span><BrandLogo slug="notion" name="Notion"/>Notion</span></div><small className="nhBrandNote">Company names and marks identify ecosystem platforms only; they do not imply endorsement or partnership.</small></div>
+<section className="nhUseCases" id="solutions">
+<div className="nhSectionHead"><div><span className="nhSectionTag">USE CASES</span><h3>Secure AI agents across every industry.</h3></div><p>From startups to enterprises, Nodra helps teams safely deploy and scale AI agents in the real world.</p></div>
+<div className="nhUseGrid">
+<article><Building2/><div><b>Enterprise AI</b><p>Deploy agents with governance and full visibility.</p></div><a href="/docs" aria-label="Enterprise AI details"><ArrowRight/></a></article>
+<article><Code2/><div><b>Developer Teams</b><p>Ship AI agents safely and faster.</p></div><a href="/docs" aria-label="Developer teams details"><ArrowRight/></a></article>
+<article><Landmark/><div><b>Financial Services</b><p>Prevent unauthorized actions and meet compliance.</p></div><a href="/docs" aria-label="Financial services details"><ArrowRight/></a></article>
+<article><HeartPulse/><div><b>Healthcare &amp; Life Sciences</b><p>Protect sensitive data and critical workflows.</p></div><a href="/docs" aria-label="Healthcare details"><ArrowRight/></a></article>
+</div>
+</section>
+
+<section className="nhHow">
+<span className="nhSectionTag">HOW NODRA WORKS</span>
+<h3>Control <i>→</i> Observe <i>→</i> Trace <i>→</i> Contain <i>→</i> Investigate <i>→</i> Recover</h3>
+<p>A complete security lifecycle for AI agents, from prevention to full recovery.</p>
+<div className="nhTimeline">
+{[
+["Control","Define agent identity, authority and policies."],
+["Observe","Monitor actions in real time."],
+["Trace","Build a verifiable audit trail."],
+["Contain","Stop risky or unauthorized actions."],
+["Investigate","Analyze and understand what happened."],
+["Recover","Safely restore and restart agents."]
+].map(([title,desc],i)=><div className="nhStep" key={title}><span>{i+1}</span><b>{title}</b><small>{desc}</small></div>)}
+</div>
+</section>
+
+<section className="nhFinalCta">
+<div className="nhGlobe" aria-hidden="true"><i/><i/><i/><i/><i/></div>
+<div className="nhFinalCopy"><h3>Ship safer AI agents with Nodra.</h3><p>Get started today and take control of your AI agent security.</p></div>
+<div className="nhFinalActions"><GitHubAuthButton className="nhPrimary nhLarge">Get started <ArrowRight/></GitHubAuthButton><a className="nhOutline" href="/docs">View docs</a></div>
+</section>
+
+<footer className="nhFooter">
+<a className="nhFooterBrand" href="#top"><span className="nhLogo"><NodraLogo/></span><b>Nodra</b><small>© 2026 Nodra. All rights reserved.</small></a>
+<nav><a href="#product">Product</a><a href="#solutions">Solutions</a><a href="#developers">Developers</a><a href="/docs">Resources</a><a href="/pricing">Pricing</a></nav>
+<div className="nhSocial"><a href="https://github.com/Only-time-hash/Nodra" aria-label="GitHub"><GitHubMark/></a><a href="#" aria-label="LinkedIn"><Linkedin/></a><a href="#" aria-label="X">X</a><a href="#" aria-label="YouTube"><Youtube/></a></div>
+<div className="nhLegal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a></div>
+</footer>
 </section>
 </main>}
