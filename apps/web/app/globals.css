@@ -743,3 +743,717 @@
   .registerFields>p{font-size:15px!important}
   .fieldRow{grid-template-columns:1fr!important}
 }
+
+
+/* =========================================================
+   NODRA ONBOARDING 2.0 — readable, connected, no robot art
+   ========================================================= */
+
+.onboardingPage,
+.welcomePage,
+.overviewPage,
+.wizardPage {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(14, 91, 151, .13), transparent 34%),
+    #020c14 !important;
+  color: #f4f8fc;
+}
+
+/* shared brand */
+.onboardingBrand,
+.welcomeBrand,
+.overviewBrand,
+.wizardBrand {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  color: #fff !important;
+  text-decoration: none !important;
+}
+.onboardingBrandMark,
+.welcomeBrandMark,
+.overviewBrand > span,
+.wizardLogo {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+}
+.onboardingBrandMark svg,
+.welcomeBrandMark svg,
+.overviewBrand > span svg,
+.wizardLogo svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.onboardingBrand b,
+.welcomeBrand b,
+.overviewBrand b,
+.wizardBrand b {
+  font-size: 18px !important;
+  font-weight: 850 !important;
+  letter-spacing: .07em !important;
+}
+
+/* create workspace */
+.onboardingGlow,
+.onboardingPlanet {
+  display: none !important;
+}
+.onboardingPage {
+  min-height: 100vh;
+}
+.onboardingHeader {
+  min-height: 78px !important;
+  padding: 0 40px !important;
+  border-bottom: 1px solid #173247 !important;
+  background: rgba(4, 17, 28, .95) !important;
+}
+.githubIdentity strong {
+  font-size: 14px !important;
+}
+.githubIdentity small {
+  font-size: 12px !important;
+}
+.onboardingContent {
+  width: min(920px, calc(100% - 40px)) !important;
+  margin: 0 auto !important;
+  padding: 38px 0 64px !important;
+}
+.onboardingSteps {
+  margin-bottom: 38px !important;
+}
+.onboardingStep strong {
+  font-size: 13px !important;
+}
+.onboardingStep > span {
+  width: 34px !important;
+  height: 34px !important;
+  font-size: 12px !important;
+}
+.onboardingIntro h1 {
+  font-size: 38px !important;
+  letter-spacing: -.035em !important;
+}
+.onboardingIntro p {
+  font-size: 16px !important;
+  line-height: 1.55 !important;
+}
+.workspaceCard {
+  padding: 30px !important;
+  border-radius: 14px !important;
+  background: rgba(5, 23, 36, .92) !important;
+  border: 1px solid #1c4662 !important;
+}
+.workspaceCube {
+  width: 70px !important;
+  height: 70px !important;
+}
+.workspaceField label {
+  font-size: 14px !important;
+}
+.workspaceField input {
+  min-height: 48px !important;
+  font-size: 15px !important;
+  padding: 0 14px !important;
+}
+.workspaceField p {
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+}
+.createWorkspaceButton {
+  min-height: 48px !important;
+  font-size: 14px !important;
+}
+.onboardingBenefits strong {
+  font-size: 13px !important;
+}
+.onboardingBenefits small {
+  font-size: 11px !important;
+}
+.onboardingTagline {
+  font-size: 11px !important;
+}
+
+/* welcome */
+.welcomePage {
+  padding: 0 40px 54px !important;
+}
+.welcomeBackdrop {
+  display: none !important;
+}
+.welcomeHeader {
+  height: 78px !important;
+  max-width: 1400px !important;
+  border-bottom: 1px solid #173247 !important;
+}
+.welcomeIdentity b {
+  font-size: 14px !important;
+}
+.welcomeIdentity small {
+  font-size: 12px !important;
+}
+.welcomeShell {
+  width: min(940px, 100%) !important;
+  margin: 42px auto 0 !important;
+}
+.welcomeProgress > div {
+  font-size: 12px !important;
+}
+.welcomeTag {
+  font-size: 11px !important;
+}
+.welcomeHero h1 {
+  font-size: clamp(44px, 5vw, 62px) !important;
+}
+.welcomeHero p {
+  font-size: 17px !important;
+  line-height: 1.65 !important;
+}
+.welcomeCardCopy > span {
+  font-size: 11px !important;
+}
+.welcomeCardCopy h2 {
+  font-size: 30px !important;
+}
+.welcomeCardCopy p {
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+.welcomeChecklist span {
+  font-size: 13px !important;
+}
+.welcomeChecklist b {
+  font-size: 11px !important;
+}
+.welcomeSecondary {
+  font-size: 12px !important;
+}
+.welcomeAssurance {
+  font-size: 12px !important;
+}
+
+/* onboarding overview */
+.overviewPage {
+  min-height: 100vh;
+}
+.overviewHeader {
+  height: 78px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #173247;
+  background: rgba(4, 17, 28, .96);
+}
+.overviewHelp {
+  color: #d9e8f3;
+  font-size: 13px;
+}
+.overviewShell {
+  width: min(980px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 48px 0 64px;
+}
+.overviewIntro {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 34px;
+}
+.overviewKicker,
+.wizardKicker {
+  color: #5db6ff;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .18em;
+}
+.overviewIntro h1 {
+  margin: 12px 0 12px;
+  font-size: 42px;
+  line-height: 1.06;
+  letter-spacing: -.04em;
+}
+.overviewIntro p {
+  margin: 0;
+  color: #a8b7c8;
+  font-size: 16px;
+  line-height: 1.65;
+}
+.overviewGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 22px;
+  align-items: stretch;
+}
+.overviewSteps {
+  display: grid;
+  gap: 10px;
+}
+.overviewSteps article {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 24px;
+  gap: 14px;
+  align-items: center;
+  min-height: 78px;
+  padding: 14px 16px;
+  border: 1px solid #173d58;
+  border-radius: 10px;
+  background: rgba(5, 24, 38, .9);
+}
+.overviewStepIcon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #082744;
+  color: #50b6ff;
+}
+.overviewStepIcon svg {
+  width: 22px;
+  height: 22px;
+}
+.overviewSteps article b {
+  font-size: 14px;
+}
+.overviewSteps article p {
+  margin: 4px 0 0;
+  color: #91a4b7;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.overviewCheck {
+  width: 18px;
+  color: #27526d;
+}
+.overviewShield {
+  min-height: 100%;
+  padding: 30px 24px;
+  text-align: center;
+  border: 1px solid #174568;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 50% 25%, rgba(21, 137, 255, .14), transparent 38%),
+    rgba(4, 20, 33, .92);
+}
+.overviewShieldOrb {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #08325a;
+  color: #72c8ff;
+  border: 1px solid #236ca2;
+  box-shadow: 0 0 38px rgba(20, 137, 255, .18);
+}
+.overviewShieldOrb svg {
+  width: 48px;
+  height: 48px;
+}
+.overviewShield > b {
+  font-size: 17px;
+}
+.overviewShield > p {
+  margin: 9px 0 22px;
+  color: #9fb0c2;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.overviewProof {
+  display: grid;
+  gap: 9px;
+}
+.overviewProof span {
+  padding: 10px 12px;
+  border: 1px solid #173c55;
+  border-radius: 7px;
+  background: #061725;
+  color: #b8c8d7;
+  font-size: 12px;
+}
+.overviewActions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+}
+.overviewSecondary,
+.overviewPrimary {
+  min-height: 46px;
+  padding: 0 20px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 750;
+}
+.overviewSecondary {
+  color: #b4c2d0;
+  border: 1px solid #29435a;
+  background: #071724;
+}
+.overviewPrimary {
+  gap: 10px;
+  color: #fff;
+  background: linear-gradient(90deg, #1687ff, #2e9dff);
+}
+
+/* wizard */
+.wizardShell {
+  width: min(1080px, calc(100% - 40px)) !important;
+}
+.wizardSteps {
+  max-width: 980px !important;
+}
+.wizardSteps > div > span {
+  width: 40px !important;
+  height: 40px !important;
+}
+.wizardSteps > div > span svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+.wizardSteps small {
+  font-size: 12px !important;
+}
+.wizardSteps i {
+  top: 20px !important;
+}
+.wizardCard {
+  width: min(900px, 100%) !important;
+  padding: 38px 40px 32px !important;
+}
+.wizardCard h1 {
+  margin-top: 9px !important;
+  font-size: 34px !important;
+}
+.wizardCard > p,
+.registerFields > p {
+  font-size: 16px !important;
+  color: #aebdca !important;
+  line-height: 1.55 !important;
+}
+.wizardCard label {
+  font-size: 14px !important;
+}
+.wizardCard input,
+.wizardCard textarea,
+.wizardCard select {
+  font-size: 15px !important;
+}
+.agentAvatar strong {
+  margin-top: 13px;
+  font-size: 14px;
+  color: #d7f4e5;
+}
+.agentAvatar small {
+  max-width: none !important;
+  font-size: 12px !important;
+}
+.authorityTabs,
+.methodTabs {
+  min-height: 48px;
+}
+.authorityTabs > *,
+.methodTabs > * {
+  min-height: 46px;
+  padding: 0 16px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  color: #9cb1c3;
+  background: transparent;
+  font-size: 13px !important;
+  cursor: pointer;
+}
+.methodTabs button.selected {
+  background: #0f74db !important;
+  color: #fff !important;
+  border-radius: 6px;
+}
+.scopeLine {
+  min-height: 52px;
+  font-size: 13px !important;
+}
+.scopeLine strong {
+  font-size: 14px !important;
+}
+.scopeLine code {
+  font-size: 12px !important;
+}
+.authoritySummary {
+  margin-top: 18px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #18567c;
+  border-radius: 8px;
+  background: #061b2b;
+}
+.authoritySummary > svg {
+  width: 26px;
+  color: #49b8ff;
+}
+.authoritySummary div {
+  display: grid;
+  gap: 3px;
+}
+.authoritySummary b {
+  font-size: 13px;
+}
+.authoritySummary span {
+  color: #95a9bb;
+  font-size: 12px;
+}
+.credentialBox {
+  padding: 22px !important;
+}
+.copyField code {
+  font-size: 13px !important;
+}
+.credentialGenerate {
+  min-height: 48px !important;
+}
+.secretWarning {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 12px !important;
+}
+.secretWarning > svg {
+  width: 20px;
+  flex: 0 0 20px;
+}
+.secretWarning div {
+  display: grid;
+  gap: 3px;
+}
+.secretWarning b {
+  font-size: 13px;
+}
+.integrationChoice {
+  margin-top: 18px;
+  min-height: 92px;
+  padding: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  border: 1px solid #17486a;
+  border-radius: 9px;
+  background: #061a29;
+}
+.integrationChoice > svg {
+  width: 36px;
+  height: 36px;
+  color: #4bbaff;
+}
+.integrationChoice strong {
+  font-size: 15px;
+}
+.integrationChoice p {
+  margin: 6px 0 0;
+  color: #9eb0c1;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.integrationChecklist {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.integrationChecklist span {
+  min-height: 48px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #17405d;
+  border-radius: 7px;
+  background: #061825;
+  color: #bfd0de;
+  font-size: 13px;
+}
+.integrationChecklist svg {
+  width: 18px;
+  color: #33d496;
+}
+.codeLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 0 8px;
+  color: #9db1c2;
+  font-size: 12px;
+}
+.codeLabel button {
+  min-height: 32px !important;
+  padding: 0 10px !important;
+  border: 1px solid #244b66 !important;
+  background: #071a28 !important;
+  color: #cbe6f8 !important;
+  font-size: 11px !important;
+}
+.integrationStep pre {
+  min-height: 220px;
+  font-size: 13px !important;
+  line-height: 1.65 !important;
+}
+.releaseNote {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px !important;
+  line-height: 1.45;
+}
+.testButton {
+  min-height: 50px !important;
+  padding: 0 22px !important;
+  font-size: 14px !important;
+}
+.testResult {
+  padding: 16px !important;
+}
+.testResult strong {
+  font-size: 14px;
+}
+.testResult p {
+  font-size: 12px !important;
+  line-height: 1.5;
+}
+.checkGrid span {
+  min-height: 60px;
+  display: grid !important;
+  grid-template-columns: 24px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  font-size: 12px !important;
+}
+.checkGrid span > svg {
+  grid-row: 1 / 3;
+  width: 18px !important;
+}
+.checkGrid span b {
+  font-size: 13px;
+  color: #eaf6ff;
+}
+.protectedAction {
+  margin: 18px 0;
+  min-height: 86px;
+  padding: 18px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  border: 1px solid #1a4b6e;
+  border-radius: 9px;
+  background: #061a29;
+}
+.protectedAction > svg {
+  width: 34px;
+  height: 34px;
+  color: #58bcff;
+}
+.protectedAction div {
+  display: grid;
+  gap: 5px;
+}
+.protectedAction strong {
+  font-size: 15px;
+}
+.protectedAction span {
+  color: #91a6b9;
+  font-size: 12px;
+}
+.completeStep > p {
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+}
+.completeProof {
+  width: min(620px, 100%);
+  margin: 0 auto 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+.completeProof span {
+  padding: 12px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid #176342;
+  border-radius: 7px;
+  background: #07241a;
+  color: #bff5dc;
+  font-size: 12px;
+}
+.completeProof svg {
+  width: 16px;
+}
+.addAnotherAgent {
+  margin-left: 8px;
+  background: #071a28 !important;
+  border: 1px solid #2a4960 !important;
+}
+.wizardMessage {
+  font-size: 13px !important;
+  line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+  .onboardingHeader,
+  .overviewHeader {
+    padding: 0 18px !important;
+  }
+
+  .githubIdentityCopy {
+    display: none;
+  }
+
+  .overviewGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .overviewIntro h1 {
+    font-size: 36px;
+  }
+
+  .overviewActions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .overviewSecondary,
+  .overviewPrimary {
+    width: 100%;
+  }
+
+  .integrationChecklist,
+  .completeProof {
+    grid-template-columns: 1fr;
+  }
+
+  .wizardSteps small {
+    display: none !important;
+  }
+
+  .wizardSteps > div > span {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .wizardSteps i {
+    top: 17px !important;
+  }
+
+  .wizardCard h1 {
+    font-size: 29px !important;
+  }
+}
