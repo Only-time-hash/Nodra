@@ -2,28 +2,28 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   Bot,
-  CheckCircle2,
   Code2,
   FileCheck2,
   KeyRound,
-  PlayCircle,
+  Network,
   ShieldCheck,
-  SlidersHorizontal,
+  Terminal,
 } from "lucide-react";
 import { createClient } from "../../../lib/supabase/server";
 import { NodraMark } from "../../../components/nodra-mark";
+import "../flow.css";
 
-const onboardingSteps = [
-  { icon: Bot, title: "Register Agent", text: "Give your agent a name and identity." },
-  { icon: ShieldCheck, title: "Define Authority", text: "Set exactly what the agent may access and do." },
-  { icon: KeyRound, title: "Generate Credential", text: "Create a scoped server-side integration key." },
-  { icon: Code2, title: "Choose Integration", text: "Use JavaScript, Python, REST API, or MCP." },
-  { icon: SlidersHorizontal, title: "Integrate Nodra", text: "Add Nodra to the agent runtime and wrap protected actions." },
-  { icon: PlayCircle, title: "Test Connection", text: "Verify credential use, authority, and runtime evidence." },
-  { icon: FileCheck2, title: "Send First Protected Action", text: "Confirm the real agent produces a Nodra decision and evidence." },
+const steps = [
+  { icon: Bot, title: "Register Agent", text: "Give your agent a name and description." },
+  { icon: ShieldCheck, title: "Define Authority", text: "Set what it can and cannot do." },
+  { icon: KeyRound, title: "Generate Credential", text: "Create a secure server-side key." },
+  { icon: Code2, title: "Choose Integration", text: "Pick JavaScript, Python, REST, or MCP." },
+  { icon: Terminal, title: "Integrate Nodra", text: "Add Nodra to your agent runtime." },
+  { icon: Network, title: "Test Connection", text: "Verify the real runtime is connected." },
+  { icon: FileCheck2, title: "Send First Protected Action", text: "Verify Nodra receives real protected evidence." },
 ];
 
-export default async function OnboardingOverviewPage() {
+export default async function OverviewPage() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
 
@@ -37,54 +37,52 @@ export default async function OnboardingOverviewPage() {
   if (!memberships?.length) redirect("/onboarding");
 
   return (
-    <main className="overviewPage">
-      <header className="overviewHeader">
-        <Link className="overviewBrand" href="/" aria-label="Nodra home">
-          <span><NodraMark /></span>
+    <main className="flowPage">
+      <header className="flowHeader">
+        <Link href="/" className="flowBrand" aria-label="Nodra home">
+          <span className="flowBrandMark"><NodraMark /></span>
           <b>NODRA</b>
         </Link>
-        <Link className="overviewHelp" href="/docs">ⓘ Help</Link>
+        <Link href="/docs" className="flowHelp">ⓘ Help</Link>
       </header>
 
-      <section className="overviewShell">
-        <div className="overviewIntro">
-          <span className="overviewKicker">ONBOARDING</span>
+      <section className="flowShell">
+        <div className="flowIntro">
+          <span className="flowKicker">ONBOARDING OVERVIEW</span>
           <h1>Let&apos;s protect your first agent.</h1>
-          <p>It only takes a few minutes. Follow the steps below and Nodra will verify each security layer as you go.</p>
+          <p>It only takes a few minutes. Follow the steps below and Nodra will verify each protection layer as you go.</p>
         </div>
 
         <div className="overviewGrid">
-          <div className="overviewSteps">
-            {onboardingSteps.map(({ icon: Icon, title, text }) => (
+          <div className="overviewList">
+            {steps.map(({ icon: Icon, title, text }) => (
               <article key={title}>
-                <span className="overviewStepIcon"><Icon /></span>
+                <span className="overviewIcon"><Icon /></span>
                 <div>
                   <b>{title}</b>
                   <p>{text}</p>
                 </div>
-                <CheckCircle2 className="overviewCheck" aria-hidden="true" />
               </article>
             ))}
           </div>
 
-          <aside className="overviewShield">
-            <div className="overviewShieldOrb">
-              <ShieldCheck />
-            </div>
-            <b>Protection path</b>
-            <p>Identity → Authority → Credential → Runtime → Evidence</p>
-            <div className="overviewProof">
-              <span>Scoped authority</span>
-              <span>Server-side credential</span>
-              <span>Verifiable runtime evidence</span>
+          <aside className="overviewSide">
+            <div className="overviewOrb"><ShieldCheck /></div>
+            <b>By the end, your agent will be protected.</b>
+            <p>Estimated time: 5–10 minutes</p>
+            <div className="overviewMeta">
+              <span>Identity</span>
+              <span>Authority</span>
+              <span>Credential</span>
+              <span>Runtime evidence</span>
             </div>
           </aside>
         </div>
 
-        <div className="overviewActions">
-          <Link className="overviewSecondary" href="/network">I&apos;ll do this later</Link>
-          <Link className="overviewPrimary" href="/onboarding/protect">
-            Get started <span aria-hidden="true">→</span>
+        <div className="flowActions" style={{ marginTop: 22, justifyContent: "flex-end" }}>
+          <Link className="flowSecondary" href="/network">Skip for now</Link>
+          <Link className="flowPrimary" href="/onboarding/protect">
+            Get Started <span aria-hidden="true">→</span>
           </Link>
         </div>
       </section>
