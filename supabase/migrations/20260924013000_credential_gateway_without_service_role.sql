@@ -38,7 +38,7 @@ declare
 begin
   select ic.*
     into v_credential
-  from public.integration_credentials ic
+  from public.integration_credentials as ic
   where ic.secret_hash = p_secret_hash
     and ic.status = 'active'
   limit 1;
@@ -49,7 +49,7 @@ begin
 
   select a.*
     into v_agent
-  from public.agents a
+  from public.agents as a
   where a.id = v_credential.agent_id
     and a.workspace_id = v_credential.workspace_id
     and a.external_id = p_external_agent_id
@@ -76,25 +76,25 @@ begin
     workspace_id,agent_id,bucket_start,request_count,updated_at
   )
   values(v_credential.workspace_id,v_agent.id,v_bucket,1,v_now)
-  on conflict(workspace_id,agent_id,bucket_start)
+  on conflict on constraint gateway_rate_limits_pkey
   do update set
     request_count=public.gateway_rate_limits.request_count+1,
     updated_at=excluded.updated_at
-  returning request_count into v_count;
+  returning public.gateway_rate_limits.request_count into v_count;
 
   if v_count > 240 then
     raise exception 'authorization_rate_limit_exceeded';
   end if;
 
   if jsonb_typeof(v_agent.authority_scope) = 'array' then
-    select coalesce(array_agg(value),array[]::text[])
+    select coalesce(array_agg(j.value),array[]::text[])
       into v_allowed
-    from jsonb_array_elements_text(v_agent.authority_scope);
+    from jsonb_array_elements_text(v_agent.authority_scope) as j(value);
   elsif jsonb_typeof(v_agent.authority_scope) = 'object' then
-    select coalesce(array_agg(key),array[]::text[])
+    select coalesce(array_agg(j.key),array[]::text[])
       into v_allowed
-    from jsonb_each(v_agent.authority_scope)
-    where value = 'true'::jsonb;
+    from jsonb_each(v_agent.authority_scope) as j(key,value)
+    where j.value = 'true'::jsonb;
   else
     v_allowed := array[]::text[];
   end if;
@@ -117,11 +117,11 @@ begin
     pg_catalog.hashtextextended(v_credential.workspace_id::text,0)
   );
 
-  select sequence_no,event_hash
+  select se.sequence_no,se.event_hash
     into v_seq,v_prev
-  from public.security_events
-  where workspace_id=v_credential.workspace_id
-  order by sequence_no desc
+  from public.security_events as se
+  where se.workspace_id=v_credential.workspace_id
+  order by se.sequence_no desc
   limit 1;
 
   v_seq := coalesce(v_seq,0)+1;
@@ -170,13 +170,13 @@ begin
     v_seq,v_prev,v_hash,v_now
   );
 
-  update public.integration_credentials
+  update public.integration_credentials as ic
   set last_used_at=v_now
-  where id=v_credential.id;
+  where ic.id=v_credential.id;
 
-  update public.agents
+  update public.agents as a
   set last_seen_at=v_now
-  where id=v_agent.id;
+  where a.id=v_agent.id;
 
   return query select
     v_decision,
