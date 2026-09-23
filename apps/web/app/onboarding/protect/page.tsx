@@ -145,6 +145,7 @@ export default function ProtectPage() {
     "payments.submit",
   ]);
   const [secret, setSecret] = useState("");
+  const [showSecret, setShowSecret] = useState(false);
   const [method, setMethod] = useState<IntegrationMethod>("javascript");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -297,6 +298,7 @@ export default function ProtectPage() {
     }
 
     setSecret(json.secret ?? "");
+    setShowSecret(true);
   }
 
   async function testConnection(advance = true) {
@@ -518,10 +520,27 @@ export default function ProtectPage() {
             <div className="inlineField">
               <label>Client Secret</label>
               <div className="inlineValue">
-                <code>{secret ? "•".repeat(28) : "Not generated yet"}</code>
-                <button onClick={() => secret && navigator.clipboard.writeText(secret)} aria-label="Copy client secret">
-                  <Eye size={14} />
-                </button>
+                <code>{secret ? (showSecret ? secret : "•".repeat(28)) : "Not generated yet"}</code>
+                <div style={{display:"flex",gap:6}}>
+                  <button
+                    type="button"
+                    onClick={() => setShowSecret((value) => !value)}
+                    aria-label={showSecret ? "Hide client secret" : "Show client secret"}
+                    title={showSecret ? "Hide secret" : "Show secret"}
+                    disabled={!secret}
+                  >
+                    <Eye size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => secret && navigator.clipboard.writeText(secret)}
+                    aria-label="Copy client secret"
+                    title="Copy secret"
+                    disabled={!secret}
+                  >
+                    <Clipboard size={14} />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -718,6 +737,7 @@ export default function ProtectPage() {
                   setName("New Agent");
                   setDescription("");
                   setSecret("");
+                  setShowSecret(false);
                   setCheck(null);
                   setDecision(null);
                   setMessage("");
