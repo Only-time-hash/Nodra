@@ -83,7 +83,7 @@ export default async function OnboardingOverviewPage() {
 
         <div className="overviewActions">
           <Link className="overviewSecondary" href="/network">I&apos;ll do this later</Link>
-          <Link className="overviewPrimary" href="/onboarding/integrate">
+          <Link className="overviewPrimary" href="/onboarding/protect">
             Get started <span aria-hidden="true">→</span>
           </Link>
         </div>
