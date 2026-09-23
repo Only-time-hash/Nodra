@@ -7,7 +7,7 @@ export default async function WelcomeToNodra() {
   const supabase = await createClient();
 
   const { data } = await supabase.auth.getClaims();
-  if (!data?.claims) redirect("/");
+  if (!data?.claims) redirect("/auth?intent=signin");
 
   const { data: memberships } = await supabase
     .from("workspace_members")
