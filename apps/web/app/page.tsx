@@ -1,34 +1,36 @@
 import { GitHubAuthButton } from "../components/github-auth-button";
-import { ArrowRight, ShieldCheck, Eye, Network, Siren, FileCheck2, Boxes, LockKeyhole, Database } from "lucide-react";
+import { ArrowRight, ShieldCheck, Search, Database } from "lucide-react";
 import "./home-realistic.css";
 
-const capabilities=[
-  [ShieldCheck,"Authority enforcement","Put a deterministic boundary between agent intent and consequential action."],
-  [Eye,"Runtime visibility","Turn protected agent activity into workspace-scoped security evidence."],
-  [Network,"Causal tracing","Follow relationships between agents, resources, actions and incidents."],
-  [Siren,"Containment","Move from suspicious behavior to containment without losing operational context."],
-  [FileCheck2,"Human approval","Hold sensitive actions and bind decisions to the exact authorization event."],
-  [Boxes,"Integration boundary","Protect existing runtimes through the SDK, signed REST requests and guard layers."]
-];
+export default function HomePage(){return <main className="nhHome" id="top">
+<header className="nhNav nhShell">
+  <a className="nhBrand" href="#top" aria-label="Nodra home"><span className="nhLogo" aria-hidden="true"><i/><i/><i/></span><b>Nodra</b></a>
+  <nav aria-label="Primary navigation"><a href="#product">Product <span>⌄</span></a><a href="#solutions">Solutions <span>⌄</span></a><a href="#developers">Developers</a><a href="/docs">Resources <span>⌄</span></a></nav>
+  <div className="nhActions"><a className="nhGithub" href="https://github.com/Only-time-hash/Nodra" aria-label="Nodra on GitHub">◉</a><GitHubAuthButton className="nhSign">Sign in</GitHubAuthButton><GitHubAuthButton className="nhPrimary">Get started <ArrowRight/></GitHubAuthButton></div>
+</header>
 
-export default function HomePage(){return <main className="nrHome" id="top">
-<header className="nrNav nrShell"><a className="nrBrand" href="#top"><span className="nrMark"/>NODRA</a><nav><a href="#product">Product</a><a href="#how">How it works</a><a href="#console">Console</a><a href="#developers">Developers</a><a href="/docs">Docs</a></nav><div className="nrActions"><GitHubAuthButton className="nrGhost">Sign in</GitHubAuthButton><GitHubAuthButton className="nrPrimary">Get started <ArrowRight/></GitHubAuthButton></div></header>
+<section className="nhHero nhShell">
+  <div className="nhHeroCopy">
+    <span className="nhEyebrow">THE AI AGENT SECURITY PLATFORM</span>
+    <h1>Secure what your<br/>AI agents can<br/><em>actually do.</em></h1>
+    <p>Nodra puts an enforceable security boundary between autonomous agents and the tools, data and systems they can change.</p>
+    <div className="nhCtas"><GitHubAuthButton className="nhPrimary nhLarge">Get started <ArrowRight/></GitHubAuthButton><a className="nhOutline" href="/docs">Read the docs</a></div>
+    <div className="nhSignals"><span><ShieldCheck/><b>Control</b><small>authority and access</small></span><span><Search/><b>Investigate</b><small>preserve security evidence</small></span><span><Database/><b>Recover</b><small>contain and restore safely</small></span></div>
+  </div>
 
-<section className="nrHero nrShell">
-<div><span className="nrEyebrow"><i/> SECURITY CONTROL FOR AGENTIC AI</span><h1>Secure what<br/>your AI agents<br/><span>can actually do.</span></h1><p className="nrLead">Nodra sits between autonomous agents and consequential systems, enforcing identity and authority before protected actions cross the boundary.</p><div className="nrHeroCtas"><GitHubAuthButton className="nrPrimary">Protect an agent <ArrowRight/></GitHubAuthButton><a className="nrOutline" href="/docs">Read the docs</a></div><div className="nrTruth"><span><i/> Identity-bound</span><span><i/> Policy-enforced</span><span><i/> Evidence-preserving</span></div></div>
-<div className="nrBoundary" aria-label="Nodra security boundary diagram"><div className="nrGrid"/><div className="nrCore"><b>N</b><small>CONTROL PLANE</small></div><div className="nrNode one"><b>Agent identity</b><small>signed runtime</small></div><div className="nrNode two"><b>Authority</b><small>scope + policy</small></div><div className="nrNode three"><strong>DECISION</strong><b>Allow · Deny</b><small>or require approval</small></div><div className="nrNode four"><b>Evidence</b><small>preserved outcome</small></div></div>
+  <div className="nhVisual" aria-label="Nodra enforcement boundary">
+    <div className="nhMesh"/>
+    <div className="nhAgentCard"><strong>AI Agent</strong><span>Intent</span><span>Tool request</span><span>Action</span></div>
+    <div className="nhStack">
+      <div><i>◇</i><span><b>Identity</b><small>Who is acting?</small></span></div>
+      <div><i>✓</i><span><b>Authority</b><small>What can it do?</small></span></div>
+      <div><i>⬡</i><span><b>Policy Enforcement</b><small>Is it allowed?</small></span></div>
+      <div><i>□</i><span><b>Evidence</b><small>What happened?</small></span></div>
+      <strong className="nhStackBrand"><span className="nhLogo"><i/><i/><i/></span>Nodra <small>SECURITY BOUNDARY</small></strong>
+    </div>
+    <div className="nhOutcome allow"><i>✓</i><span><b>Allowed</b><small>Action proceeds</small></span></div>
+    <div className="nhOutcome approval"><i>!</i><span><b>Requires Approval</b><small>Human review required</small></span></div>
+    <div className="nhOutcome blocked"><i>×</i><span><b>Blocked</b><small>Action stopped</small></span></div>
+  </div>
 </section>
-
-<section className="nrStrip"><div className="nrShell"><small>CONTROL LAYERS</small><span>Identity</span><span>Authority</span><span>Policy</span><span>Evidence</span><span>Containment</span><span>Recovery</span></div></section>
-
-<section className="nrSection nrShell" id="product"><div className="nrIntro"><div><span className="nrEyebrow"><i/> PRODUCT CAPABILITIES</span><h2>Autonomy needs<br/><em>boundaries that hold.</em></h2></div><p>Prompts guide behavior. Nodra is designed for the moment an agent reaches for a real tool, API, database or system and a security decision must be enforced.</p></div><div className="nrCards">{capabilities.map(([Icon,title,body],i)=>{const C=Icon as typeof ShieldCheck;return <article className="nrCard" key={String(title)}><C/><small>0{i+1}</small><h3>{String(title)}</h3><p>{String(body)}</p></article>})}</div></section>
-
-<section className="nrFlow" id="how"><div className="nrShell"><div style={{textAlign:"center"}}><span className="nrEyebrow"><i/> HOW NODRA WORKS</span></div><h2>From agent intent to a controlled action.</h2><div className="nrSteps"><article className="nrStep"><span>01</span><h3>Agent requests action</h3><p>A protected runtime reaches for a consequential resource.</p></article><article className="nrStep"><span>02</span><h3>Verify identity</h3><p>Signed credentials bind the request to the agent.</p></article><article className="nrStep"><span>03</span><h3>Evaluate authority</h3><p>Scope and policy are checked at the boundary.</p></article><article className="nrStep"><span>04</span><h3>Make a decision</h3><p>Allow, deny, or require human approval.</p></article><article className="nrStep"><span>05</span><h3>Preserve evidence</h3><p>The authorization outcome enters the evidence chain.</p></article></div></div></section>
-
-<section className="nrSection nrShell nrConsole" id="console"><div className="nrConsoleCopy"><span className="nrEyebrow"><i/> OPERATOR CONSOLE</span><h2>See the boundary.<br/><em>Investigate the action.</em></h2><p>The console brings protected agents, activity, incidents, approvals and credentials into one operational surface.</p><ul><li>Agent network and runtime state</li><li>Authorization and activity evidence</li><li>Incident investigation and containment</li><li>Human approval controls</li></ul><a className="nrOutline" href="/network">Open Agent Network</a></div><div className="nrScreen"><div className="nrScreenTop"><i/><i/><i/><span style={{marginLeft:"auto"}}>NODRA / CONTROL PLANE</span></div><div className="nrScreenBody"><aside className="nrSide"><b>Nodra</b><span>Overview</span><span>Agents</span><span>Policies</span><span>Activity</span><span>Incidents</span><span>Credentials</span></aside><div className="nrDash"><h3>Protected runtime</h3><div className="nrStateGrid"><div className="nrState"><small>IDENTITY</small><b className="ok">Verified</b></div><div className="nrState"><small>AUTHORITY</small><b>Enforced</b></div><div className="nrState"><small>EVIDENCE</small><b>Preserved</b></div></div><div className="nrLog"><div><strong>Agent</strong><strong>Action</strong><strong>Decision</strong></div><div><span>research-agent</span><span>read_source</span><em>ALLOW</em></div><div><span>finance-agent</span><span>send_payment</span><span>APPROVAL</span></div><div><span>support-agent</span><span>export_data</span><span>DENY</span></div></div></div></div></div></section>
-
-<section className="nrDev" id="developers"><div className="nrShell nrDevGrid"><div><span className="nrEyebrow"><i/> FOR DEVELOPERS</span><h2 style={{fontSize:"52px",letterSpacing:"-.05em"}}>Protect the action.<br/><span style={{color:"#8291a8"}}>Keep your stack.</span></h2><p className="nrLead" style={{fontSize:"15px"}}>Integrate at the enforcement point using Nodra's repository SDK or signed REST boundary. Credentials stay server-side and authorization decisions remain explicit.</p><div className="nrTruth"><span><i/> Signed requests</span><span><i/> Typed decisions</span><span><i/> Runtime evidence</span></div></div><div className="nrCode"><header><span>protect-agent.ts</span><span>SDK PATTERN</span></header><pre><code><span className="blue">const</span> agent = nodra.protect({"{ id: "}<span className="green">"finance-agent"</span>{" }"});{"\n\n"}<span className="blue">const</span> decision = <span className="blue">await</span> agent.authorize({"{"}{"\n  "}resourceId: <span className="green">"payments"</span>,{"\n  "}action: <span className="green">"send_payment"</span>{"\n"}{"}"});{"\n\n"}<span className="blue">if</span> (decision.decision !== <span className="green">"allow"</span>) stop();</code></pre></div></div></section>
-
-<section className="nrFinal"><span className="nrEyebrow"><i/> BUILD WITH CONTROL</span><h2>Let agents move fast.<br/><em>Keep authority with you.</em></h2><p>Put an enforceable security boundary between autonomous intent and the systems that matter.</p><div className="nrHeroCtas"><GitHubAuthButton className="nrPrimary">Create a workspace <ArrowRight/></GitHubAuthButton><a className="nrOutline" href="/docs">Explore the security model</a></div></section>
-<footer className="nrFooter"><div className="nrShell"><a className="nrBrand" href="#top"><span className="nrMark"/>NODRA</a><nav><a href="#product">Product</a><a href="#developers">Developers</a><a href="/docs">Documentation</a><a href="#how">Security model</a></nav><span>© 2026 Nodra · Identity · Authority · Control · Evidence</span></div></footer>
 </main>}
