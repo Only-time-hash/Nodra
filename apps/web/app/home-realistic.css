@@ -16,3 +16,11 @@
 .nhCapabilities{padding-top:28px;padding-bottom:26px}.nhCapIntro{grid-template-columns:1.05fr .95fr;align-items:center;margin-bottom:22px}.nhCapGrid{gap:14px}.nhCapGrid article{height:214px;min-height:214px;padding:19px 16px 15px}.nhCapGrid article>b{font-size:11px;line-height:1.2;min-height:27px;display:flex;align-items:flex-end}.nhCapGrid article>p{font-size:9.5px;line-height:1.42;max-width:145px;margin-top:7px}.nhBuilder{padding:18px 52px 31px;border-top:1px solid rgba(42,101,178,.12);background:radial-gradient(650px 105px at 50% 100%,rgba(22,93,219,.17),transparent 72%)}.nhBuilder h3{font-size:22px;letter-spacing:-.02em;margin:8px 0 5px}.nhBuilder>p{font-size:10px}.nhLogoRow{max-width:980px;margin:22px auto 0;display:grid;grid-template-columns:repeat(7,1fr);align-items:center;gap:24px;color:#aeb8c7}.nhLogoRow>span{display:flex;align-items:center;justify-content:center;gap:7px;font-size:13px;font-weight:600;white-space:nowrap;opacity:.88}.nhLogoRow i{font-style:normal;color:#d2d8e1;font-weight:700}.brandOpenAI i{font-size:21px}.brandAnthropic i{font-size:15px;letter-spacing:-2px}.brandGoogle i{font-size:18px}.msMark{width:17px;height:17px;display:grid;grid-template-columns:1fr 1fr;gap:2px}.msMark b{display:block;background:#c7d0dc}.brandAws i{font-size:19px;letter-spacing:-1px}.brandVercel i{font-size:18px}.notionMark{width:18px;height:18px;border:1px solid #c7d0dc;display:grid;place-items:center;font-family:Georgia,serif;font-size:12px!important}.nhBrandNote{display:block;margin:12px auto 0;color:#596a80;font-size:8px;letter-spacing:.01em}
 @media(max-width:1050px){.nhCapGrid article{height:190px;min-height:190px}.nhLogoRow{grid-template-columns:repeat(4,1fr);row-gap:18px}}
 @media(max-width:700px){.nhCapGrid article{height:auto;min-height:190px}.nhLogoRow{grid-template-columns:repeat(2,1fr);gap:18px 12px}.nhBuilder{padding-left:20px;padding-right:20px}}
+
+/* Readability pass requested for capability cards */
+.nhCapGrid article>b{font-size:15px;line-height:1.25;min-height:38px;font-weight:750}
+.nhCapGrid article>p{font-size:13px;line-height:1.5;max-width:185px;color:#9aa8ba}
+.nhCapGrid article>svg{width:38px;height:38px;padding:8px}
+.nhCapGrid article>a{width:31px;height:31px}
+.nhCapGrid article>a svg{width:14px}
+.nhLogoRow>span{font-size:16px;font-weight:650;letter-spacing:-.015em;color:#b7c1d0}
