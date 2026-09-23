@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Bot,
@@ -127,6 +128,8 @@ function snippetFor(method: IntegrationMethod, agentId: string) {
 }
 
 export default function ProtectPage() {
+  const searchParams = useSearchParams();
+  const validEntry = searchParams.get("entry") === "overview";
   const [agents, setAgents] = useState<Agent[]>([]);
   const [step, setStep] = useState(0);
   const [externalId, setExternalId] = useState("finance-agent");
@@ -175,8 +178,12 @@ export default function ProtectPage() {
   }
 
   useEffect(() => {
+    if (!validEntry) {
+      window.location.replace("/onboarding/welcome");
+      return;
+    }
     void loadAgents();
-  }, []);
+  }, [validEntry]);
 
   function toggleScope(value: string) {
     setScope((current) =>
@@ -322,6 +329,10 @@ export default function ProtectPage() {
         "Run your real integrated agent through Nodra once, then verify again.",
       );
     }
+  }
+
+  if (!validEntry) {
+    return <main className="flowPage" />;
   }
 
   return (
