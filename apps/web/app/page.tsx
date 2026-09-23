@@ -1,5 +1,5 @@
 import { GitHubAuthButton } from "../components/github-auth-button";
-import { ArrowRight, ShieldCheck, Search, Database } from "lucide-react";
+import { ArrowRight, ChevronDown, ShieldCheck, Search, Database } from "lucide-react";
 import "./home-realistic.css";
 
 function NodraLogo(){return <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="nl" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#13b8ff"/><stop offset="1" stopColor="#126cff"/></linearGradient></defs><g fill="url(#nl)"><path d="M31 5C20 5 13 10 9 19c9-1 16 3 22 12V5Z"/><path d="M59 31c0-11-5-18-14-22 1 9-3 16-12 22h26Z"/><path d="M33 59c11 0 18-5 22-14-9 1-16-3-22-12v26Z"/><path d="M5 33c0 11 5 18 14 22-1-9 3-16 12-22H5Z"/></g><circle cx="32" cy="32" r="7" fill="#051b3c"/></svg>}
@@ -8,7 +8,7 @@ function GitHubMark(){return <svg viewBox="0 0 24 24" aria-hidden="true" fill="c
 export default function HomePage(){return <main className="nhPage"><section className="nhHeroCard" id="top">
 <header className="nhNav">
 <a className="nhBrand" href="#top"><span className="nhLogo"><NodraLogo/></span><b>Nodra</b></a>
-<nav aria-label="Primary"><a href="#product">Product⌄</a><a href="#solutions">Solutions⌄</a><a href="#developers">Developers</a><a href="/docs">Resources⌄</a></nav>
+<nav aria-label="Primary"><a className="nhNavDrop" href="#product"><span>Product</span><ChevronDown/></a><a className="nhNavDrop" href="#solutions"><span>Solutions</span><ChevronDown/></a><a href="#developers">Developers</a><a className="nhNavDrop" href="/docs"><span>Resources</span><ChevronDown/></a></nav>
 <div className="nhActions"><a className="nhGithub" href="https://github.com/Only-time-hash/Nodra" aria-label="GitHub"><GitHubMark/></a><GitHubAuthButton className="nhSign">Sign in</GitHubAuthButton><GitHubAuthButton className="nhPrimary">Get started <ArrowRight/></GitHubAuthButton></div>
 </header>
 <div className="nhHeroBody">
