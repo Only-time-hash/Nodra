@@ -37,3 +37,8 @@
 .nhLogoRow>span:nth-child(5)::before{content:"aws";font-size:19px;letter-spacing:-1px}
 .nhLogoRow>span:nth-child(6)::before{content:"▲";font-size:21px}
 .nhLogoRow>span:nth-child(7)::before{content:"N";width:24px;height:24px;border:1.5px solid #d1d9e6;font-family:Georgia,serif;font-size:15px}
+
+/* Reference-match: flat capability icons and clean SVG brand row */
+.nhCapGrid article>svg{width:34px;height:34px;padding:6px;border-radius:0;background:transparent!important;filter:none!important;box-shadow:none!important}
+.nhCapGrid article:nth-child(1)>svg,.nhCapGrid article:nth-child(2)>svg{color:#25b7ff}.nhCapGrid article:nth-child(3)>svg,.nhCapGrid article:nth-child(6)>svg{color:#20dcb5}.nhCapGrid article:nth-child(4)>svg{color:#ff5d70}.nhCapGrid article:nth-child(5)>svg{color:#9567ff}
+.nhLogoRow>span::before{content:none!important;display:none!important}.nhLogoRow>span{gap:8px;font-size:13px;font-weight:600;color:#aeb8c7}.nhLogoRow>span>svg{width:22px;height:22px;flex:0 0 22px;color:#b9c3d1}.nhLogoRow>span:nth-child(2)>svg{width:23px}.nhLogoRow>span:nth-child(4)>svg{width:20px}.nhLogoRow>span:nth-child(5)>svg{width:28px}.nhLogoRow>span:nth-child(6)>svg{width:19px}.nhLogoRow>span:nth-child(7)>svg{width:21px}
