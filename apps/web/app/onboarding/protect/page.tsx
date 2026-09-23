@@ -211,6 +211,36 @@ export default function ProtectPage() {
     setBusy(false);
 
     if (!response.ok) {
+      if (response.status === 409 && json.error === "agent_id_already_exists") {
+        const existingResponse = await fetch("/api/integrations/agents");
+
+        if (existingResponse.ok) {
+          const existingJson = await existingResponse.json();
+          const existingAgents = existingJson.agents ?? [];
+          const existing = existingAgents.find(
+            (item: Agent) => item.external_id === externalId,
+          );
+
+          if (existing) {
+            setAgents(existingAgents);
+            setName(existing.name || name);
+            setScope(
+              Array.isArray(existing.authority_scope) && existing.authority_scope.length
+                ? existing.authority_scope
+                : scope,
+            );
+            setMessage("");
+            setStep(1);
+            return;
+          }
+        }
+
+        setMessage(
+          "This Agent ID already exists. Choose a different Agent ID or reload the existing agent.",
+        );
+        return;
+      }
+
       setMessage(json.error ?? "Could not register agent.");
       return;
     }
