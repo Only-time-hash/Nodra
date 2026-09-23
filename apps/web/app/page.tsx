@@ -12,10 +12,10 @@ export default function HomePage(){return <main className="nhPage"><section clas
 <header className="nhNav">
 <a className="nhBrand" href="#top"><span className="nhLogo"><NodraLogo/></span><b>Nodra</b></a>
 <nav aria-label="Primary"><a className="nhNavDrop" href="#product"><span>Product</span><ChevronDown/></a><a className="nhNavDrop" href="#solutions"><span>Solutions</span><ChevronDown/></a><a href="#developers">Developers</a><a className="nhNavDrop" href="/docs"><span>Resources</span><ChevronDown/></a></nav>
-<div className="nhActions"><a className="nhGithub" href="https://github.com/Only-time-hash/Nodra" aria-label="GitHub"><GitHubMark/></a><GitHubAuthButton className="nhSign">Sign in</GitHubAuthButton><GitHubAuthButton className="nhPrimary">Get started <ArrowRight/></GitHubAuthButton></div>
+<div className="nhActions"><a className="nhGithub" href="https://github.com/Only-time-hash/Nodra" aria-label="GitHub"><GitHubMark/></a><GitHubAuthButton className="nhSign" intent="signin">Sign in</GitHubAuthButton><GitHubAuthButton className="nhPrimary" intent="signup">Get started <ArrowRight/></GitHubAuthButton></div>
 </header>
 <div className="nhHeroBody">
-<div className="nhHeroCopy"><span className="nhEyebrow">THE AI AGENT SECURITY PLATFORM</span><h1>Secure what your<br/>AI agents can<br/><em>actually do.</em></h1><p>Nodra helps you control, monitor and protect AI agents across your tools, data and infrastructure — so they can be useful, without being risky.</p><div className="nhCtas"><GitHubAuthButton className="nhPrimary nhLarge">Get started <ArrowRight/></GitHubAuthButton><a className="nhOutline" href="/docs">Read the docs</a></div><div className="nhSignals"><span><ShieldCheck/><b>Control</b><small>authority and access</small></span><span><Search/><b>Detect</b><small>and stop risky actions</small></span><span><Database/><b>Investigate</b><small>and recover quickly</small></span></div></div>
+<div className="nhHeroCopy"><span className="nhEyebrow">THE AI AGENT SECURITY PLATFORM</span><h1>Secure what your<br/>AI agents can<br/><em>actually do.</em></h1><p>Nodra helps you control, monitor and protect AI agents across your tools, data and infrastructure — so they can be useful, without being risky.</p><div className="nhCtas"><GitHubAuthButton className="nhPrimary nhLarge" intent="signup">Get started <ArrowRight/></GitHubAuthButton><a className="nhOutline" href="/docs">Read the docs</a></div><div className="nhSignals"><span><ShieldCheck/><b>Control</b><small>authority and access</small></span><span><Search/><b>Detect</b><small>and stop risky actions</small></span><span><Database/><b>Investigate</b><small>and recover quickly</small></span></div></div>
 <div className="nhVisual" aria-label="Nodra security control layer"><img src="/nodra-security-hero.png" alt="AI Agent passing through Nodra identity, authority, policy and evidence controls to allowed, approval or blocked outcomes"/></div>
 </div>
 </section>
@@ -69,7 +69,7 @@ export default function HomePage(){return <main className="nhPage"><section clas
 <p>Get started today and take control of your AI agent security.</p>
 </div>
 <div className="nhFooterCtaRight">
-<div className="nhFooterCtaActions"><GitHubAuthButton className="nhPrimary nhFooterPrimary">Get started <ArrowRight/></GitHubAuthButton><a className="nhFooterOutline" href="/docs">View docs</a></div>
+<div className="nhFooterCtaActions"><GitHubAuthButton className="nhPrimary nhFooterPrimary" intent="signup">Get started <ArrowRight/></GitHubAuthButton><a className="nhFooterOutline" href="/docs">View docs</a></div>
 <div className="nhFooterBenefits">
 <span><ShieldCheck/><b>Open source</b><small>Build with confidence</small></span>
 <span><CommunityMark/><b>Join the community</b><small>Work together</small></span>
