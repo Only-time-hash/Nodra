@@ -3,7 +3,8 @@ import { ArrowRight, ChevronDown, ShieldCheck, Search, Database, FileText, Radio
 import "./home-realistic.css";
 
 function NodraLogo(){return <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="nl" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#13b8ff"/><stop offset="1" stopColor="#126cff"/></linearGradient></defs><g fill="url(#nl)"><path d="M31 5C20 5 13 10 9 19c9-1 16 3 22 12V5Z"/><path d="M59 31c0-11-5-18-14-22 1 9-3 16-12 22h26Z"/><path d="M33 59c11 0 18-5 22-14-9 1-16-3-22-12v26Z"/><path d="M5 33c0 11 5 18 14 22-1-9 3-16 12-22H5Z"/></g><circle cx="32" cy="32" r="7" fill="#051b3c"/></svg>}
-function GitHubMark(){return <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2.02c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.57-.29-5.27-1.29-5.27-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.9 10.9 0 0 1 12 6.33c.98 0 1.95.13 2.86.39 2.2-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.4-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.04c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/></svg>}function LinkedInMark(){return <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M5.34 3.5A2.34 2.34 0 1 1 .66 3.5a2.34 2.34 0 0 1 4.68 0ZM.92 7.04h4.84V23H.92V7.04Zm7.74 0h4.64v2.18h.07c.65-1.23 2.23-2.53 4.59-2.53 4.91 0 5.82 3.23 5.82 7.43V23h-4.84v-7.87c0-1.88-.04-4.29-2.62-4.29-2.62 0-3.02 2.05-3.02 4.15V23H8.66V7.04Z"/></svg>}function YouTubeMark(){return <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.55 3.6 12 3.6 12 3.6s-7.55 0-9.4.5A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.85.5 9.4.5 9.4.5s7.55 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/></svg>}
+function GitHubMark(){return <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 .7a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2.02c-3.22.7-3.9-1.37-3.9-1.37-.52-1.34-1.28-1.7-1.28-1.7-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.57-.29-5.27-1.29-5.27-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.47.11-3.05 0 0 .97-.31 3.16 1.18A10.9 10.9 0 0 1 12 6.33c.98 0 1.95.13 2.86.39 2.2-1.49 3.16-1.18 3.16-1.18.63 1.58.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.4-2.71 5.38-5.29 5.67.42.36.79 1.07.79 2.16v3.04c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7Z"/></svg>}function LinkedInMark(){return <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M5.34 3.5A2.34 2.34 0 1 1 .66 3.5a2.34 2.34 0 0 1 4.68 0ZM.92 7.04h4.84V23H.92V7.04Zm7.74 0h4.64v2.18h.07c.65-1.23 2.23-2.53 4.59-2.53 4.91 0 5.82 3.23 5.82 7.43V23h-4.84v-7.87c0-1.88-.04-4.29-2.62-4.29-2.62 0-3.02 2.05-3.02 4.15V23H8.66V7.04Z"/></svg>}function YouTubeMark(){return <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.55 3.6 12 3.6 12 3.6s-7.55 0-9.4.5A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.85.5 9.4.5 9.4.5s7.55 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/></svg>}function CommunityMark(){return <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2.5 19c.35-4 2.2-6 5.5-6s5.15 2 5.5 6H2.5Zm8 0c.28-3.17 1.82-5.12 4.58-5.82.31-.08.63-.13.92-.13 3.31 0 5.18 2 5.5 5.95h-11Z"/></svg>}
+function BoltMark(){return <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M13.8 1 4 13.2h6.4L9.7 23 20 9.6h-6.5L13.8 1Z"/></svg>}
 function BrandLogo({slug,name}:{slug:string;name:string}){return <img className="nhBrandLogo" src={`/brands/${slug}.svg`} alt={`${name} logo`} loading="lazy"/>}
 
 
@@ -61,17 +62,39 @@ export default function HomePage(){return <main className="nhPage"><section clas
 </div>
 </section>
 
-<section className="nhFinalCta">
-<div className="nhGlobe" aria-hidden="true"><i/><i/><i/><i/><i/></div>
-<div className="nhFinalCopy"><h3>Ship safer AI agents with Nodra.</h3><p>Get started today and take control of your AI agent security.</p></div>
-<div className="nhFinalActions"><GitHubAuthButton className="nhPrimary nhLarge">Get started <ArrowRight/></GitHubAuthButton><a className="nhOutline" href="/docs">View docs</a></div>
+<section className="nhFooterCta" aria-labelledby="footer-cta-title">
+<div className="nhFooterCtaCopy">
+<span>READY TO SECURE YOUR AI AGENTS?</span>
+<h3 id="footer-cta-title">Ship safer AI agents with <em>Nodra.</em></h3>
+<p>Get started today and take control of your AI agent security.</p>
+</div>
+<div className="nhFooterCtaRight">
+<div className="nhFooterCtaActions"><GitHubAuthButton className="nhPrimary nhFooterPrimary">Get started <ArrowRight/></GitHubAuthButton><a className="nhFooterOutline" href="/docs">View docs</a></div>
+<div className="nhFooterBenefits">
+<span><ShieldCheck/><b>Open source</b><small>Build with confidence</small></span>
+<span><CommunityMark/><b>Join the community</b><small>Work together</small></span>
+<span><BoltMark/><b>Start in minutes</b><small>No credit card required</small></span>
+</div>
+</div>
 </section>
 
-<footer className="nhFooter">
-<a className="nhFooterBrand" href="#top"><span className="nhLogo"><NodraLogo/></span><b>Nodra</b><small>© 2026 Nodra. All rights reserved.</small></a>
-<nav><a href="#product">Product</a><a href="#solutions">Solutions</a><a href="#developers">Developers</a><a href="/docs">Resources</a><a href="/pricing">Pricing</a></nav>
-<div className="nhSocial"><a href="https://github.com/Only-time-hash/Nodra" aria-label="GitHub"><GitHubMark/></a><a href="#" aria-label="LinkedIn"><LinkedInMark/></a><a href="#" aria-label="X">X</a><a href="#" aria-label="YouTube"><YouTubeMark/></a></div>
-<div className="nhLegal"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a></div>
+<footer className="nhMegaFooter">
+<div className="nhFooterIdentity">
+<a className="nhMegaBrand" href="#top"><span className="nhLogo"><NodraLogo/></span><b>Nodra</b></a>
+<p>The AI agent security platform.<br/>Control. Observe. Trace. Contain. Investigate. Recover.</p>
+<div className="nhFooterSocials">
+<a href="https://github.com/Only-time-hash/Nodra" aria-label="GitHub"><GitHubMark/></a>
+<a href="#" aria-label="LinkedIn"><LinkedInMark/></a>
+<a href="#" aria-label="X">X</a>
+<a href="#" aria-label="YouTube"><YouTubeMark/></a>
+</div>
+</div>
+<div className="nhFooterColumn"><b>Product</b><a href="#product">Overview</a><a href="#product">Features</a><a href="/pricing">Pricing</a><a href="/docs">Security</a><a href="/docs">Roadmap</a></div>
+<div className="nhFooterColumn"><b>Solutions</b><a href="#solutions">Enterprise</a><a href="#solutions">Developer Teams</a><a href="#solutions">Financial Services</a><a href="#solutions">Healthcare</a><a href="#solutions">All Industries</a></div>
+<div className="nhFooterColumn"><b>Developers</b><a href="/docs">Documentation</a><a href="/docs">API Reference</a><a href="/docs">SDKs</a><a href="/docs">Examples</a><a href="/docs">Changelog</a></div>
+<div className="nhFooterColumn"><b>Resources</b><a href="/docs">Blog</a><a href="/docs">Guides</a><a href="/docs">Case Studies</a><a href="#">Community</a><a href="/contact">Support</a></div>
+<div className="nhFooterColumn"><b>Company</b><a href="/about">About</a><a href="/careers">Careers</a><a href="/contact">Contact</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></div>
+<div className="nhFooterBottom"><span>© 2026 Nodra. All rights reserved.</span><span className="nhFuture"><i/>A safer agentic future.</span></div>
 </footer>
 </section>
 </main>}
