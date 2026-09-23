@@ -1,5 +1,5 @@
 import { GitHubAuthButton } from "../components/github-auth-button";
-import { ShieldCheck, Eye, Network, Siren, FileCheck2, Code2, Building2, Users, CheckCircle2, LockKeyhole, Database, Workflow, Boxes, ArrowRight } from "lucide-react";
+import { ShieldCheck, ShieldAlert, Eye, Network, Siren, FileCheck2, Code2, Building2, Users, CheckCircle2, LockKeyhole, Database, Workflow, Boxes, ArrowRight } from "lucide-react";
 
 const features=[
   {n:"01",icon:ShieldCheck,title:"Enforce authority",body:"Put a deterministic boundary between agent intent and consequential action.",tag:"CONTROL"},
