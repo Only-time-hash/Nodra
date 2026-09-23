@@ -28,3 +28,14 @@
 .flowMessage{width:min(890px,100%);margin:12px auto 0;padding:12px 14px;border:1px solid #8d4545;border-radius:8px;background:#3b1212;color:#f3c5c5;font-size:12px}
 @media(max-width:900px){.welcomeStats,.overviewGrid,.registerCard,.protectFieldRow,.metaGrid{grid-template-columns:1fr}.protectProgress{grid-template-columns:repeat(4,1fr);row-gap:16px}.protectProgressItem:after{display:none}}
 @media(max-width:680px){.flowHeader{padding:0 14px}.flowShell{width:calc(100% - 20px)}.protectCard{padding:22px 16px}.flowIntro h1{font-size:31px}.flowActions,.protectFooter{flex-direction:column}.flowPrimary,.flowSecondary,.btn{width:100%;justify-content:center}}
+
+
+/* workspace */
+.workspaceShell{max-width:920px}.workspaceIdentity{display:flex;align-items:center;gap:10px}.workspaceIdentity>span{width:34px;height:34px;border-radius:999px;display:grid;place-items:center;background:#0b2b47;border:1px solid #2c6289;font-size:13px;font-weight:800}.workspaceIdentity>div{display:grid;gap:1px}.workspaceIdentity b{font-size:12px}.workspaceIdentity small{font-size:10px;color:#8ca2b5}.workspaceIdentity i{width:7px;height:7px;border-radius:50%;background:#36db92;box-shadow:0 0 10px #36db92}
+.workspaceFlowCard{width:min(620px,100%);margin:0 auto;padding:30px;border:1px solid #244d69;border-radius:14px;background:#061725;box-shadow:0 24px 55px rgba(0,0,0,.2)}
+.workspaceFlowIcon{width:64px;height:64px;margin:0 auto 22px;display:grid;place-items:center;border-radius:14px;background:#08243d;border:1px solid #1e567b}.workspaceFlowIcon svg{width:38px;height:38px}
+.workspaceFlowField{display:grid;gap:8px}.workspaceFlowField label{font-size:13px;color:#eef6fb}.workspaceFlowField input{min-height:48px;border:1px solid #315570;border-radius:8px;background:#071826;color:#fff;padding:0 14px;font-size:14px}.workspaceFlowField small{color:#8fa5b8;font-size:11px;line-height:1.45}
+.workspaceCreateButton{width:100%;min-height:46px;margin-top:18px;border:1px solid #51aaff;border-radius:8px;background:linear-gradient(180deg,#2e98ff,#146ede);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.workspaceBenefits{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}.workspaceBenefits>span{padding:14px 10px;text-align:center;border:1px solid #234b67;border-radius:9px;background:#051522}.workspaceBenefits svg{width:21px;height:21px;color:#56baff;margin-bottom:7px}.workspaceBenefits b{display:block;font-size:11px}.workspaceBenefits small{display:block;margin-top:4px;color:#8fa4b6;font-size:10px;line-height:1.35}
+.workspaceNote{margin-top:16px;color:#8ea5b7;font-size:11px;display:flex;align-items:center;justify-content:center;gap:7px}.workspaceNote svg{width:14px;color:#3dd18c}
+@media(max-width:680px){.workspaceIdentity>div{display:none}.workspaceBenefits{grid-template-columns:1fr}}
