@@ -12,5 +12,5 @@ export async function createWorkspace(formData: FormData) {
   if (!claims?.claims) redirect("/auth/github");
   const { error } = await supabase.rpc("create_workspace",{p_name:name,p_slug:slug});
   if (error) throw new Error("Could not create workspace");
-  redirect("/onboarding/integrate");
+  redirect("/onboarding/welcome");
 }
