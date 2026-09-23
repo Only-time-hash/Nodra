@@ -202,3 +202,79 @@
       url("/background.png") center top / auto 100% fixed no-repeat;
   }
 }
+
+
+/* Edge-to-edge single-background composition */
+html,body{margin:0;padding:0;background:#020914}
+body{overflow-x:hidden}
+.nhPage{
+  width:100%;
+  min-height:100vh;
+  margin:0!important;
+  padding:0!important;
+  background:
+    linear-gradient(180deg,rgba(1,7,17,.48),rgba(1,7,17,.62)),
+    url("/background.png") center top / cover fixed no-repeat;
+}
+.nhPage::before{display:none!important}
+
+/* Remove outer-shell spacing, borders and rounded corners */
+.nhHeroCard,
+.nhControl{
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  border-radius:0!important;
+  border-left:0!important;
+  border-right:0!important;
+  box-shadow:none!important;
+}
+
+/* Let the shared page background show through every major section */
+.nhHeroCard,
+.nhControl,
+.nhBuilder,
+.nhUseCases,
+.nhHow,
+.nhFooter{
+  background:transparent!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+
+/* Keep only a readable translucent navbar layer */
+.nhNav{
+  background:rgba(2,10,22,.52)!important;
+  backdrop-filter:blur(10px)!important;
+  -webkit-backdrop-filter:blur(10px)!important;
+}
+
+/* Cards remain readable over the shared background */
+.nhCapGrid article{
+  background:linear-gradient(160deg,rgba(6,25,45,.74),rgba(3,17,32,.78))!important;
+}
+.nhUseGrid article{
+  background:linear-gradient(160deg,rgba(7,27,49,.74),rgba(3,16,29,.78))!important;
+}
+
+/* CTA becomes glass instead of another section background */
+.nhFinalCta{
+  background:rgba(3,18,34,.50)!important;
+  backdrop-filter:blur(6px)!important;
+  -webkit-backdrop-filter:blur(6px)!important;
+}
+
+/* Remove bottom outside spacing from the full homepage shell */
+.nhControl{margin-bottom:0!important}
+.nhFooter{margin:0!important}
+@media(max-width:700px){
+  .nhPage{
+    width:100%;
+    margin:0!important;
+    padding:0!important;
+    background:
+      linear-gradient(180deg,rgba(1,7,17,.54),rgba(1,7,17,.68)),
+      url("/background.png") center top / cover scroll no-repeat;
+  }
+  .nhHeroCard,.nhControl{width:100%!important;border-radius:0!important}
+}
