@@ -38,13 +38,13 @@ export default function HomePage(){return <main className="refHome" id="top">
 
   <section className="refProduct refShell" id="product"><div className="refSectionIntro"><div><span className="refEyebrow"><i/> THE SECURITY CONTROL PLANE</span><h2>Autonomy needs<br/><em>boundaries that hold.</em></h2></div><p>Prompts can guide an agent. Nodra is designed to enforce what happens when that agent reaches for a real tool, API, database or system.</p></div><div className="refFeatures">{features.map(({n,icon:Icon,title,body,tag})=><article key={title}><div className="featureTop"><span className="featureIcon"><Icon/></span><small>{n}</small></div><span className="featureTag">{tag}</span><h3>{title}</h3><p>{body}</p><div className="featureLine"><i/><span/></div></article>)}</div><div className="refBoundary"><span>AGENT INTENT</span><i/><b><ShieldCheck/> NODRA ENFORCEMENT BOUNDARY</b><i/><span>CONSEQUENTIAL ACTION</span></div></section>
 
-  <section className="refHow" id="security"><div className="refShell howInner"><div className="howCopy"><span className="refEyebrow">HOW NODRA WORKS</span><h2>From agent intent to trusted action.</h2><p>Nodra sits between your AI agents and consequential tools, enforcing identity, policy and authority at every step.</p><div className="howSteps">
-    <div><span><Users/></span><b>Agent requests<br/>action</b></div><i>→</i>
-    <div><span><FileCheck2/></span><b>Nodra checks<br/>identity & policy</b></div><i>→</i>
-    <div><span className="green"><CheckCircle2/></span><b>Decision<br/>(allow, approve or deny)</b></div><i>→</i>
-    <div><span><Workflow/></span><b>Action executes<br/>with controls</b></div><i>→</i>
-    <div><span><Database/></span><b>Everything is<br/>logged as evidence</b></div>
-  </div></div><div className="riskVisual"><div className="riskOrb"/><div className="riskCard">BLOCK RISK<br/><strong>ENABLE INNOVATION</strong></div></div></div></section>
+  <section className="refHow" id="security"><div className="refShell howInner"><div className="howCopy"><span className="refEyebrow"><i/> HOW NODRA WORKS</span><h2>One decision boundary.<br/><em>Every consequential action.</em></h2><p>An agent can reason freely. The moment it reaches for a protected resource, Nodra verifies the runtime identity, evaluates authority, records the decision and preserves the evidence.</p><div className="howSteps">
+    <div><small>01</small><span><Users/></span><b>Agent intent</b><p>A protected agent requests a real action.</p></div><i/>
+    <div><small>02</small><span><LockKeyhole/></span><b>Verify identity</b><p>Signed runtime credentials bind the request.</p></div><i/>
+    <div><small>03</small><span><FileCheck2/></span><b>Enforce authority</b><p>Scope and policy determine the boundary.</p></div><i/>
+    <div><small>04</small><span className="green"><CheckCircle2/></span><b>Decide</b><p>Allow, deny, or require human approval.</p></div><i/>
+    <div><small>05</small><span><Database/></span><b>Preserve evidence</b><p>The outcome enters the security evidence chain.</p></div>
+  </div></div><div className="riskVisual"><div className="riskGrid"/><div className="riskOrbit one"/><div className="riskOrbit two"/><div className="riskOrb"><ShieldCheck/><span>NODRA</span><small>ENFORCEMENT</small></div><div className="riskNode agent"><Users/><span>AGENT</span></div><div className="riskNode tool"><Workflow/><span>TOOL</span></div><div className="riskNode evidence"><Database/><span>EVIDENCE</span></div><div className="riskPulse"/><div className="riskCard"><small>CONTROL STATE</small><b><i/> ENFORCING</b><span>Identity verified · authority checked</span></div></div></div></section>
 
   <section className="refDevelopers refShell" id="developers">
     <div className="devCopy"><span className="refEyebrow">FOR DEVELOPERS</span><h2>Integrate Nodra<br/>in minutes.</h2><p>Use the Nodra SDK workspace or signed REST API to protect agents without rebuilding what you already have.</p><a href="/docs">View full documentation <ArrowRight/></a></div>
