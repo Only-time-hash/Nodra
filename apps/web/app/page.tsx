@@ -2,12 +2,12 @@ import { GitHubAuthButton } from "../components/github-auth-button";
 import { ShieldCheck, Eye, Network, Siren, FileCheck2, Code2, Building2, Users, CheckCircle2, LockKeyhole, Database, Workflow, Boxes, ArrowRight } from "lucide-react";
 
 const features=[
-  {icon:ShieldCheck,title:"Prevent",body:"Stop unauthorized actions before they happen."},
-  {icon:Eye,title:"Observe",body:"See consequential agent actions in real time."},
-  {icon:Network,title:"Understand",body:"Trace agent behavior and causal chains."},
-  {icon:Siren,title:"Respond",body:"Investigate, contain and recover quickly."},
-  {icon:FileCheck2,title:"Govern",body:"Set policies and approval workflows."},
-  {icon:Boxes,title:"Build with confidence",body:"Integrate security with SDKs and APIs."}
+  {n:"01",icon:ShieldCheck,title:"Enforce authority",body:"Put a deterministic boundary between agent intent and consequential action.",tag:"CONTROL"},
+  {n:"02",icon:Eye,title:"See every action",body:"Turn protected runtime activity into high-signal, workspace-scoped evidence.",tag:"OBSERVE"},
+  {n:"03",icon:Network,title:"Trace causality",body:"Follow relationships between agents, resources, incidents and the actions that connected them.",tag:"TRACE"},
+  {n:"04",icon:Siren,title:"Contain impact",body:"Move from suspicious behavior to containment and controlled recovery without losing context.",tag:"RESPOND"},
+  {n:"05",icon:FileCheck2,title:"Require approval",body:"Hold sensitive actions at the boundary and bind human decisions to the exact authorization event.",tag:"GOVERN"},
+  {n:"06",icon:Boxes,title:"Integrate cleanly",body:"Protect existing agent runtimes through signed APIs and SDK-level enforcement points.",tag:"BUILD"}
 ];
 
 export default function HomePage(){return <main className="refHome" id="top">
@@ -36,7 +36,7 @@ export default function HomePage(){return <main className="refHome" id="top">
 
   <section className="refTrust"><div className="refShell"><span>SECURITY CONTROL LAYERS</span><b>Identity</b><b>Authority</b><b>Policy</b><b>Evidence</b><b>Containment</b><b>Recovery</b><strong>BUILD A SAFER<br/>AI FUTURE</strong></div></section>
 
-  <section className="refFeatures refShell" id="product">{features.map(({icon:Icon,title,body})=><article key={title}><span><Icon/></span><h3>{title}</h3><p>{body}</p></article>)}</section>
+  <section className="refProduct refShell" id="product"><div className="refSectionIntro"><div><span className="refEyebrow"><i/> THE SECURITY CONTROL PLANE</span><h2>Autonomy needs<br/><em>boundaries that hold.</em></h2></div><p>Prompts can guide an agent. Nodra is designed to enforce what happens when that agent reaches for a real tool, API, database or system.</p></div><div className="refFeatures">{features.map(({n,icon:Icon,title,body,tag})=><article key={title}><div className="featureTop"><span className="featureIcon"><Icon/></span><small>{n}</small></div><span className="featureTag">{tag}</span><h3>{title}</h3><p>{body}</p><div className="featureLine"><i/><span/></div></article>)}</div><div className="refBoundary"><span>AGENT INTENT</span><i/><b><ShieldCheck/> NODRA ENFORCEMENT BOUNDARY</b><i/><span>CONSEQUENTIAL ACTION</span></div></section>
 
   <section className="refHow" id="security"><div className="refShell howInner"><div className="howCopy"><span className="refEyebrow">HOW NODRA WORKS</span><h2>From agent intent to trusted action.</h2><p>Nodra sits between your AI agents and consequential tools, enforcing identity, policy and authority at every step.</p><div className="howSteps">
     <div><span><Users/></span><b>Agent requests<br/>action</b></div><i>→</i>
