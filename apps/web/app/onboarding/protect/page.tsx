@@ -58,7 +58,7 @@ const scopes = [
   ["data.export", "Export financial data"],
 ] as const;
 
-function snippetFor(method: IntegrationMethod, agentId: string) {
+function snippetFor(method: IntegrationMethod, agentId: string, workspaceId: string) {
   if (method === "python") {
     return [
       "import os",
@@ -119,6 +119,7 @@ function snippetFor(method: IntegrationMethod, agentId: string) {
     "const nodra = new Nodra({",
     "  baseUrl: process.env.NODRA_BASE_URL!,",
     "  credential: process.env.NODRA_CREDENTIAL!,",
+    "  workspaceId: process.env.NODRA_WORKSPACE_ID!,",
     "});",
     "",
     "const agent = nodra.protect({",
@@ -131,6 +132,7 @@ export default function ProtectPage() {
   const searchParams = useSearchParams();
   const validEntry = searchParams.get("entry") === "overview";
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [workspaceId, setWorkspaceId] = useState("");
   const [step, setStep] = useState(0);
   const [externalId, setExternalId] = useState("finance-agent");
   const [name, setName] = useState("Finance Agent");
@@ -160,8 +162,8 @@ export default function ProtectPage() {
 
   const activeAgentId = agent?.external_id || externalId;
   const snippet = useMemo(
-    () => snippetFor(method, activeAgentId),
-    [method, activeAgentId],
+    () => snippetFor(method, activeAgentId, workspaceId),
+    [method, activeAgentId, workspaceId],
   );
 
   async function loadAgents() {
@@ -175,6 +177,7 @@ export default function ProtectPage() {
     if (response.ok) {
       const json = await response.json();
       setAgents(json.agents ?? []);
+      setWorkspaceId(String(json.workspaceId ?? ""));
     }
   }
 
@@ -582,6 +585,18 @@ export default function ProtectPage() {
                   {item.label}
                 </button>
               ))}
+            </div>
+
+            <div className="infoBox" style={{ marginBottom: 14 }}>
+              <Code2 />
+              <div>
+                <b>Server environment</b>
+                <code style={{display:"block",marginTop:6}}>
+                  NODRA_BASE_URL=http://localhost:3000<br />
+                  NODRA_CREDENTIAL=&lt;the secret you saved&gt;<br />
+                  NODRA_WORKSPACE_ID={workspaceId || "<workspace-id>"}
+                </code>
+              </div>
             </div>
 
             <div className="codeShell">
