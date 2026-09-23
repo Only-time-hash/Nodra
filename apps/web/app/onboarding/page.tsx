@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "../../lib/supabase/server";
 import { createWorkspace } from "./actions";
 import Link from "next/link";
+import { NodraMark } from "../../components/nodra-mark";
 
 export default async function Onboarding() {
   const supabase = await createClient();
@@ -29,7 +30,8 @@ export default async function Onboarding() {
 
       <header className="onboardingHeader">
         <a className="onboardingBrand exactOnboardingBrand" href="/" aria-label="Nodra home">
-          <img src="/nodra-logo.webp" alt="Nodra — The Shield for Agentic AI" />
+          <span className="onboardingBrandMark"><NodraMark /></span>
+          <b>NODRA</b>
         </a>
 
         <div className="githubIdentity">
