@@ -31,7 +31,7 @@
 .nhLogoRow>span::before{content:none!important;display:none!important}.nhLogoRow>span{gap:8px;font-size:13px;font-weight:600;color:#aeb8c7}.nhLogoRow>span>svg{width:22px;height:22px;flex:0 0 22px;color:#b9c3d1}.nhLogoRow>span:nth-child(2)>svg{width:23px}.nhLogoRow>span:nth-child(4)>svg{width:20px}.nhLogoRow>span:nth-child(5)>svg{width:28px}.nhLogoRow>span:nth-child(6)>svg{width:19px}.nhLogoRow>span:nth-child(7)>svg{width:21px}
 
 /* Local brand SVGs + reference-sized capability glyphs */
-.nhCapGrid article>svg{width:44px!important;height:44px!important;padding:7px!important;stroke-width:2!important}
+.nhCapGrid article>svg{width:50px!important;height:50px!important;padding:8px!important;stroke-width:2!important}
 .nhLogoRow{max-width:1040px;gap:28px}
 .nhLogoRow>span{gap:11px!important;font-size:14px;font-weight:650;min-height:38px;color:#b8c2d0;opacity:.96}
 .nhLogoRow>span::before{content:none!important;display:none!important}
