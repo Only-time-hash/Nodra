@@ -7,7 +7,7 @@ import { NodraMark } from "../../components/nodra-mark";
 export default async function Onboarding() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
-  if (!data?.claims) redirect("/auth/github");
+  if (!data?.claims) redirect("/auth?intent=signin");
 
   const { data: memberships } = await supabase
     .from("workspace_members")
