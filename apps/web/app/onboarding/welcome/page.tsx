@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "../../../lib/supabase/server";
+import { NodraMark } from "../../../components/nodra-mark";
 
 export default async function WelcomeToNodra() {
   const supabase = await createClient();
@@ -46,7 +47,8 @@ export default async function WelcomeToNodra() {
       <div className="welcomeBackdrop" aria-hidden="true" />
       <header className="welcomeHeader">
         <Link className="welcomeBrand" href="/" aria-label="Nodra home">
-          <img src="/nodra-logo.webp" alt="" />
+          <span className="welcomeBrandMark"><NodraMark /></span>
+          <b>NODRA</b>
         </Link>
 
         <div className="welcomeIdentity">
@@ -109,7 +111,7 @@ export default async function WelcomeToNodra() {
             <span><b>7</b> Send First Protected Action</span>
           </div>
 
-          <Link className="welcomePrimary" href="/onboarding/integrate">
+          <Link className="welcomePrimary" href="/onboarding/overview">
             Protect First Agent <span aria-hidden="true">→</span>
           </Link>
 
