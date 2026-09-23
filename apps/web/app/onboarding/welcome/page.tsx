@@ -10,21 +10,23 @@ export default async function WelcomeToNodra() {
 
   const { data: memberships } = await supabase
     .from("workspace_members")
-    .select("workspace_id,workspaces(name)")
+    .select("workspace_id")
     .limit(1);
 
   if (!memberships?.length) redirect("/onboarding");
 
-  const membership = memberships[0] as {
-    workspace_id: string;
-    workspaces?: { name?: string } | { name?: string }[] | null;
-  };
+  const workspaceId = String(memberships[0].workspace_id);
 
-  const relation = membership.workspaces;
+  const { data: workspaceRecord } = await supabase
+    .from("workspaces")
+    .select("name")
+    .eq("id", workspaceId)
+    .maybeSingle();
+
   const workspace =
-    Array.isArray(relation)
-      ? relation[0]?.name
-      : relation?.name;
+    typeof workspaceRecord?.name === "string"
+      ? workspaceRecord.name
+      : "";
 
   const metadata = (data.claims.user_metadata ?? {}) as Record<string, unknown>;
 
