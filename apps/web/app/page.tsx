@@ -11,13 +11,13 @@ const features=[
 ];
 
 export default function HomePage(){return <main className="refHome" id="top">
-  <header className="refNav refShell">
+  <header className="refNav refShell"><a className="skipHome" href="#main-content">Skip to content</a>
     <a className="refBrand" href="#top" aria-label="Nodra home"><span className="refBrandGlyph" aria-hidden="true"><i/><i/></span><b>NODRA</b></a>
-    <nav><a href="#product">Product</a><a href="#solutions">Solutions</a><a href="#developers">Developers</a><a href="#security">Security</a><a href="/docs">Resources</a></nav>
+    <nav aria-label="Primary navigation"><a href="#product">Product</a><a href="#solutions">Solutions</a><a href="#developers">Developers</a><a href="#security">Security</a><a href="/docs">Resources</a></nav>
     <div className="refNavActions"><GitHubAuthButton className="refSign">Sign in</GitHubAuthButton><GitHubAuthButton className="refPrimary">Get Started <ArrowRight/></GitHubAuthButton></div>
   </header>
 
-  <section className="refHero refShell">
+  <section className="refHero refShell" id="main-content">
     <div className="refHeroCopy">
       <span className="refEyebrow"><i/> THE CONTROL LAYER FOR AGENTIC AI</span>
       <h1>Give AI agents<br/><span>freedom to act.</span><br/><em>Keep control.</em></h1>
