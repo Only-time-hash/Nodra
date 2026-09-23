@@ -23,7 +23,11 @@ const steps = [
   { icon: FileCheck2, title: "Send First Protected Action", text: "Verify Nodra receives real protected evidence." },
 ];
 
-export default async function OverviewPage() {
+type OverviewProps = { searchParams: Promise<{ entry?: string }> };
+
+export default async function OverviewPage({ searchParams }: OverviewProps) {
+  const { entry } = await searchParams;
+  if (entry !== "welcome") redirect("/onboarding/welcome");
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
 
@@ -81,7 +85,7 @@ export default async function OverviewPage() {
 
         <div className="flowActions" style={{ marginTop: 22, justifyContent: "flex-end" }}>
           <Link className="flowSecondary" href="/network">Skip for now</Link>
-          <Link className="flowPrimary" href="/onboarding/protect">
+          <Link className="flowPrimary" href="/onboarding/protect?entry=overview">
             Get Started <span aria-hidden="true">→</span>
           </Link>
         </div>
