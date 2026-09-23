@@ -9,7 +9,7 @@ export async function createWorkspace(formData: FormData) {
   const slug = `${slugBase}-${crypto.randomUUID().slice(0,8)}`;
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
-  if (!claims?.claims) redirect("/auth/github");
+  if (!claims?.claims) redirect("/auth?intent=signin");
   const { error } = await supabase.rpc("create_workspace",{p_name:name,p_slug:slug});
   if (error) throw new Error("Could not create workspace");
   redirect("/onboarding/welcome");
