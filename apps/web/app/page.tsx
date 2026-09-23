@@ -19,18 +19,18 @@ export default function HomePage(){return <main className="refHome" id="top">
 
   <section className="refHero refShell">
     <div className="refHeroCopy">
-      <span className="refEyebrow">SECURITY FOR AUTONOMOUS AI AGENTS</span>
-      <h1>Control the agents<br/>that move your <em>world.</em></h1>
-      <p>Nodra gives every AI agent an identity, enforces what it can do, monitors consequential actions, and helps teams investigate, contain, and recover when something goes wrong.</p>
+      <span className="refEyebrow"><i/> THE CONTROL LAYER FOR AGENTIC AI</span>
+      <h1>Give AI agents<br/><span>freedom to act.</span><br/><em>Keep control.</em></h1>
+      <p>Nodra is the security control plane between autonomous agents and the systems they can change — identity, authority, policy, evidence and recovery in one trusted layer.</p>
       <div className="refHeroButtons"><GitHubAuthButton className="refPrimary big">Get Started for Free <ArrowRight/></GitHubAuthButton><a className="refOutline" href="/docs">View Documentation</a></div>
-      <div className="refChecks"><span>◉ Secure by design</span><span>◉ Works with existing agents</span><span>◉ Built for real-world use</span></div>
+      <div className="refChecks"><span><i/> Identity-bound</span><span><i/> Policy-enforced</span><span><i/> Evidence-preserving</span></div><div className="heroSignal"><span>AGENT</span><i/><b>NODRA CONTROL PLANE</b><i/><span>TOOLS & SYSTEMS</span></div>
     </div>
     <div className="refRobot" aria-label="Nodra autonomous agent security">
       <div className="refPlanet"/>
       <div className="refBot" aria-hidden="true"><div className="botAntenna"/><div className="botHelmet"><span className="botTempleMark">N</span><span className="botFaceplate"/><i className="botEye"/><span className="botCheek"/><span className="botJaw"/></div><div className="botNeck"/><div className="botShoulder left"/><div className="botShoulder right"/><div className="botBody"><span className="botChestMark">N</span></div></div>
-      <div className="refHeroStatement">AI AGENTS<br/>DESERVE<br/><strong>REAL SECURITY</strong></div>
+      <div className="refHeroStatement"><small>AUTONOMY WITHOUT BLIND TRUST</small>AI AGENTS<br/>DESERVE<br/><strong>REAL CONTROL</strong></div>
       <div className="refPills"><span>Identity</span><i/> <span>Authority</span><i/> <span>Control</span><i/> <span>Evidence</span></div>
-      <div className="refMiniConsole"><div className="miniTop"><b><ShieldCheck/> NODRA</b><span>CONTROL PLANE</span></div><div className="miniGrid"><div><small>IDENTITY</small><strong>Verified</strong></div><div><small>AUTHORITY</small><strong>Enforced</strong></div><div><small>EVIDENCE</small><strong>Preserved</strong></div></div><div className="miniGraph"><i/><i/><i/><i/><i/><i/></div></div>
+      <div className="refMiniConsole"><div className="miniTop"><b><ShieldCheck/> NODRA</b><span><i/> LIVE CONTROL PLANE</span></div><div className="miniGrid"><div><small>IDENTITY</small><strong>Verified</strong></div><div><small>AUTHORITY</small><strong>Enforced</strong></div><div><small>EVIDENCE</small><strong>Preserved</strong></div></div><div className="miniGraph"><i/><i/><i/><i/><i/><i/></div></div>
     </div>
   </section>
 
