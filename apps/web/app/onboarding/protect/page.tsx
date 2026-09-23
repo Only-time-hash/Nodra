@@ -191,6 +191,7 @@ export default function ProtectPage() {
   const [check, setCheck] = useState<any>(null);
   const [decision, setDecision] = useState<any>(null);
   const [altIcon, setAltIcon] = useState(false);
+  const [integrationChecklist, setIntegrationChecklist] = useState([false, false, false, false, false]);
 
   const agent = useMemo(
     () => agents.find((item) => item.external_id === externalId) || agents[0],
@@ -664,18 +665,43 @@ export default function ProtectPage() {
             <p>Add the code to your real server-side agent and run it.</p>
 
             <div className="checkList">
-              <span><Check /> Install the SDK or use the REST/MCP integration</span>
-              <span><Check /> Store the credential server-side</span>
-              <span><Check /> Initialize Nodra with the agent ID</span>
-              <span><Check /> Route consequential actions through Nodra</span>
-              <span><Check /> Run the real agent once</span>
+              {[
+                "Install the SDK or use the REST/MCP integration",
+                "Store the credential server-side",
+                "Initialize Nodra with the agent ID",
+                "Route consequential actions through Nodra",
+                "Run the real agent once",
+              ].map((label, index) => (
+                <label key={label}>
+                  <input
+                    type="checkbox"
+                    checked={integrationChecklist[index]}
+                    onChange={() =>
+                      setIntegrationChecklist((current) =>
+                        current.map((value, itemIndex) =>
+                          itemIndex === index ? !value : value,
+                        ),
+                      )
+                    }
+                  />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="infoBox" style={{ marginTop: 14 }}>
+              <Network />
+              <div>
+                <b>Local verification command</b>
+                After configuring the environment, run <code>npm run test:agent</code> in a second terminal.
+              </div>
             </div>
 
             <div className="protectFooter">
               <button className="btn btnSecondary" onClick={() => setStep(3)}>
                 <ChevronLeft size={16} /> Back
               </button>
-              <button className="btn btnPrimary" onClick={() => setStep(5)}>
+              <button className="btn btnPrimary" onClick={() => setStep(5)} disabled={!integrationChecklist.every(Boolean)}>
                 Next <ChevronRight size={16} />
               </button>
             </div>
@@ -793,6 +819,7 @@ export default function ProtectPage() {
                   setCheck(null);
                   setDecision(null);
                   setMessage("");
+                  setIntegrationChecklist([false, false, false, false, false]);
                 }}
               >
                 Add Another Agent
