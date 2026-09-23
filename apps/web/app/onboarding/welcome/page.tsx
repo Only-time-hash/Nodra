@@ -63,11 +63,11 @@ export default async function WelcomeToNodra() {
 
       <section className="welcomeShell">
         <div className="welcomeProgress" aria-label="Onboarding progress">
-          <span className="done">1</span>
+          <span className="done">✓</span>
           <i className="done" />
-          <span className="active">2</span>
+          <span className="active">◆</span>
           <i />
-          <span>3</span>
+          <span>○</span>
           <div>Create Workspace</div>
           <div>Protect First Agent</div>
           <div>Enter Dashboard</div>
@@ -102,13 +102,13 @@ export default async function WelcomeToNodra() {
           </div>
 
           <div className="welcomeChecklist">
-            <span><b>1</b> Register Agent</span>
-            <span><b>2</b> Define Authority</span>
-            <span><b>3</b> Generate Credential</span>
-            <span><b>4</b> Choose JS / Python / REST / MCP</span>
-            <span><b>5</b> Integrate Nodra</span>
-            <span><b>6</b> Test Connection</span>
-            <span><b>7</b> Send First Protected Action</span>
+            <span><b>✓</b> Register Agent</span>
+            <span><b>✓</b> Define Authority</span>
+            <span><b>✓</b> Generate Credential</span>
+            <span><b>✓</b> Choose JS / Python / REST / MCP</span>
+            <span><b>✓</b> Integrate Nodra</span>
+            <span><b>✓</b> Test Connection</span>
+            <span><b>✓</b> Send First Protected Action</span>
           </div>
 
           <Link className="welcomePrimary" href="/onboarding/overview">
