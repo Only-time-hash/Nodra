@@ -24,3 +24,16 @@
 .nhCapGrid article>a{width:31px;height:31px}
 .nhCapGrid article>a svg{width:14px}
 .nhLogoRow>span{font-size:16px;font-weight:650;letter-spacing:-.015em;color:#b7c1d0}
+
+/* Restore visual weight: larger capability symbols and brand-style ecosystem marks */
+.nhCapGrid article>svg{width:46px;height:46px;padding:9px;stroke-width:2.1}
+.nhCapGrid article>a{width:34px;height:34px}.nhCapGrid article>a svg{width:16px;height:16px}
+.nhLogoRow>span{font-size:17px;font-weight:700;min-height:32px}
+.nhLogoRow>span::before{display:inline-grid;place-items:center;margin-right:8px;color:#d1d9e6;font-weight:800;line-height:1}
+.nhLogoRow>span:nth-child(1)::before{content:"◉";font-size:25px}
+.nhLogoRow>span:nth-child(2)::before{content:"AI";font-size:17px;letter-spacing:-2px}
+.nhLogoRow>span:nth-child(3)::before{content:"☁";font-size:24px}
+.nhLogoRow>span:nth-child(4)::before{content:"⊞";font-size:27px}
+.nhLogoRow>span:nth-child(5)::before{content:"aws";font-size:19px;letter-spacing:-1px}
+.nhLogoRow>span:nth-child(6)::before{content:"▲";font-size:21px}
+.nhLogoRow>span:nth-child(7)::before{content:"N";width:24px;height:24px;border:1.5px solid #d1d9e6;font-family:Georgia,serif;font-size:15px}
