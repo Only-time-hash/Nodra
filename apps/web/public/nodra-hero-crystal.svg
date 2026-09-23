@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 520" role="img" aria-labelledby="t d">
+<title id="t">Nodra security boundary</title><desc id="d">AI Agent requests pass through Identity, Authority, Policy Enforcement and Monitoring and Evidence to Allowed, Requires Approval or Blocked outcomes.</desc>
+<defs>
+ <linearGradient id="plate" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#09264e"/><stop offset=".52" stop-color="#0a1d43"/><stop offset="1" stop-color="#151445"/></linearGradient>
+ <linearGradient id="edge" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#16a9ff"/><stop offset=".55" stop-color="#386dff"/><stop offset="1" stop-color="#8a50ff"/></linearGradient>
+ <linearGradient id="n" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#baf1ff"/><stop offset=".45" stop-color="#45a0ff"/><stop offset="1" stop-color="#7856ff"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="soft"><feDropShadow dx="0" dy="14" stdDeviation="15" flood-color="#000" flood-opacity=".48"/></filter>
+</defs>
+<g font-family="Arial,Helvetica,sans-serif">
+<!-- connector glow -->
+<path d="M145 250H236 M518 174H604 M518 260H604 M518 346H604" fill="none" stroke="#184f9c" stroke-width="2"/>
+<path d="M145 250H236" stroke="#28a9ff" stroke-width="2" filter="url(#glow)"/>
+<path d="M518 174H604" stroke="#22d9bd" stroke-width="2"/><path d="M518 260H604" stroke="#e8a21c" stroke-width="2"/><path d="M518 346H604" stroke="#ef4e65" stroke-width="2"/>
+<!-- agent -->
+<g filter="url(#soft)"><rect x="25" y="181" width="128" height="138" rx="14" fill="#061425" stroke="#2463a4"/><circle cx="48" cy="208" r="10" fill="#0d70db"/><circle cx="48" cy="205" r="3.2" fill="#9ddcff"/><path d="M42 214c2-6 10-6 12 0" fill="#9ddcff"/><text x="65" y="212" fill="#f4f8ff" font-size="14" font-weight="700">AI Agent</text><text x="43" y="244" fill="#91a6c2" font-size="10">Research</text><text x="43" y="266" fill="#91a6c2" font-size="10">Authority</text><text x="43" y="288" fill="#91a6c2" font-size="10">Tool action</text></g>
+<!-- stack -->
+<g filter="url(#soft)">
+<g transform="translate(226 66)"><path d="M24 0H269l22 15v62l-22 15H24L0 77V15Z" fill="url(#plate)" stroke="url(#edge)" stroke-width="1.5"/><path d="M24 0H269l22 15-24 12H25L0 15Z" fill="#0c356d" opacity=".62"/><rect x="24" y="25" width="37" height="37" rx="9" fill="#062751" stroke="#1ca5ff"/><path d="m35 43 8-7 8 7-8 8Z" fill="none" stroke="#58c7ff" stroke-width="2"/><text x="76" y="42" fill="#f5f8ff" font-size="14" font-weight="700">Identity</text><text x="76" y="59" fill="#8ea4c1" font-size="9">Who is acting?</text></g>
+<g transform="translate(226 145)"><path d="M24 0H269l22 15v62l-22 15H24L0 77V15Z" fill="url(#plate)" stroke="url(#edge)" stroke-width="1.5"/><rect x="24" y="25" width="37" height="37" rx="9" fill="#062751" stroke="#268cff"/><path d="m35 44 6 6 11-16" fill="none" stroke="#5fb1ff" stroke-width="2.4"/><text x="76" y="42" fill="#f5f8ff" font-size="14" font-weight="700">Authority</text><text x="76" y="59" fill="#8ea4c1" font-size="9">What can it do?</text></g>
+<g transform="translate(226 224)"><path d="M24 0H269l22 15v62l-22 15H24L0 77V15Z" fill="url(#plate)" stroke="url(#edge)" stroke-width="1.5"/><rect x="24" y="25" width="37" height="37" rx="9" fill="#091f4d" stroke="#7059ff"/><path d="m43 34 9 5v10l-9 5-9-5V39Z" fill="none" stroke="#8f8aff" stroke-width="2"/><text x="76" y="42" fill="#f5f8ff" font-size="14" font-weight="700">Policy Enforcement</text><text x="76" y="59" fill="#8ea4c1" font-size="9">Is it allowed?</text></g>
+<g transform="translate(226 303)"><path d="M24 0H269l22 15v62l-22 15H24L0 77V15Z" fill="url(#plate)" stroke="url(#edge)" stroke-width="1.5"/><rect x="24" y="25" width="37" height="37" rx="9" fill="#062751" stroke="#248fff"/><path d="M35 38h16v14H35Z" fill="none" stroke="#58b6ff" stroke-width="2"/><text x="76" y="42" fill="#f5f8ff" font-size="14" font-weight="700">Monitoring &amp; Evidence</text><text x="76" y="59" fill="#8ea4c1" font-size="9">What happened?</text></g>
+<g transform="translate(226 382)"><path d="M24 0H269l22 15v64l-22 18H24L0 79V15Z" fill="#071426" stroke="#2377d9" stroke-width="1.5"/><path d="M116 31l10-8 10 8v24l-10 8-10-8Z" fill="url(#n)" filter="url(#glow)"/><path d="M132 31l10-8 10 8v24l-10 8-10-8Z" fill="url(#n)"/><text x="163" y="51" fill="#fff" font-size="24" font-weight="800">Nodra</text><text x="122" y="76" fill="#6489ba" font-size="8" font-weight="700" letter-spacing="2">SECURITY LAYER</text></g>
+</g>
+<!-- outcomes -->
+<g filter="url(#soft)"><rect x="604" y="140" width="138" height="68" rx="12" fill="#061825" stroke="#148c7a"/><circle cx="627" cy="174" r="14" fill="#073c37" stroke="#19d2ae"/><path d="m620 174 5 5 9-13" fill="none" stroke="#36e1bd" stroke-width="2.5"/><text x="650" y="170" fill="#45e1bd" font-size="13" font-weight="700">Allowed</text><text x="650" y="187" fill="#879bb4" font-size="8">Safe action proceeds</text>
+<rect x="604" y="226" width="138" height="68" rx="12" fill="#151306" stroke="#8d6412"/><circle cx="627" cy="260" r="14" fill="#3b2905" stroke="#e59a10"/><text x="624" y="266" fill="#ffc13c" font-size="19" font-weight="900">!</text><text x="650" y="255" fill="#ffc13c" font-size="11" font-weight="700">Requires Approval</text><text x="650" y="273" fill="#879bb4" font-size="8">Human review needed</text>
+<rect x="604" y="312" width="138" height="68" rx="12" fill="#180b13" stroke="#8f3042"/><circle cx="627" cy="346" r="14" fill="#3a101b" stroke="#ee5367"/><path d="m622 341 10 10m0-10-10 10" stroke="#ff6678" stroke-width="2.5"/><text x="650" y="342" fill="#ff6174" font-size="13" font-weight="700">Blocked</text><text x="650" y="359" fill="#879bb4" font-size="8">Risky action stopped</text></g>
+</g></svg>
