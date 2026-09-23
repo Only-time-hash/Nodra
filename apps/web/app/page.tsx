@@ -20,6 +20,6 @@ export default function HomePage(){return <main className="nhHome" id="top">
     <div className="nhCtas"><GitHubAuthButton className="nhPrimary nhLarge">Get started <ArrowRight/></GitHubAuthButton><a className="nhOutline" href="/docs">Read the docs</a></div>
     <div className="nhSignals"><span><ShieldCheck/><b>Control</b><small>authority and access</small></span><span><Search/><b>Detect</b><small>and stop risky actions</small></span><span><Database/><b>Investigate</b><small>and recover quickly</small></span></div>
   </div>
-  <div className="nhVisual"><img className="nhReferenceArt" src="/nodra-hero-reference.webp" alt="AI Agent requests passing through Nodra identity, authority, policy and evidence controls to allowed, approval or blocked outcomes" /></div>
+  <div className="nhVisual"><img className="nhReferenceArt" src="/nodra-hero-crystal.svg" alt="AI Agent requests passing through Nodra identity, authority, policy and evidence controls to allowed, approval or blocked outcomes" /></div>
 </section>
 </main>}
