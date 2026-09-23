@@ -1,5 +1,5 @@
 import { GitHubAuthButton } from "../components/github-auth-button";
-import { ArrowRight, ChevronDown, ShieldCheck, Search, Database } from "lucide-react";
+import { ArrowRight, ChevronDown, ShieldCheck, Search, Database, FileText, Radio, TriangleAlert, ScanSearch, RotateCcw } from "lucide-react";
 import "./home-realistic.css";
 
 function NodraLogo(){return <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="nl" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#13b8ff"/><stop offset="1" stopColor="#126cff"/></linearGradient></defs><g fill="url(#nl)"><path d="M31 5C20 5 13 10 9 19c9-1 16 3 22 12V5Z"/><path d="M59 31c0-11-5-18-14-22 1 9-3 16-12 22h26Z"/><path d="M33 59c11 0 18-5 22-14-9 1-16-3-22-12v26Z"/><path d="M5 33c0 11 5 18 14 22-1-9 3-16 12-22H5Z"/></g><circle cx="32" cy="32" r="7" fill="#051b3c"/></svg>}
@@ -15,4 +15,23 @@ export default function HomePage(){return <main className="nhPage"><section clas
 <div className="nhHeroCopy"><span className="nhEyebrow">THE AI AGENT SECURITY PLATFORM</span><h1>Secure what your<br/>AI agents can<br/><em>actually do.</em></h1><p>Nodra helps you control, monitor and protect AI agents across your tools, data and infrastructure — so they can be useful, without being risky.</p><div className="nhCtas"><GitHubAuthButton className="nhPrimary nhLarge">Get started <ArrowRight/></GitHubAuthButton><a className="nhOutline" href="/docs">Read the docs</a></div><div className="nhSignals"><span><ShieldCheck/><b>Control</b><small>authority and access</small></span><span><Search/><b>Detect</b><small>and stop risky actions</small></span><span><Database/><b>Investigate</b><small>and recover quickly</small></span></div></div>
 <div className="nhVisual" aria-label="Nodra security control layer"><img src="/nodra-security-hero.png" alt="AI Agent passing through Nodra identity, authority, policy and evidence controls to allowed, approval or blocked outcomes"/></div>
 </div>
-</section></main>}
+</section>
+<section className="nhControl" id="product">
+<div className="nhRise" aria-hidden="true">{Array.from({length:26}).map((_,i)=><i key={i} style={{"--i":i} as React.CSSProperties}/>)}</div>
+<div className="nhControlTop">
+<div className="nhControlCopy"><span className="nhSectionTag">WHY NODRA</span><h2>Secure AI agents<br/>at <em>every layer.</em></h2><p>Nodra gives you complete control over your AI agents with real-time visibility, policy enforcement and automated protection across your entire stack.</p><div className="nhStats"><span><b>100%</b><small>Action traceability</small></span><span><b>&lt; 1s</b><small>Threat response</small></span><span><b>24/7</b><small>Continuous monitoring</small></span></div></div>
+<div className="nhFloating"><img src="/flosting.png" alt="Nodra protection layers for agents, policy, runtime, monitoring, tools and infrastructure"/></div>
+</div>
+<div className="nhCapabilities">
+<div className="nhCapIntro"><div><span className="nhSectionTag">CORE CAPABILITIES</span><h3>Everything you need to keep<br/>AI agents <em>safe and productive.</em></h3></div><p>From access control to incident recovery, Nodra provides end-to-end security for your AI agents — without slowing them down.</p></div>
+<div className="nhCapGrid">
+<article><ShieldCheck/><b>Access Control</b><p>Define exactly what your agents can access and do.</p><a href="/docs" aria-label="Access Control details"><ArrowRight/></a></article>
+<article><FileText/><b>Policy Enforcement</b><p>Automatically enforce security rules and permissions.</p><a href="/docs" aria-label="Policy Enforcement details"><ArrowRight/></a></article>
+<article><Radio/><b>Real-time Monitoring</b><p>See every action, in real time, across all your agents.</p><a href="/docs" aria-label="Real-time Monitoring details"><ArrowRight/></a></article>
+<article><TriangleAlert/><b>Incident Detection</b><p>Detect and stop risky or unauthorized behavior early.</p><a href="/docs" aria-label="Incident Detection details"><ArrowRight/></a></article>
+<article><ScanSearch/><b>Investigation & Forensics</b><p>Trace, analyze and understand exactly what happened.</p><a href="/docs" aria-label="Investigation details"><ArrowRight/></a></article>
+<article><RotateCcw/><b>Recovery & Restart</b><p>Safely contain incidents and get your agents back to work.</p><a href="/docs" aria-label="Recovery details"><ArrowRight/></a></article>
+</div></div>
+<div className="nhBuilder"><span className="nhSectionTag">BUILT FOR AI TEAMS</span><h3>Powering the next generation of AI builders.</h3><p>From startups to global enterprises, Nodra helps teams keep AI agents safe, controlled and productive.</p></div>
+</section>
+</main>}
