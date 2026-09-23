@@ -70,7 +70,7 @@ export default async function WelcomePage() {
           </div>
 
           <div className="flowActions">
-            <Link className="flowPrimary" href="/onboarding/overview">
+            <Link className="flowPrimary" href="/onboarding/overview?entry=welcome">
               Protect Your First Agent <span aria-hidden="true">→</span>
             </Link>
             <Link className="flowSecondary" href="/network">
