@@ -124,3 +124,81 @@
   .nhFinalCta{margin:0 14px;grid-template-columns:1fr;text-align:center;padding:24px 18px}.nhGlobe{display:none}.nhFinalActions{grid-column:auto;justify-content:center;margin:18px 0 0}
   .nhFooter{grid-template-columns:1fr;text-align:center;justify-items:center}.nhFooter nav,.nhSocial,.nhLegal{justify-self:center}.nhFooterBrand{justify-self:center}
 }
+
+
+/* Full-interface background image: /public/background.png */
+.nhPage{
+  position:relative;
+  isolation:isolate;
+  background:
+    linear-gradient(180deg,rgba(1,7,17,.70),rgba(1,7,17,.82)),
+    url("/background.png") center top / cover fixed no-repeat;
+}
+.nhPage::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(900px 520px at 72% 10%,rgba(14,101,255,.10),transparent 70%),
+    radial-gradient(760px 520px at 22% 54%,rgba(72,52,255,.08),transparent 72%),
+    linear-gradient(180deg,rgba(1,7,17,.10),rgba(1,7,17,.34));
+}
+.nhHeroCard{
+  background:
+    radial-gradient(800px 520px at 72% 42%,rgba(9,79,189,.14),transparent 68%),
+    linear-gradient(180deg,rgba(2,11,24,.76),rgba(2,9,20,.72));
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+}
+.nhNav{
+  background:rgba(2,10,22,.68);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+.nhControl{
+  background:
+    linear-gradient(180deg,rgba(2,11,24,.70),rgba(2,9,20,.76));
+  backdrop-filter:blur(2px);
+  -webkit-backdrop-filter:blur(2px);
+}
+.nhUseCases,
+.nhHow{
+  background:linear-gradient(180deg,rgba(2,11,24,.68),rgba(3,14,27,.74));
+}
+.nhBuilder{
+  background:
+    radial-gradient(650px 105px at 50% 100%,rgba(22,93,219,.14),transparent 72%),
+    rgba(2,11,24,.54);
+}
+.nhFinalCta{
+  background:
+    radial-gradient(440px 160px at 0% 100%,rgba(0,132,255,.24),transparent 70%),
+    linear-gradient(90deg,rgba(3,23,44,.78),rgba(2,12,24,.72) 62%);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+}
+.nhFooter{
+  background:rgba(2,10,21,.70);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.nhCapGrid article,
+.nhUseGrid article{
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.nhCapGrid article{
+  background:linear-gradient(160deg,rgba(6,25,45,.78),rgba(3,17,32,.82));
+}
+.nhUseGrid article{
+  background:linear-gradient(160deg,rgba(7,27,49,.78),rgba(3,16,29,.82));
+}
+@media(max-width:700px){
+  .nhPage{
+    background:
+      linear-gradient(180deg,rgba(1,7,17,.74),rgba(1,7,17,.84)),
+      url("/background.png") center top / auto 100% fixed no-repeat;
+  }
+}
