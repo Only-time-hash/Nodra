@@ -52,17 +52,17 @@ export default async function Onboarding() {
       <section className="onboardingContent">
         <div className="onboardingSteps" aria-label="Onboarding progress">
           <div className="onboardingStep active">
-            <span>1</span>
+            <span aria-hidden="true">◆</span>
             <strong>Create Workspace</strong>
           </div>
           <div className="stepLine activeLine" />
           <div className="onboardingStep">
-            <span>2</span>
+            <span aria-hidden="true">○</span>
             <strong>Configure Agents</strong>
           </div>
           <div className="stepLine" />
           <div className="onboardingStep">
-            <span>3</span>
+            <span aria-hidden="true">○</span>
             <strong>Get Started</strong>
           </div>
         </div>
