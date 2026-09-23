@@ -39,3 +39,8 @@
 .workspaceBenefits{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}.workspaceBenefits>span{padding:14px 10px;text-align:center;border:1px solid #234b67;border-radius:9px;background:#051522}.workspaceBenefits svg{width:21px;height:21px;color:#56baff;margin-bottom:7px}.workspaceBenefits b{display:block;font-size:11px}.workspaceBenefits small{display:block;margin-top:4px;color:#8fa4b6;font-size:10px;line-height:1.35}
 .workspaceNote{margin-top:16px;color:#8ea5b7;font-size:11px;display:flex;align-items:center;justify-content:center;gap:7px}.workspaceNote svg{width:14px;color:#3dd18c}
 @media(max-width:680px){.workspaceIdentity>div{display:none}.workspaceBenefits{grid-template-columns:1fr}}
+
+.checkList label{min-height:48px;padding:0 14px;border:1px solid #244a63;border-radius:8px;background:#061623;display:flex;align-items:center;gap:10px;color:#c7d7e4;font-size:12px;cursor:pointer}
+.checkList label input{width:16px;height:16px;accent-color:#2e98ff}
+.checkList label span{min-height:auto;padding:0;border:0;background:transparent;display:inline;color:inherit;font-size:12px}
+.checkList label:has(input:checked){border-color:#1f804b;background:#072515;color:#d7f6e4}
