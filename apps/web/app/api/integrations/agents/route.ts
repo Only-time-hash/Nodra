@@ -6,7 +6,7 @@ export async function GET(){
  const ctx=await getWorkspaceContext();if(!ctx)return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
  const {data,error}=await ctx.supabase.from("agents").select("id,external_id,name,kind,status,authority_scope").eq("workspace_id",ctx.workspaceId).order("name");
  if(error)return NextResponse.json({error:"agent_list_failed"},{status:500});
- return NextResponse.json({agents:data??[]});
+ return NextResponse.json({agents:data??[],workspaceId:ctx.workspaceId});
 }
 export async function DELETE(request:Request){
  const ctx=await getWorkspaceContext();if(!ctx)return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
