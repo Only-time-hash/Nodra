@@ -1579,3 +1579,36 @@
 .riskBars{padding:16px}.riskBars article{display:grid;grid-template-columns:80px minmax(0,1fr) 36px;gap:9px;align-items:center;margin:12px 0;font-size:8px}.riskBars article>i{height:8px;border-radius:99px;background:#0c2338;overflow:hidden}.riskBars article>i>em{display:block;height:100%;background:#2f91ff;border-radius:inherit}.riskBars article>i>em.review{background:#9b78ff}.riskBars article>i>em.denied{background:#fa5d76}.riskBars article>b{text-align:right}.riskAgentTable article{display:grid;grid-template-columns:28px minmax(0,1fr) 90px 90px 75px;gap:8px;align-items:center;padding:9px 11px;border-top:1px solid #102a40}.riskAgentTable article>span:first-child{width:26px;height:26px;display:grid;place-items:center;border-radius:6px;background:#092845;color:#55b3ff}.riskAgentTable svg{width:13px}.riskAgentTable b{font-size:8px}.riskAgentTable small{display:block;font-size:7px;color:#6f87a0}.riskAgentTable em,.riskAgentTable>article>span{font-size:7px;font-style:normal}
 @media(max-width:1050px){.agentInventoryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.agentReferenceEvents article{grid-template-columns:40px minmax(0,1fr) 70px}.agentReferenceEvents time{display:none}}
 @media(max-width:650px){.agentInventoryGrid{grid-template-columns:1fr}.agentReferenceHero{align-items:flex-start;flex-direction:column}.agentReferenceEvents article{grid-template-columns:35px minmax(0,1fr);}.agentReferenceEvents em{display:none}.riskAgentTable article{grid-template-columns:28px minmax(0,1fr) 70px}.riskAgentTable article>span:nth-last-child(-n+2){display:none}}
+
+/* Live agent connection + containment correctness */
+.referenceCanvas>svg .liveAgentLink{
+  stroke:#28d8c2!important;
+  stroke-width:1.05!important;
+  stroke-dasharray:2.6 1.15!important;
+  opacity:1!important;
+  filter:drop-shadow(0 0 2.5px #28d8c2);
+  animation:dashboardEdgeFlow 1.9s linear infinite;
+}
+.referenceCanvas>svg .liveAgentLink.restricted{
+  stroke:#ff6b7f!important;
+  filter:drop-shadow(0 0 2.5px #ff6b7f);
+}
+.containEdge.healthy{
+  stroke:#20d9bd!important;
+  color:#20d9bd;
+}
+.containEdge.restricted{
+  stroke:#ff647a!important;
+  color:#ff647a;
+}
+.networkAgentTable article>button{
+  justify-self:end;
+  border:1px solid #1b5a88;
+  border-radius:5px;
+  background:#071a2c;
+  color:#d7e8f7;
+  padding:6px 9px;
+  font-size:8px;
+  cursor:pointer;
+}
+.networkAgentTable article>button:hover{border-color:#2e91df;background:#09223a}
