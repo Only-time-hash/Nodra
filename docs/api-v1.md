@@ -91,6 +91,51 @@ Request fields:
 - `executed`
 - optional `outcome`, `reason`, `causedBy`, `causedByEventId`, `incidentId`, `occurredAt`
 
+## POST /api/v1/approval-status
+
+Check whether a specific `require-approval` authorization is still pending, approved, or denied.
+
+Request:
+
+```json
+{
+  "agentId": "finance-agent",
+  "resourceId": "stripe",
+  "action": "payments.submit",
+  "authorizationEventId": "..."
+}
+```
+
+Response:
+
+```json
+{
+  "status": "approved",
+  "reason": "Reviewed by finance operations",
+  "decidedAt": "2026-09-26T10:00:00Z"
+}
+```
+
+The SDK polls this endpoint only for the exact agent/action/resource/event tuple that originally required approval.
+
+## POST /api/v1/approval-claim
+
+After approval, the runtime generates a random one-time execution token locally and submits it to Nodra. Nodra stores only the token hash.
+
+Request:
+
+```json
+{
+  "agentId": "finance-agent",
+  "resourceId": "stripe",
+  "action": "payments.submit",
+  "authorizationEventId": "...",
+  "executionToken": "<runtime-generated-one-time-token>"
+}
+```
+
+The claim operation is idempotent for the same token hash. This allows a runtime to retry after an ambiguous network failure without requiring a reviewer to copy a token manually.
+
 ## POST /api/v1/execute-approved
 
 Consume a one-time human-approval execution token.
@@ -148,6 +193,10 @@ Important stable codes include:
 | `workspace_api_access_disabled` | Workspace API access is disabled. |
 | `agent_not_healthy` | Agent is paused/quarantined or otherwise unavailable. |
 | `approval_authorization_mismatch` | Approval does not match the original action. |
+| `approval_pending` | Human review has not completed yet. |
+| `approval_denied` | Human reviewer denied the action. |
+| `approval_token_already_claimed` | Another execution token was already bound to the approval. |
+| `approval_wait_timeout` | SDK stopped waiting before a reviewer decided. |
 | `approval_token_invalid_expired_or_consumed` | Approval token cannot be consumed. |
 | `gateway_event_rate_limit_exceeded` | Event ingestion budget exceeded. |
 | `request_timeout` | SDK timed out before a definitive response. |
