@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { NodraLogo } from "../components/nodra-logo";
 
 
 type Status = "healthy" | "at-risk" | "restricted" | "quarantined";
@@ -211,7 +212,7 @@ export function NetworkLab() {
   return (
     <main className="lab">
       <aside className="sidebar">
-        <Link className="labBrand exactBrand" href="/network" aria-label="Nodra dashboard"><img src="/nodra-logo-approved.svg" alt="Nodra"/></Link>
+        <Link className="labBrand exactBrand" href="/network" aria-label="Nodra dashboard"><NodraLogo className="workspaceNodraLogo"/></Link>
         <p className="workspace">AGENTIC AI SHIELD</p>
         <nav className="sideNav" aria-label="Nodra application">
           {dashboardNav.map(([href,label])=><Link key={href} className={href==="/network"?"active":""} href={href}><i><DashboardNavIcon name={label}/></i><span>{label}</span>{label==="Incidents"&&affected>0?<b>{affected}</b>:null}</Link>)}
@@ -241,7 +242,7 @@ export function NetworkLab() {
 
         <section className="dashboardReferenceNetwork">
           <div className="dashboardNetworkHead"><div><strong>Protected Agent Network</strong><span>Real customer agents and their current authority</span></div><div className="legend"><i />Healthy <i className="warn" />At risk <i className="isolated" />Quarantined</div></div>
-          <div className="dashboardNetworkGrid"><div className="dashboardOrbital"><svg className="dashboardOrbitalEdges" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="18" className="orbitRing"/><circle cx="50" cy="50" r="28" className="orbitRing"/><circle cx="50" cy="50" r="38" className="orbitRing"/>{agents.map((agent,index)=><path key={agent.id} d={`M50 50 Q${(50+agent.x)/2} ${(50+agent.y)/2-3} ${agent.x} ${agent.y}`} className={"dashPath "+(agent.status==="healthy"?"dashPathHealthy":"dashPathRisk")}/>)}</svg><div className="dashboardCore"><img src="/nodra-logo-approved.svg" alt="Nodra"/></div>{agents.map(agent=><button key={agent.id} className={"dashboardOrbAgent dashboardOrbAgent-"+agent.id+" "+agent.status+(selectedId===agent.id?" selected":"")} style={{left:agent.x+"%",top:agent.y+"%"}} onClick={()=>setSelectedId(agent.id)}><span><AgentGlyph id={agent.role.toLowerCase()}/></span><strong>{agent.name} Agent</strong><small>{agent.status}</small></button>)}</div><aside className="dashboardAgentCard"><div className="identity"><span className={"bigIcon inspectorAgentIcon agentIcon-"+selected.id+" "+selected.status}><AgentGlyph id={selected.role.toLowerCase()}/></span><div><h2>{selected.name} Agent</h2><p>{selected.role}</p></div></div><div className="agentTrust"><span><small>STATUS</small><strong>{selected.status}</strong></span><span><small>AUTHORITY</small><strong>{selected.permissions.length}</strong></span></div><div className="inspectSection"><p className="label">PERMISSIONS</p>{selected.permissions.map(p=><code key={p}>{p}</code>)}</div><div className="dashboardAgentActions"><Link href="/activity">View Logs</Link><Link href="/agents">Manage Agent</Link></div></aside></div>
+          <div className="dashboardNetworkGrid"><div className="dashboardOrbital"><svg className="dashboardOrbitalEdges" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="18" className="orbitRing"/><circle cx="50" cy="50" r="28" className="orbitRing"/><circle cx="50" cy="50" r="38" className="orbitRing"/>{agents.map((agent,index)=><path key={agent.id} d={`M50 50 Q${(50+agent.x)/2} ${(50+agent.y)/2-3} ${agent.x} ${agent.y}`} className={"dashPath "+(agent.status==="healthy"?"dashPathHealthy":"dashPathRisk")}/>)}</svg><div className="dashboardCore"><NodraLogo className="dashboardCoreLogo"/></div>{agents.map(agent=><button key={agent.id} className={"dashboardOrbAgent dashboardOrbAgent-"+agent.id+" "+agent.status+(selectedId===agent.id?" selected":"")} style={{left:agent.x+"%",top:agent.y+"%"}} onClick={()=>setSelectedId(agent.id)}><span><AgentGlyph id={agent.role.toLowerCase()}/></span><strong>{agent.name}</strong><small>{agent.status}</small></button>)}</div><aside className="dashboardAgentCard"><div className="identity"><span className={"bigIcon inspectorAgentIcon agentIcon-"+selected.id+" "+selected.status}><AgentGlyph id={selected.role.toLowerCase()}/></span><div><h2>{selected.name}</h2><p>{selected.role}</p></div></div><div className="agentTrust"><span><small>STATUS</small><strong>{selected.status}</strong></span><span><small>AUTHORITY</small><strong>{selected.permissions.length}</strong></span></div><div className="inspectSection"><p className="label">PERMISSIONS</p>{selected.permissions.map(p=><code key={p}>{p}</code>)}</div><div className="dashboardAgentActions"><Link href="/activity">View Logs</Link><Link href="/agents">Manage Agent</Link></div></aside></div>
         </section>
 
         <section className="controlStrip">
