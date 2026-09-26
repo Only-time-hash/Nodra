@@ -3,6 +3,8 @@ info:
   title: Nodra Public Runtime API
   version: 1.0.0-beta
   description: Stable runtime API for protecting consequential AI-agent actions.
+  license:
+    name: Apache-2.0
 servers:
   - url: https://nodra-kappa.vercel.app
 paths:
@@ -10,6 +12,7 @@ paths:
     get:
       operationId: getHealth
       summary: Check Nodra public API health
+      security: []
       responses:
         "200":
           description: API is available
@@ -22,6 +25,8 @@ paths:
                   service: { type: string, const: nodra-api }
                   version: { type: string, const: v1 }
                   status: { type: string, const: ok }
+        "429":
+          $ref: "#/components/responses/Error"
   /api/v1/authorize:
     post:
       operationId: authorizeAction
