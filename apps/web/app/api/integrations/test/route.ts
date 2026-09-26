@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "agent_id_required" }, { status: 400 });
   }
 
-  const { data, error } = await ctx.supabase.rpc(
+  const { data, error } = await (ctx.supabase as any).rpc(
     "integration_connection_status",
     { p_workspace_id: ctx.workspaceId, p_agent_external_id: body.agentId },
   );
