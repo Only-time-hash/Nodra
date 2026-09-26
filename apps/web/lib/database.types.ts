@@ -647,8 +647,11 @@ export type Database = {
           created_at: string
           effect: Database["public"]["Enums"]["security_decision"]
           enabled: boolean
+          expires_at: string | null
           id: string
+          priority: number
           resource_id: string | null
+          starts_at: string | null
           workspace_id: string
         }
         Insert: {
@@ -658,8 +661,11 @@ export type Database = {
           created_at?: string
           effect: Database["public"]["Enums"]["security_decision"]
           enabled?: boolean
+          expires_at?: string | null
           id?: string
+          priority?: number
           resource_id?: string | null
+          starts_at?: string | null
           workspace_id: string
         }
         Update: {
@@ -669,8 +675,11 @@ export type Database = {
           created_at?: string
           effect?: Database["public"]["Enums"]["security_decision"]
           enabled?: boolean
+          expires_at?: string | null
           id?: string
+          priority?: number
           resource_id?: string | null
+          starts_at?: string | null
           workspace_id?: string
         }
         Relationships: [
@@ -1276,6 +1285,21 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      apply_integration_policy_override: {
+        Args: {
+          p_action: string
+          p_context?: Json
+          p_original_event_id: string
+          p_resource_external_id: string
+          p_secret_hash: string
+        }
+        Returns: {
+          authorization_event_id: string
+          decision: string
+          policy_id: string
+          reason: string
+        }[]
+      }
       apply_laboratory_remediation_state: {
         Args: { p_action_type: string; p_workspace_id: string }
         Returns: Json
@@ -1593,6 +1617,35 @@ export type Database = {
           p_target?: string
         }
         Returns: Json
+      }
+      select_runtime_policy: {
+        Args: {
+          p_action: string
+          p_agent_id: string
+          p_context?: Json
+          p_resource_external_id: string
+          p_workspace_id: string
+        }
+        Returns: {
+          effect: string
+          policy_id: string
+          priority: number
+          reason: string
+        }[]
+      }
+      simulate_workspace_policy: {
+        Args: {
+          p_action: string
+          p_agent_id: string
+          p_context?: Json
+          p_resource_external_id: string
+        }
+        Returns: {
+          base_decision: string
+          decision: string
+          matched_policy_id: string
+          reason: string
+        }[]
       }
       sync_recovery_steps_for_incident: {
         Args: { p_action_type: string; p_incident_id: string }
