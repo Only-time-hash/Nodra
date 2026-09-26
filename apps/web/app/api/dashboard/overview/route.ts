@@ -11,7 +11,7 @@ export async function GET() {
     );
   }
 
-  const [{ data: agents, error: agentsError }, { data: allIncidents, error: incidentsError }, { data: events, error: eventsError }, integrityResult] =
+  const [{ data: agents, error: agentsError }, { data: allIncidents, error: incidentsError }, { data: events, error: eventsError }, { data: policies, error: policiesError }, integrityResult] =
     await Promise.all([
       ctx.supabase
         .from("agents")
@@ -31,12 +31,17 @@ export async function GET() {
         .eq("workspace_id", ctx.workspaceId)
         .order("sequence_no", { ascending: false })
         .limit(100),
+      ctx.supabase
+        .from("policies")
+        .select("id,action,effect,enabled,constraints,created_at,agent_id,resource_id,agents(name,external_id),resources(name,external_id)")
+        .eq("workspace_id", ctx.workspaceId)
+        .order("created_at", { ascending: false }),
       ctx.supabase.rpc("verify_security_event_chain", {
         p_workspace_id: ctx.workspaceId,
       }),
     ]);
 
-  if (agentsError || incidentsError || eventsError) {
+  if (agentsError || incidentsError || eventsError || policiesError) {
     return NextResponse.json({ error: "dashboard_query_failed" }, { status: 500 });
   }
 
@@ -205,6 +210,7 @@ export async function GET() {
     agents: agents ?? [],
     incidents,
     events: events ?? [],
+    policies: policies ?? [],
     incident: activeIncident,
     causalEdges,
     affected,
