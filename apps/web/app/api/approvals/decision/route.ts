@@ -29,8 +29,8 @@ export async function POST(request:Request){
    p_event_id:body.eventId,
    p_decision:body.decision,
    p_reason:body.reason.trim(),
-   p_execution_token_hash:executionToken?hash(executionToken):null,
-   p_execution_token_expires_at:executionTokenExpiresAt
+   p_execution_token_hash:executionToken?hash(executionToken):undefined,
+   p_execution_token_expires_at:executionTokenExpiresAt??undefined
  });
 
  if(error){
