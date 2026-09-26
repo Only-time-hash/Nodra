@@ -104,6 +104,77 @@ class SigningTests(unittest.TestCase):
         )
         self.assertEqual(result["decision"], "allow")
 
+
+    def test_authorize_and_wait_claims_approval_automatically(self):
+        credential = "ndra_auto_approval_python_12345678901234567890"
+        client = Nodra(
+            "https://nodra.example",
+            credential,
+            max_retries=0,
+        )
+        calls = []
+
+        def fake_urlopen(request, timeout=None):
+            calls.append(request.full_url)
+
+            if request.full_url.endswith("/api/v1/authorize"):
+                return _Response(
+                    {
+                        "decision": "require-approval",
+                        "reason": "workspace_high_impact_review",
+                        "agentId": "finance-agent",
+                        "resourceId": "stripe",
+                        "action": "payments.submit",
+                        "authorizationEventId": "11111111-1111-4111-8111-111111111111",
+                    }
+                )
+
+            if request.full_url.endswith("/api/v1/approval-status"):
+                return _Response(
+                    {
+                        "status": "approved",
+                        "reason": "approved by analyst",
+                    }
+                )
+
+            if request.full_url.endswith("/api/v1/approval-claim"):
+                return _Response(
+                    {
+                        "status": "approved",
+                        "expiresAt": "2026-09-26T12:00:00Z",
+                    }
+                )
+
+            if request.full_url.endswith("/api/v1/execute-approved"):
+                return _Response(
+                    {
+                        "decision": "allow",
+                        "reason": "human_approval_consumed",
+                        "authorizationEventId": "11111111-1111-4111-8111-111111111111",
+                    }
+                )
+
+            raise AssertionError(f"Unexpected URL: {request.full_url}")
+
+        with patch("urllib.request.urlopen", fake_urlopen):
+            decision = client.protect("finance-agent").authorize_and_wait(
+                "stripe",
+                "payments.submit",
+                timeout_seconds=2,
+                poll_interval_seconds=0.25,
+            )
+
+        self.assertEqual(decision["decision"], "allow")
+        self.assertEqual(
+            calls,
+            [
+                "https://nodra.example/api/v1/authorize",
+                "https://nodra.example/api/v1/approval-status",
+                "https://nodra.example/api/v1/approval-claim",
+                "https://nodra.example/api/v1/execute-approved",
+            ],
+        )
+
     def test_structured_error_exposes_server_code(self):
         credential = "ndra_test_customer_credential_1234567890"
         client = Nodra(
