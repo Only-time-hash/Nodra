@@ -43,5 +43,14 @@
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Only-time-hash/Nodra.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://nodra-kappa.vercel.app",
+  "bugs": {
+    "url": "https://github.com/Only-time-hash/Nodra/issues"
   }
 }
