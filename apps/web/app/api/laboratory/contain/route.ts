@@ -17,7 +17,9 @@ export async function POST(request:Request) {
   const affectedIds=scope.map((x:any)=>x.agent_id);
   const origin=scope.find((x:any)=>x.action==="quarantine");
   const restricted=scope.filter((x:any)=>x.action==="restrict_authority");
-  const {data:originAgent}=await ctx.supabase.from("agents").select("kind").eq("id",incident.origin_agent_id).eq("workspace_id",ctx.workspaceId).maybeSingle();
+  const originAgentId=incident.origin_agent_id;
+  if(!originAgentId) return NextResponse.json({error:"incident_origin_missing"},{status:409});
+  const {data:originAgent}=await ctx.supabase.from("agents").select("kind").eq("id",originAgentId).eq("workspace_id",ctx.workspaceId).maybeSingle();
   const agentKind=originAgent?.kind??"customer";
   const {data:allAgents}=await ctx.supabase.from("agents").select("id,external_id").eq("workspace_id",ctx.workspaceId).eq("kind",agentKind);
   const preserved=(allAgents??[]).filter((a:any)=>!affectedIds.includes(a.id)).map((a:any)=>a.external_id);
