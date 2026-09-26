@@ -1749,3 +1749,58 @@
  .incidentRef .refTableHead,.incidentRef .refTableRow{min-width:940px}
  .incidentDetailsPanel{min-height:auto}
 }
+
+
+/* AI investigation report */
+.investigationAssistant{overflow:hidden}
+.aiReport{display:grid;gap:14px;margin-top:18px}
+.aiTrustNotice{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 14px;border:1px solid #1c5b84;border-radius:10px;background:linear-gradient(135deg,#071b2f,#08243a)}
+.aiTrustNotice>div{display:grid;gap:3px}
+.aiTrustNotice strong{color:#dff4ff;font-size:12px}
+.aiTrustNotice span,.aiTrustNotice small{color:#7da5c9;font-size:9px}
+.aiTrustNotice small{padding:5px 8px;border:1px solid #245f88;border-radius:999px;white-space:nowrap}
+.aiSummaryCard,.aiReportCard{border:1px solid #14395f;border-radius:11px;background:linear-gradient(145deg,#07182a,#051321);box-shadow:0 12px 34px #0000001f}
+.aiSummaryCard{padding:18px}
+.aiSummaryCard p{margin:9px 0 0;color:#d9e8f8;font-size:12px;line-height:1.7}
+.aiSectionLabel{font-size:8px;letter-spacing:.12em;color:#5faee9;font-weight:800}
+.aiReportGrid{display:grid;grid-template-columns:1.25fr 1fr;gap:12px}
+.aiReportCard{padding:16px;min-width:0}
+.aiTimelineCard,.aiStepsCard{grid-column:1/-1}
+.aiReportCardHead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:12px;border-bottom:1px solid #102b46}
+.aiReportCardHead>div{display:grid;gap:4px}
+.aiReportCardHead h4{margin:0;color:#e4effb;font-size:13px}
+.aiReportCardHead>b{font-size:9px;color:#80a7ca;font-weight:600}
+.aiHypothesisBadge{padding:5px 8px;border:1px solid #896c24;border-radius:999px;background:#2c2209;color:#ffd15b!important}
+.aiReportCard>p{color:#b8cbe0;font-size:10px;line-height:1.65}
+.aiReportMuted{color:#6f8ca8!important;font-size:9px!important;line-height:1.5}
+.aiTimeline{display:grid}
+.aiTimelineRow{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:12px 0;border-bottom:1px solid #0f2942}
+.aiTimelineRow:last-child{border-bottom:0}
+.aiTimelineMarker{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#0e4f85;border:1px solid #2c7db4;color:#dff4ff;font-size:9px;font-weight:700}
+.aiTimelineRow>div{display:grid;gap:4px}
+.aiTimelineRow time{color:#6485a5;font-size:8px}
+.aiTimelineRow p{margin:0;color:#cfe0ef;font-size:10px;line-height:1.5}
+.aiChipList{display:flex;flex-wrap:wrap;gap:7px;padding-top:13px}
+.aiChipList span{display:inline-flex;max-width:100%;padding:7px 9px;border:1px solid #2a567b;border-radius:8px;background:#082039;color:#b9d5ec;font-size:9px;line-height:1.4;overflow-wrap:anywhere}
+.aiEvidenceList,.aiStepsList{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.aiEvidenceList li{position:relative;padding:9px 10px 9px 28px;border:1px solid #3f3920;border-radius:8px;background:#211d0b;color:#e1cf88;font-size:9px;line-height:1.5}
+.aiEvidenceList li:before{content:"!";position:absolute;left:10px;top:9px;width:12px;height:12px;border-radius:50%;display:grid;place-items:center;background:#c99620;color:#1d1604;font-size:8px;font-weight:900}
+.aiStepsList{counter-reset:step}
+.aiStepsList li{counter-increment:step;display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;padding:10px;border:1px solid #173c5e;border-radius:8px;background:#071a2c;color:#c9dbea;font-size:10px;line-height:1.5}
+.aiStepsList li:before{content:counter(step);width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:#0e5591;color:white;font-size:9px;font-weight:800}
+.aiTechnicalDetails{border:1px solid #12365c;border-radius:9px;background:#05111e;overflow:hidden}
+.aiTechnicalDetails summary{cursor:pointer;padding:11px 13px;color:#789ab9;font-size:9px;user-select:none}
+.aiTechnicalDetails[open] summary{border-bottom:1px solid #102a44}
+.aiTechnicalDetails>div{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:12px}
+.aiTechnicalDetails span{display:grid;gap:3px;color:#607e9a;font-size:8px}
+.aiTechnicalDetails b{color:#c9dbea;font-size:9px;overflow-wrap:anywhere}
+@media(max-width:900px){
+ .aiReportGrid{grid-template-columns:1fr}
+ .aiTimelineCard,.aiStepsCard{grid-column:auto}
+ .aiTechnicalDetails>div{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+ .aiTrustNotice{align-items:flex-start;flex-direction:column}
+ .aiTrustNotice small{white-space:normal}
+ .aiTechnicalDetails>div{grid-template-columns:1fr}
+}
