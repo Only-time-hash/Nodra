@@ -1,4 +1,4 @@
-import { createHash, createHmac, randomUUID } from "node:crypto";
+import { createHash, createHmac, randomBytes, randomUUID } from "node:crypto";
 
 export type NodraDecision = "allow" | "deny" | "require-approval";
 
@@ -62,6 +62,25 @@ export type ApprovedExecutionDecision = {
   agentId: string;
   resourceId: string;
   action: string;
+};
+
+export type ApprovalWaitRequest = {
+  agentId: string;
+  resourceId: string;
+  action: string;
+  authorizationEventId: string;
+};
+
+export type ApprovalWaitOptions = {
+  timeoutMs?: number;
+  pollIntervalMs?: number;
+};
+
+export type ApprovalClaim = {
+  executionToken: string;
+  reason?: string | null;
+  decidedAt?: string | null;
+  expiresAt?: string | null;
 };
 
 export class NodraError extends Error {
@@ -217,6 +236,24 @@ export class Nodra {
           ...request,
         }),
 
+      waitForApproval: (
+        request: Omit<ApprovalWaitRequest, "agentId">,
+        options?: ApprovalWaitOptions,
+      ) =>
+        this.waitForApproval(
+          { agentId: agent.id, ...request },
+          options,
+        ),
+
+      authorizeAndWait: (
+        request: { resourceId: string; action: string },
+        options?: ApprovalWaitOptions,
+      ) =>
+        this.authorizeAndWait(
+          { agentId: agent.id, ...request },
+          options,
+        ),
+
       record: (event: Omit<NodraEvent, "agentId">) =>
         this.record({ ...event, agentId: agent.id }),
 
@@ -269,6 +306,99 @@ export class Nodra {
         operation: "approved execution",
       },
     );
+  }
+
+  async waitForApproval(
+    request: ApprovalWaitRequest,
+    options: ApprovalWaitOptions = {},
+  ): Promise<ApprovalClaim> {
+    assertNonEmpty(request.agentId, "agentId");
+    assertNonEmpty(request.resourceId, "resourceId");
+    assertNonEmpty(request.action, "action");
+    assertNonEmpty(request.authorizationEventId, "authorizationEventId");
+
+    const timeoutMs = Math.max(1_000, options.timeoutMs ?? 5 * 60_000);
+    const pollIntervalMs = Math.max(
+      250,
+      Math.min(10_000, options.pollIntervalMs ?? 1_500),
+    );
+    const deadline = Date.now() + timeoutMs;
+    const executionToken = randomBytes(32).toString("base64url");
+
+    while (Date.now() < deadline) {
+      const status = await this.post<{
+        status: "pending" | "approved" | "denied";
+        reason?: string | null;
+        decidedAt?: string | null;
+      }>("/api/v1/approval-status", request, {
+        retrySafe: true,
+        operation: "approval status",
+      });
+
+      if (status.status === "denied") {
+        throw new NodraError("Human approval was denied.", {
+          code: "approval_denied",
+          status: 403,
+        });
+      }
+
+      if (status.status === "approved") {
+        const claim = await this.post<{
+          status: "approved";
+          expiresAt?: string | null;
+        }>(
+          "/api/v1/approval-claim",
+          { ...request, executionToken },
+          {
+            retrySafe: true,
+            operation: "approval claim",
+          },
+        );
+
+        return {
+          executionToken,
+          reason: status.reason ?? null,
+          decidedAt: status.decidedAt ?? null,
+          expiresAt: claim.expiresAt ?? null,
+        };
+      }
+
+      await delay(Math.min(pollIntervalMs, Math.max(0, deadline - Date.now())));
+    }
+
+    throw new NodraError("Timed out waiting for human approval.", {
+      code: "approval_wait_timeout",
+      retryable: false,
+    });
+  }
+
+  async authorizeAndWait(
+    request: AuthorizationRequest,
+    options: ApprovalWaitOptions = {},
+  ): Promise<AuthorizationDecision | ApprovedExecutionDecision> {
+    const decision = await this.authorize(request);
+
+    if (decision.decision !== "require-approval") {
+      return decision;
+    }
+
+    const claim = await this.waitForApproval(
+      {
+        agentId: request.agentId,
+        resourceId: request.resourceId,
+        action: request.action,
+        authorizationEventId: decision.authorizationEventId,
+      },
+      options,
+    );
+
+    return this.executeApproved({
+      agentId: request.agentId,
+      resourceId: request.resourceId,
+      action: request.action,
+      authorizationEventId: decision.authorizationEventId,
+      executionToken: claim.executionToken,
+    });
   }
 
   async record(event: NodraEvent): Promise<{
