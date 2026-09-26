@@ -54,13 +54,13 @@ export async function POST(request: Request) {
   const [{ data: incident, error: incidentError }, { data: events, error: eventsError }] = await Promise.all([
     ctx.supabase
       .from("incidents")
-      .select("id,title,severity,state,opened_at,contained_at,resolved_at,origin_agent_id,metadata")
+      .select("id,title,severity,state,opened_at,contained_at,resolved_at,origin_agent_id,metadata,origin_agent:agents!incidents_origin_agent_id_fkey(id,external_id,name)")
       .eq("workspace_id", ctx.workspaceId)
       .eq("id", body.incidentId)
       .maybeSingle(),
     ctx.supabase
       .from("security_events")
-      .select("id,event_type,action,resource_id,decision,payload,occurred_at,agent_id")
+      .select("id,event_type,action,resource_id,decision,payload,occurred_at,agent_id,agent:agents!security_events_agent_id_fkey(id,external_id,name)")
       .eq("workspace_id", ctx.workspaceId)
       .eq("incident_id", body.incidentId)
       .order("occurred_at", { ascending: true })
@@ -79,15 +79,66 @@ export async function POST(request: Request) {
     }, { status: 503 });
   }
 
+  const agentLabels = new Map<string, string>();
+  const originAgent = Array.isArray((incident as any).origin_agent)
+    ? (incident as any).origin_agent[0]
+    : (incident as any).origin_agent;
+  if (incident.origin_agent_id && originAgent) {
+    agentLabels.set(
+      String(incident.origin_agent_id),
+      String(originAgent.name || originAgent.external_id || "Origin agent"),
+    );
+  }
+  for (const event of events ?? []) {
+    const relatedAgent = Array.isArray((event as any).agent) ? (event as any).agent[0] : (event as any).agent;
+    if (event.agent_id && relatedAgent) {
+      agentLabels.set(
+        String(event.agent_id),
+        String(relatedAgent.name || relatedAgent.external_id || "Agent"),
+      );
+    }
+  }
+
+  const safeIncident = {
+    title: incident.title,
+    severity: incident.severity,
+    state: incident.state,
+    openedAt: incident.opened_at,
+    containedAt: incident.contained_at,
+    resolvedAt: incident.resolved_at,
+    originAgent: originAgent
+      ? String(originAgent.name || originAgent.external_id || "Origin agent")
+      : "Unknown agent",
+    metadata: incident.metadata,
+  };
+  const safeEvents = (events ?? []).map((event: any) => {
+    const relatedAgent = Array.isArray(event.agent) ? event.agent[0] : event.agent;
+    return {
+      eventType: event.event_type,
+      action: event.action,
+      resource: event.resource_id,
+      decision: event.decision,
+      payload: event.payload,
+      occurredAt: event.occurred_at,
+      agent: relatedAgent
+        ? String(relatedAgent.name || relatedAgent.external_id || "Agent")
+        : "Unknown agent",
+    };
+  });
+
   const evidence = JSON.stringify(
-    redactForExternalAi({ incident, events: events ?? [] }),
+    redactForExternalAi({ incident: safeIncident, events: safeEvents }),
   ).slice(0, 120000);
   const prompt = [
     "You are Nodra's investigation assistant.",
     "Your job is to summarize evidence; you never make authorization, containment, recovery, or restart decisions.",
     "Use only the supplied incident and security-event evidence. Do not invent facts.",
+    "Use the human-readable agent names supplied in the evidence. Never output database UUIDs or internal record identifiers.",
     "Clearly separate observed facts from hypotheses and unknowns.",
-    "Return concise JSON with keys: summary, timeline, likelyCause, blastRadius, evidenceGaps, recommendedInvestigationSteps.",
+    "Return JSON with keys: summary, timeline, likelyCause, blastRadius, evidenceGaps, recommendedInvestigationSteps.",
+    "timeline must be an array of objects with timestamp and event.",
+    "evidenceGaps and recommendedInvestigationSteps must be arrays of concise strings.",
+    "likelyCause must explicitly describe itself as a hypothesis when the evidence does not prove causation.",
     "recommendedInvestigationSteps must be investigative steps only, not autonomous remediation actions.",
     "",
     "EVIDENCE:",
@@ -176,18 +227,34 @@ export async function POST(request: Request) {
   }
 
   const text = providerBody?.candidates?.[0]?.content?.parts?.map((part: any) => part?.text ?? "").join("") ?? "";
-  let analysis: unknown;
+  let analysis: any;
   try {
     analysis = JSON.parse(text);
   } catch {
     analysis = { summary: text, timeline: [], likelyCause: null, blastRadius: null, evidenceGaps: [], recommendedInvestigationSteps: [] };
   }
 
+  const replaceKnownIds = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(replaceKnownIds);
+    if (value && typeof value === "object") {
+      return Object.fromEntries(
+        Object.entries(value as Record<string, unknown>).map(([key, child]) => [key, replaceKnownIds(child)]),
+      );
+    }
+    if (typeof value !== "string") return value;
+    let next = value;
+    for (const [id, label] of agentLabels) next = next.split(id).join(label);
+    next = next.split(String(incident.id)).join("this incident");
+    return next;
+  };
+
+  const cleanAnalysis = replaceKnownIds(analysis);
+
   return NextResponse.json({
     incidentId: incident.id,
     provider: "gemini",
-    model: PRIMARY_MODEL,
+    model: usedModel,
     deterministicSecurityDecisionsUnaffected: true,
-    analysis,
+    analysis: cleanAnalysis,
   });
 }
