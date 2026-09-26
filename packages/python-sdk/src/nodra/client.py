@@ -238,7 +238,7 @@ class NodraAgent:
         _validate_required(action, "action")
 
         return self.client._post(
-            "/api/gateway/authorize",
+            "/api/v1/authorize",
             {
                 "agentId": self.agent_id,
                 "resourceId": resource_id,
@@ -263,7 +263,7 @@ class NodraAgent:
         # The token is one-time. Never automatically retry an execution that
         # may already have reached the Nodra gateway.
         return self.client._post(
-            "/api/gateway/execute-approved",
+            "/api/v1/execute-approved",
             {
                 "agentId": self.agent_id,
                 "resourceId": resource_id,
@@ -307,7 +307,7 @@ class NodraAgent:
         }
 
         return self.client._post(
-            "/api/gateway/events",
+            "/api/v1/events",
             payload,
             retry_safe=True,
             operation="event recording",
