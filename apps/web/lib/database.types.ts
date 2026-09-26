@@ -72,6 +72,7 @@ export type Database = {
           id: string
           reason: string | null
           security_event_id: string
+          token_claimed_at: string | null
           workspace_id: string
         }
         Insert: {
@@ -84,6 +85,7 @@ export type Database = {
           id?: string
           reason?: string | null
           security_event_id: string
+          token_claimed_at?: string | null
           workspace_id: string
         }
         Update: {
@@ -96,6 +98,7 @@ export type Database = {
           id?: string
           reason?: string | null
           security_event_id?: string
+          token_claimed_at?: string | null
           workspace_id?: string
         }
         Relationships: [
@@ -1303,6 +1306,21 @@ export type Database = {
           workspace_id: string
         }[]
       }
+      claim_integration_approval_token: {
+        Args: {
+          p_action: string
+          p_authorization_event_id: string
+          p_execution_token_expires_at: string
+          p_execution_token_hash: string
+          p_external_agent_id: string
+          p_resource_external_id: string
+          p_secret_hash: string
+        }
+        Returns: {
+          expires_at: string
+          status: string
+        }[]
+      }
       claim_remediation_action: {
         Args: {
           p_action_type: string
@@ -1394,6 +1412,20 @@ export type Database = {
           p_error_message: string
         }
         Returns: undefined
+      }
+      get_integration_approval_status: {
+        Args: {
+          p_action: string
+          p_authorization_event_id: string
+          p_external_agent_id: string
+          p_resource_external_id: string
+          p_secret_hash: string
+        }
+        Returns: {
+          decided_at: string
+          reason: string
+          status: string
+        }[]
       }
       incident_blast_radius: {
         Args: { p_incident_id: string }
