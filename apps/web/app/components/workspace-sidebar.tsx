@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { NodraLogo } from "./nodra-logo";
+import { WorkspaceSwitcher } from "./workspace-switcher";
 import {
   BarChart3,
   Bot,
@@ -54,6 +55,8 @@ export function WorkspaceSidebar({ active }: { active: string }) {
         <NodraLogo className="workspaceNodraLogo" />
         <span className="consoleBrandWord">Nodra</span>
       </Link>
+
+      <WorkspaceSwitcher />
 
       <nav className="sideNav" aria-label="Nodra application">
         {nav.map(([href, label]) => (
