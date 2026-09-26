@@ -2,10 +2,28 @@ import { NextResponse } from "next/server";
 import { getWorkspaceContext } from "../../../../lib/persistence";
 
 const MODEL = process.env.NODRA_GEMINI_MODEL || "gemini-3.8-flash";
+const SENSITIVE_KEY = /(secret|token|password|credential|authorization|cookie|api[_-]?key|private[_-]?key|session)/i;
+
+function redactForExternalAi(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(redactForExternalAi);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, child]) => [
+        key,
+        SENSITIVE_KEY.test(key) ? "[REDACTED]" : redactForExternalAi(child),
+      ]),
+    );
+  }
+  if (typeof value === "string" && value.length > 2048) return value.slice(0, 2048) + "…";
+  return value;
+}
 
 export async function POST(request: Request) {
   const ctx = await getWorkspaceContext();
   if (!ctx) return NextResponse.json({ error: "authentication_or_workspace_required" }, { status: 401 });
+  if (!["owner", "admin", "analyst"].includes(ctx.role)) {
+    return NextResponse.json({ error: "insufficient_role" }, { status: 403 });
+  }
 
   const { data: settings, error: settingsError } = await ctx.supabase
     .from("workspace_settings")
@@ -56,7 +74,9 @@ export async function POST(request: Request) {
     }, { status: 503 });
   }
 
-  const evidence = JSON.stringify({ incident, events: events ?? [] }).slice(0, 120000);
+  const evidence = JSON.stringify(
+    redactForExternalAi({ incident, events: events ?? [] }),
+  ).slice(0, 120000);
   const prompt = [
     "You are Nodra's investigation assistant.",
     "Your job is to summarize evidence; you never make authorization, containment, recovery, or restart decisions.",
