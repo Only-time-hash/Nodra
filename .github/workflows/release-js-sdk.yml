@@ -1,0 +1,37 @@
+name: Publish JavaScript SDK
+
+on:
+  push:
+    tags:
+      - "js-sdk-v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: ""
+      - name: Require modern npm trusted-publishing client
+        run: npm install --global npm@^11.5.1
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Test repository
+        run: npm test
+      - name: Build SDK
+        run: npm --workspace packages/sdk run build
+      - name: Verify publish contents
+        run: npm --workspace packages/sdk pack --dry-run
+      - name: Publish SDK with OIDC trusted publishing
+        run: npm publish --workspace packages/sdk --access public
