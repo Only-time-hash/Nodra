@@ -127,6 +127,66 @@ paths:
           $ref: "#/components/responses/Error"
         "503":
           $ref: "#/components/responses/Error"
+  /api/v1/approval-status:
+    post:
+      operationId: getApprovalStatus
+      summary: Check the human-approval status for a protected action
+      security:
+        - nodraHmac: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApprovalWaitRequest"
+      responses:
+        "200":
+          description: Current approval state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApprovalStatus"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+  /api/v1/approval-claim:
+    post:
+      operationId: claimApprovalExecutionToken
+      summary: Bind a runtime-generated one-time token to an approved action
+      security:
+        - nodraHmac: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApprovalClaimRequest"
+      responses:
+        "200":
+          description: Approval token claimed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApprovalClaim"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
 components:
   securitySchemes:
     nodraHmac:
@@ -198,6 +258,40 @@ components:
         causedByEventId: { type: ["string", "null"], format: uuid }
         incidentId: { type: ["string", "null"], format: uuid }
         occurredAt: { type: ["string", "null"], format: date-time }
+    ApprovalWaitRequest:
+      type: object
+      additionalProperties: false
+      required: [agentId, resourceId, action, authorizationEventId]
+      properties:
+        agentId: { type: string, minLength: 1, maxLength: 128 }
+        resourceId: { type: string, minLength: 1, maxLength: 128 }
+        action: { type: string, minLength: 1, maxLength: 128 }
+        authorizationEventId: { type: string, format: uuid }
+    ApprovalStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [pending, approved, denied]
+        reason: { type: [string, "null"] }
+        decidedAt: { type: [string, "null"], format: date-time }
+    ApprovalClaimRequest:
+      type: object
+      additionalProperties: false
+      required: [agentId, resourceId, action, authorizationEventId, executionToken]
+      properties:
+        agentId: { type: string, minLength: 1, maxLength: 128 }
+        resourceId: { type: string, minLength: 1, maxLength: 128 }
+        action: { type: string, minLength: 1, maxLength: 128 }
+        authorizationEventId: { type: string, format: uuid }
+        executionToken: { type: string, minLength: 24, maxLength: 256 }
+    ApprovalClaim:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, const: approved }
+        expiresAt: { type: [string, "null"], format: date-time }
     ApprovedExecutionRequest:
       type: object
       additionalProperties: false
