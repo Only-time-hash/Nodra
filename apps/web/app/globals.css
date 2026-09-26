@@ -1457,3 +1457,7 @@
     font-size: 29px !important;
   }
 }
+
+.workspaceBrandLogo{width:30px;height:30px;object-fit:contain;display:block}
+.dashPathHealthy{stroke:#25e7bc}
+.dashPathRisk{stroke:#ff9b45}
