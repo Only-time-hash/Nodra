@@ -150,7 +150,7 @@ export async function GET() {
     if (plan) {
       const { data: steps } = await ctx.supabase
         .from("recovery_steps")
-        .select("id,title,reason,requires_human,status,completed_at")
+        .select("id,check_key,title,reason,requires_human,status,completed_at")
         .eq("recovery_plan_id", plan.id)
         .order("id");
 
