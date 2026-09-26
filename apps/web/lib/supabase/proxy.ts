@@ -73,10 +73,37 @@ export async function updateSession(request: NextRequest) {
     if (membership?.workspace_id) {
       const { data: settings } = await supabase
         .from("workspace_settings")
-        .select("session_timeout_minutes")
+        .select("session_timeout_minutes,require_mfa,ip_restrictions,ip_allowlist")
         .eq("workspace_id", membership.workspace_id)
         .maybeSingle();
       timeoutMinutes = Number(settings?.session_timeout_minutes ?? 30);
+
+      if (settings?.require_mfa && String(data.claims.aal ?? "aal1") !== "aal2") {
+        const mfaUrl = request.nextUrl.clone();
+        mfaUrl.pathname = "/auth/mfa";
+        mfaUrl.search = "";
+        mfaUrl.searchParams.set("next", pathname + request.nextUrl.search);
+        return NextResponse.redirect(mfaUrl);
+      }
+
+      if (settings?.ip_restrictions) {
+        const forwarded =
+          request.headers.get("x-vercel-forwarded-for") ??
+          request.headers.get("x-forwarded-for") ??
+          "";
+        const clientIp = forwarded.split(",")[0]?.trim() ?? "";
+        const { data: ipAllowed, error: ipError } = await supabase.rpc("workspace_ip_allowed", {
+          p_workspace_id: membership.workspace_id,
+          p_ip: clientIp,
+        } as any);
+
+        if (ipError || ipAllowed !== true) {
+          return new NextResponse("Access denied by Nodra workspace IP policy.", {
+            status: 403,
+            headers: { "cache-control": "no-store" },
+          });
+        }
+      }
     }
 
     const now = Date.now();
