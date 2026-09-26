@@ -4,7 +4,7 @@ import {issueIntegrationSecret} from "../../../../lib/integration-credentials";
 
 export async function GET(){
  const ctx=await getWorkspaceContext();if(!ctx)return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
- const {data,error}=await ctx.supabase.rpc("list_integration_credentials");
+ const {data,error}=await ctx.supabase.rpc("list_integration_credentials",{p_workspace_id:ctx.workspaceId});
  if(error)return NextResponse.json({error:"credential_list_failed",detail:String(error.message||"")},{status:500});
  return NextResponse.json({credentials:data??[]});
 }
@@ -18,6 +18,7 @@ export async function POST(request:Request){
  const issued=issueIntegrationSecret();
 
  const {data,error}=await ctx.supabase.rpc("issue_integration_credential",{
+   p_workspace_id:ctx.workspaceId,
    p_agent_external_id:body.agentId,
    p_label:String(body.label||"Default integration").slice(0,80),
    p_secret_hash:issued.hash,
@@ -47,7 +48,7 @@ export async function DELETE(request:Request){
  if(!["owner","admin"].includes(ctx.role))return NextResponse.json({error:"insufficient_role"},{status:403});
  let body:any;try{body=await request.json()}catch{return NextResponse.json({error:"invalid_request"},{status:400})}
  if(typeof body?.credentialId!=="string")return NextResponse.json({error:"credential_id_required"},{status:400});
- const {data,error}=await ctx.supabase.rpc("revoke_integration_credential",{p_credential_id:body.credentialId});
+ const {data,error}=await ctx.supabase.rpc("revoke_integration_credential",{p_workspace_id:ctx.workspaceId,p_credential_id:body.credentialId});
  if(error){
    const message=String(error.message||"");
    if(message.includes("credential_not_found"))return NextResponse.json({error:"credential_not_found"},{status:404});
@@ -65,6 +66,7 @@ export async function PUT(request:Request){
 
  const issued=issueIntegrationSecret();
  const {data,error}=await ctx.supabase.rpc("rotate_integration_credential",{
+   p_workspace_id:ctx.workspaceId,
    p_credential_id:body.credentialId,
    p_secret_hash:issued.hash,
    p_secret_prefix:issued.prefix
