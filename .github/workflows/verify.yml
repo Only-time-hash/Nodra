@@ -55,6 +55,18 @@ jobs:
         run: npm run build:sdk
       - name: Verify JavaScript SDK publish bundle
         run: npm run pack:sdk
+      - name: Verify JavaScript SDK installs outside the monorepo
+        run: |
+          cd packages/sdk
+          npm pack --json > /tmp/nodra-sdk-pack.json
+          TARBALL="$(node -e "const fs=require('fs');const x=JSON.parse(fs.readFileSync('/tmp/nodra-sdk-pack.json','utf8'));process.stdout.write(x[0].filename)")"
+          mkdir -p /tmp/nodra-js-sdk-check
+          cd /tmp/nodra-js-sdk-check
+          npm init -y >/dev/null 2>&1
+          npm install "$GITHUB_WORKSPACE/packages/sdk/$TARBALL"
+          node --input-type=module -e "import {Nodra,NodraError} from 'nodra-agent-sdk'; console.log(Nodra.name,NodraError.name)"
+      - name: Validate OpenAPI v1 contract
+        run: npx --yes @redocly/cli@2.12.6 lint docs/openapi.yaml
       - name: Production build
         run: npm run build
         env:
