@@ -70,7 +70,9 @@ jobs:
           cp "$GITHUB_WORKSPACE/examples/external-agent-consumer/finance-agent.mjs" ./finance-agent.mjs
           node ./finance-agent.mjs
       - name: Validate OpenAPI v1 contract
-        run: npx --yes @redocly/cli@2.12.6 lint docs/openapi.yaml
+        run: |
+          cmp docs/openapi.yaml apps/web/public/openapi.yaml
+          npx --yes @redocly/cli@2.12.6 lint docs/openapi.yaml
       - name: Production build
         run: npm run build
         env:
