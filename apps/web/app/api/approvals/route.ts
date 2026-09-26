@@ -5,7 +5,7 @@ export async function GET(){
  const ctx=await getWorkspaceContext();
  if(!ctx)return NextResponse.json({error:"authentication_or_workspace_required"},{status:401});
 
- const {data,error}=await ctx.supabase.rpc("list_approval_requests");
+ const {data,error}=await ctx.supabase.rpc("list_approval_requests",{p_workspace_id:ctx.workspaceId});
  if(error)return NextResponse.json({error:"approval_query_failed",detail:String(error.message||"")},{status:500});
 
  return NextResponse.json({
