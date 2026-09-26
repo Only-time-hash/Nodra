@@ -26,6 +26,18 @@ function NavIcon({name}:{name:string}) {
 const nav=[["/network","Dashboard"],["/agents","Agents"],["/network/map","Agent Network"],["/activity","Security Events"],["/incidents","Incidents"],["/reports","Risk Analysis"],["/containment","Containment"],["/recovery","Recovery"],["/approvals","Approvals"],["/credentials","Credentials"],["/integrations","Integrations"],["/settings","Settings"]];
 const desc:any={dashboard:"Live security posture, agent activity and workspace health.",map:"Visualize agent authority, trust relationships and propagation paths.",agents:"Manage and inspect protected AI agents.",incidents:"Detect, investigate and respond to security incidents.",activity:"Real-time security events and Flight Recorder evidence.",policies:"Inspect runtime authorization and enforcement evidence.",credentials:"Review scoped credential references and exposure state.",containment:"Isolate affected authority while healthy agents continue.",recovery:"Remediate incidents and assess safe restart.",reports:"Analyze exposure, impact and blast radius from runtime evidence.",integrations:"Connect Nodra to agent runtimes, APIs, MCP and infrastructure.",settings:"Workspace and runtime security configuration."};
 
+function authorityItems(scope:any):string[]{
+ if(Array.isArray(scope)) return scope.map(String);
+ if(scope && typeof scope==="object") return Object.entries(scope).filter(([,enabled])=>Boolean(enabled)).map(([key])=>key);
+ return [];
+}
+function orbitalPoint(index:number,total:number,radius=35){
+ if(total<=1) return {x:50,y:24};
+ const angle=-Math.PI/2+(index*Math.PI*2)/total;
+ return {x:50+Math.cos(angle)*radius,y:50+Math.sin(angle)*radius};
+}
+
+
 export function ProductSection({section}:{section:string}){
  const [state,setState]=useState<any>(null),[query,setQuery]=useState(""),[busy,setBusy]=useState(""),[message,setMessage]=useState(""),[networkView,setNetworkView]=useState<"network"|"table"|"evidence">("network"),[selectedAgent,setSelectedAgent]=useState<string|null>(null),[uiTab,setUiTab]=useState("all"),[uiFilter,setUiFilter]=useState(""),[uiPage,setUiPage]=useState(1),[accent,setAccent]=useState("blue"),[density,setDensity]=useState("comfortable"),[chartRange,setChartRange]=useState<"24h"|"7d"|"30d">("24h");
  const logout=async()=>{setBusy("Signing out");setMessage("");try{const supabase=createClient();const {error}=await supabase.auth.signOut();if(error)throw error;window.location.replace("/")}catch{setMessage("Sign out failed");setBusy("")}};
