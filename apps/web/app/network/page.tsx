@@ -1,9 +1,2 @@
-import { NetworkLab } from "./network-lab";
-
-export const metadata = {
-  title: "Agentic AI Shield — Nodra",
-};
-
-export default function NetworkPage() {
-  return <NetworkLab />;
-}
+import { ProductSection } from "../components/product-section";
+export default function Page(){return <ProductSection section="dashboard"/>}
