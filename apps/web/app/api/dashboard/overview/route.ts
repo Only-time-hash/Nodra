@@ -67,6 +67,9 @@ export async function GET() {
     (incident: any) =>
       incident.origin_agent_id && customerAgentIds.has(incident.origin_agent_id),
   );
+  const laboratoryIncidents = (allIncidents ?? []).filter(
+    (incident: any) => incident?.metadata?.source === "nodra-v0.1-lab",
+  );
   const activeIncident =
     incidents.find((incident: any) => incident.state !== "resolved") ?? null;
 
