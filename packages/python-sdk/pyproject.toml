@@ -1,13 +1,53 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
-name = "nodra"
+name = "nodra-agent-sdk"
 version = "0.1.0"
-description = "Nodra agent security SDK"
+description = "Python SDK for protecting autonomous AI-agent actions with Nodra."
+readme = "README.md"
 requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [
+  { name = "Nodra" }
+]
+keywords = [
+  "ai",
+  "agents",
+  "agentic-ai",
+  "security",
+  "authorization",
+  "mcp",
+  "llm",
+  "nodra"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Security",
+  "Topic :: Software Development :: Libraries :: Python Modules"
+]
 dependencies = []
+
+[project.urls]
+Homepage = "https://nodra-kappa.vercel.app"
+Repository = "https://github.com/Only-time-hash/Nodra"
+Documentation = "https://nodra-kappa.vercel.app/docs"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/nodra"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/README.md",
+  "/LICENSE",
+  "/pyproject.toml"
+]
