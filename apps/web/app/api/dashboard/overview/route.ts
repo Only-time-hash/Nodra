@@ -226,6 +226,7 @@ export async function GET() {
   return NextResponse.json({
     agents: effectiveAgents,
     incidents,
+    allIncidents: allIncidents ?? [],
     events: events ?? [],
     policies: policies ?? [],
     incident: activeIncident,
