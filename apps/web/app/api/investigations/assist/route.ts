@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { getWorkspaceContext } from "../../../../lib/persistence";
 
-const MODEL = process.env.NODRA_GEMINI_MODEL || "gemini-3.8-flash";
+const PRIMARY_MODEL = process.env.NODRA_GEMINI_MODEL || "gemini-3.8-flash";
+const FALLBACK_MODELS = (process.env.NODRA_GEMINI_FALLBACK_MODELS || "gemini-3.5-flash-lite,gemini-3.5-flash")
+  .split(",")
+  .map((model) => model.trim())
+  .filter(Boolean);
+const MODEL_CHAIN = [PRIMARY_MODEL, ...FALLBACK_MODELS.filter((model) => model !== PRIMARY_MODEL)];
 const SENSITIVE_KEY = /(secret|token|password|credential|authorization|cookie|api[_-]?key|private[_-]?key|session)/i;
 
 function redactForExternalAi(value: unknown): unknown {
@@ -70,7 +75,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       error: "ai_provider_not_configured",
       provider: "gemini",
-      model: MODEL,
+      model: PRIMARY_MODEL,
     }, { status: 503 });
   }
 
@@ -89,8 +94,6 @@ export async function POST(request: Request) {
     evidence,
   ].join("\n");
 
-  const endpoint =
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(MODEL)}:generateContent?key=${encodeURIComponent(apiKey)}`;
   const requestBody = JSON.stringify({
     contents: [{ role: "user", parts: [{ text: prompt }] }],
     generationConfig: {
@@ -99,46 +102,76 @@ export async function POST(request: Request) {
   });
 
   let response: Response | null = null;
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    response = await fetch(endpoint, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: requestBody,
-      cache: "no-store",
-    });
+  let providerBody: any = null;
+  let usedModel = PRIMARY_MODEL;
+  let lastSafeReason = "provider_request_failed";
+  let lastProviderStatus = 502;
+  let lastProviderCode: string | null = null;
 
-    if (![408, 429, 500, 502, 503, 504].includes(response.status) || attempt === 2) break;
-    await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** attempt));
+  for (const model of MODEL_CHAIN) {
+    const endpoint =
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: requestBody,
+        cache: "no-store",
+      });
+
+      providerBody = await response.json().catch(() => null);
+      if (response.ok) {
+        usedModel = model;
+        break;
+      }
+
+      const providerCode = String(providerBody?.error?.status ?? providerBody?.error?.code ?? "");
+      const providerMessage = String(providerBody?.error?.message ?? "");
+      const safeReason =
+        response.status === 400 ? "invalid_provider_request" :
+        response.status === 401 || response.status === 403 ? "provider_key_or_access_denied" :
+        response.status === 429 ? "provider_quota_or_rate_limit" :
+        response.status >= 500 ? "provider_temporarily_unavailable" :
+        "provider_request_failed";
+
+      lastSafeReason = safeReason;
+      lastProviderStatus = response.status;
+      lastProviderCode = providerCode || null;
+
+      console.error("[Nodra] Gemini investigation request failed", {
+        status: response.status,
+        code: providerCode || null,
+        model,
+        reason: safeReason,
+        message: providerMessage.slice(0, 300) || null,
+      });
+
+      const retryable = [408, 429, 500, 502, 503, 504].includes(response.status);
+      if (!retryable || attempt === 2) break;
+      await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** attempt));
+    }
+
+    if (response?.ok) break;
+
+    const shouldFallback =
+      response &&
+      [429, 500, 502, 503, 504].includes(response.status);
+
+    if (!shouldFallback) break;
   }
 
   if (!response) {
     return NextResponse.json({ error: "ai_provider_unreachable" }, { status: 502 });
   }
 
-  const providerBody = await response.json().catch(() => null);
   if (!response.ok) {
-    const providerCode = String(providerBody?.error?.status ?? providerBody?.error?.code ?? "");
-    const providerMessage = String(providerBody?.error?.message ?? "");
-    const safeReason =
-      response.status === 400 ? "invalid_provider_request" :
-      response.status === 401 || response.status === 403 ? "provider_key_or_access_denied" :
-      response.status === 429 ? "provider_quota_or_rate_limit" :
-      response.status >= 500 ? "provider_temporarily_unavailable" :
-      "provider_request_failed";
-
-    console.error("[Nodra] Gemini investigation request failed", {
-      status: response.status,
-      code: providerCode || null,
-      model: MODEL,
-      reason: safeReason,
-      message: providerMessage.slice(0, 300) || null,
-    });
-
     return NextResponse.json({
       error: "ai_provider_request_failed",
-      reason: safeReason,
-      providerStatus: response.status,
-      providerCode: providerCode || null,
+      reason: lastSafeReason,
+      providerStatus: lastProviderStatus,
+      providerCode: lastProviderCode,
+      attemptedModels: MODEL_CHAIN,
     }, { status: 502 });
   }
 
@@ -153,7 +186,7 @@ export async function POST(request: Request) {
   return NextResponse.json({
     incidentId: incident.id,
     provider: "gemini",
-    model: MODEL,
+    model: PRIMARY_MODEL,
     deterministicSecurityDecisionsUnaffected: true,
     analysis,
   });
