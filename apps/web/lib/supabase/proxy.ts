@@ -60,5 +60,44 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
+  if (isProtected && data?.claims) {
+    const { data: membership } = await supabase
+      .from("workspace_members")
+      .select("workspace_id")
+      .eq("user_id", data.claims.sub)
+      .order("workspace_id")
+      .limit(1)
+      .maybeSingle();
+
+    let timeoutMinutes = 30;
+    if (membership?.workspace_id) {
+      const { data: settings } = await supabase
+        .from("workspace_settings")
+        .select("session_timeout_minutes")
+        .eq("workspace_id", membership.workspace_id)
+        .maybeSingle();
+      timeoutMinutes = Number(settings?.session_timeout_minutes ?? 30);
+    }
+
+    const now = Date.now();
+    const lastActive = Number(request.cookies.get("nodra-last-active")?.value ?? "0");
+
+    if (lastActive > 0 && now - lastActive > timeoutMinutes * 60_000) {
+      const signoutUrl = request.nextUrl.clone();
+      signoutUrl.pathname = "/auth/signout";
+      signoutUrl.search = "";
+      signoutUrl.searchParams.set("reason", "session-timeout");
+      return NextResponse.redirect(signoutUrl);
+    }
+
+    response.cookies.set("nodra-last-active", String(now), {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: Math.max(timeoutMinutes * 60, 300),
+    });
+  }
+
   return response;
 }
