@@ -233,6 +233,47 @@ export function SettingsConsole({ overview }: { overview: any }) {
   const policies = overview?.policies ?? [];
   const activeAgents = agents.filter((agent: any) => agent.status === "healthy").length;
   const canEdit = data.canManage;
+  const notificationItems = [
+    ...(Boolean(form.notifications?.incidentAlerts)
+      ? (overview?.incidents ?? [])
+          .filter((incident: any) => incident.state !== "resolved")
+          .map((incident: any) => ({
+            key: "incident:" + incident.id,
+            type: "Incident",
+            title: incident.title ?? "Security incident",
+            detail: String(incident.severity ?? "security") + " · " + String(incident.state),
+            at: incident.opened_at,
+          }))
+      : []),
+    ...(Boolean(form.notifications?.denialAlerts)
+      ? events
+          .filter((event: any) => event.decision === "deny")
+          .map((event: any) => ({
+            key: "denial:" + event.id,
+            type: "Denied",
+            title: event.action ?? event.event_type ?? "Denied action",
+            detail: event.agents?.name ?? "Protected agent",
+            at: event.occurred_at,
+          }))
+      : []),
+    ...(Boolean(form.notifications?.recoveryAlerts)
+      ? events
+          .filter((event: any) =>
+            ["contain", "recovery", "restart", "remediation"].some((token) =>
+              String(event.action ?? event.event_type ?? "").toLowerCase().includes(token),
+            ),
+          )
+          .map((event: any) => ({
+            key: "recovery:" + event.id,
+            type: "Recovery",
+            title: event.action ?? event.event_type ?? "Recovery event",
+            detail: event.agents?.name ?? "Nodra",
+            at: event.occurred_at,
+          }))
+      : []),
+  ]
+    .sort((a: any, b: any) => String(b.at ?? "").localeCompare(String(a.at ?? "")))
+    .slice(0, 8);
 
   return (
     <div className="settingsExact">
@@ -390,15 +431,15 @@ export function SettingsConsole({ overview }: { overview: any }) {
               </div>
               <div className="securitySettingList">
                 <article>
-                  <div><b>Multi-Factor Authentication (MFA)</b><small>Workspace requirement preference. Provider enforcement must also be enabled in Supabase Auth.</small></div>
+                  <div><b>Multi-Factor Authentication (MFA)</b><small>Workspace requirement preference. Nodra will not claim MFA enforcement until enrollment and Supabase Auth MFA are configured.</small></div>
                   <Toggle checked={Boolean(form.require_mfa)} onChange={(v) => update("require_mfa", v)} disabled={!canEdit} />
                 </article>
                 <article>
-                  <div><b>IP Restrictions</b><small>Persist the workspace restriction preference for future network enforcement.</small></div>
+                  <div><b>IP Restrictions</b><small>Workspace preference only. An ingress allow-list/proxy must be connected before this becomes enforced.</small></div>
                   <Toggle checked={Boolean(form.ip_restrictions)} onChange={(v) => update("ip_restrictions", v)} disabled={!canEdit} />
                 </article>
                 <article>
-                  <div><b>Session Timeout</b><small>Preferred inactivity window for authenticated console sessions.</small></div>
+                  <div><b>Session Timeout</b><small>Enforced inactivity window for authenticated Nodra console sessions.</small></div>
                   <select value={form.session_timeout_minutes} onChange={(e) => update("session_timeout_minutes", Number(e.target.value))} disabled={!canEdit}>
                     <option value={15}>15 minutes</option>
                     <option value={30}>30 minutes</option>
@@ -407,7 +448,7 @@ export function SettingsConsole({ overview }: { overview: any }) {
                   </select>
                 </article>
                 <article>
-                  <div><b>Require Strong Passwords</b><small>Workspace security preference; Supabase Auth remains the password-policy authority.</small></div>
+                  <div><b>Require Strong Passwords</b><small>Workspace preference only. Password complexity is enforced by the authentication provider, not by Nodra UI code.</small></div>
                   <Toggle checked={Boolean(form.require_strong_passwords)} onChange={(v) => update("require_strong_passwords", v)} disabled={!canEdit} />
                 </article>
                 <article>
@@ -491,8 +532,8 @@ export function SettingsConsole({ overview }: { overview: any }) {
         <section className="settingsTabPanel">
           <div className="settingsTabHero"><Bot /><div><h2>Agent Controls</h2><p>Default operating thresholds for protected agents in this workspace.</p></div></div>
           <div className="settingsControlGrid">
-            <article><Activity /><div><b>Health Threshold</b><small>Minutes before an agent should be considered stale by workspace monitoring.</small></div><input className="miniNumber" type="number" min={1} max={1440} value={form.agent_health_threshold_minutes} onChange={(e) => update("agent_health_threshold_minutes", Number(e.target.value))} disabled={!canEdit} /></article>
-            <article><ShieldCheck /><div><b>Default Pause on Critical Incident</b><small>Persist the preferred agent-control response for critical incidents.</small></div><Toggle checked={Boolean(form.agent_controls?.pauseOnCritical)} onChange={(v) => updateNested("agent_controls", "pauseOnCritical", v)} disabled={!canEdit} /></article>
+            <article><Activity /><div><b>Health Threshold</b><small>Minutes without runtime activity before a healthy agent is shown as offline.</small></div><input className="miniNumber" type="number" min={1} max={1440} value={form.agent_health_threshold_minutes} onChange={(e) => update("agent_health_threshold_minutes", Number(e.target.value))} disabled={!canEdit} /></article>
+            <article><ShieldCheck /><div><b>Default Pause on Critical Incident</b><small>When enabled, a real critical incident automatically pauses its real origin agent and records evidence.</small></div><Toggle checked={Boolean(form.agent_controls?.pauseOnCritical)} onChange={(v) => updateNested("agent_controls", "pauseOnCritical", v)} disabled={!canEdit} /></article>
           </div>
           <div className="settingsRelated"><span>{agents.length} registered protected agent{agents.length === 1 ? "" : "s"}</span><Link href="/agents">Manage Agents <ChevronRight /></Link></div>
           <button className="settingsSaveWide" disabled={!canEdit || busy === "save"} onClick={() => void saveSettings()}><Save /> Save Agent Controls</button>
@@ -505,7 +546,7 @@ export function SettingsConsole({ overview }: { overview: any }) {
           <div className="settingsControlGrid">
             <article><ClipboardCheck /><div><b>Require rationale</b><small>Reviewers must provide a reason before Approve or Deny.</small></div><em>ENFORCED</em></article>
             <article><FileClock /><div><b>Execution Token Lifetime</b><small>Approved execution tokens expire after five minutes and are one-time use.</small></div><em>5 MINUTES</em></article>
-            <article><Shield /><div><b>Default High-Impact Review</b><small>Persist the workspace preference used when defining new approval-oriented policies.</small></div><Toggle checked={Boolean(form.approval_policies?.highImpactReview)} onChange={(v) => updateNested("approval_policies", "highImpactReview", v)} disabled={!canEdit} /></article>
+            <article><Shield /><div><b>Default High-Impact Review</b><small>When enabled, high-impact actions such as payments, bank operations, credential changes, exports and destructive system actions are escalated to human approval.</small></div><Toggle checked={Boolean(form.approval_policies?.highImpactReview)} onChange={(v) => updateNested("approval_policies", "highImpactReview", v)} disabled={!canEdit} /></article>
             <article><CheckCircle2 /><div><b>Configured Policies</b><small>Real runtime authorization policies in this workspace.</small></div><em>{policies.length}</em></article>
           </div>
           <div className="settingsRelated"><Link href="/approvals">Open Approval Queue <ChevronRight /></Link><Link href="/policies">Manage Policies <ChevronRight /></Link></div>
@@ -528,10 +569,17 @@ export function SettingsConsole({ overview }: { overview: any }) {
         <section className="settingsTabPanel">
           <div className="settingsTabHero"><Bell /><div><h2>Notifications</h2><p>Persist in-console alert preferences. External email/Slack delivery is not enabled until a notification provider is connected.</p></div></div>
           <div className="settingsControlGrid">
-            <article><AlertTriangle /><div><b>Critical Incident Alerts</b><small>Show priority incident alerts in Nodra.</small></div><Toggle checked={Boolean(form.notifications?.incidentAlerts)} onChange={(v) => updateNested("notifications", "incidentAlerts", v)} disabled={!canEdit} /></article>
-            <article><Shield /><div><b>Policy Denial Alerts</b><small>Surface denied gateway actions prominently in the console.</small></div><Toggle checked={Boolean(form.notifications?.denialAlerts)} onChange={(v) => updateNested("notifications", "denialAlerts", v)} disabled={!canEdit} /></article>
-            <article><Activity /><div><b>Recovery Alerts</b><small>Surface containment and restart-state changes.</small></div><Toggle checked={Boolean(form.notifications?.recoveryAlerts)} onChange={(v) => updateNested("notifications", "recoveryAlerts", v)} disabled={!canEdit} /></article>
+            <article><AlertTriangle /><div><b>Critical Incident Alerts</b><small>Include open incidents in the Nodra in-console notification feed.</small></div><Toggle checked={Boolean(form.notifications?.incidentAlerts)} onChange={(v) => updateNested("notifications", "incidentAlerts", v)} disabled={!canEdit} /></article>
+            <article><Shield /><div><b>Policy Denial Alerts</b><small>Include denied gateway actions in the Nodra in-console notification feed.</small></div><Toggle checked={Boolean(form.notifications?.denialAlerts)} onChange={(v) => updateNested("notifications", "denialAlerts", v)} disabled={!canEdit} /></article>
+            <article><Activity /><div><b>Recovery Alerts</b><small>Include containment, remediation and restart evidence in the notification feed.</small></div><Toggle checked={Boolean(form.notifications?.recoveryAlerts)} onChange={(v) => updateNested("notifications", "recoveryAlerts", v)} disabled={!canEdit} /></article>
           </div>
+          <section className="settingsPanel notificationPreview">
+            <div className="settingsPanelHead"><span><Bell /></span><div><h3>Live Notification Preview</h3><p>Real workspace alerts filtered by the switches above. Email/Slack delivery is not connected yet.</p></div></div>
+            <div className="notificationPreviewList">
+              {notificationItems.map((item: any) => <article key={item.key}><span>{item.type}</span><div><b>{item.title}</b><small>{item.detail}</small></div><time>{item.at ? new Date(item.at).toLocaleString() : "Now"}</time></article>)}
+              {!notificationItems.length ? <div className="refEmpty">No current alerts match your notification preferences.</div> : null}
+            </div>
+          </section>
           <button className="settingsSaveWide" disabled={!canEdit || busy === "save"} onClick={() => void saveSettings()}><Save /> Save Notification Preferences</button>
         </section>
       ) : null}
