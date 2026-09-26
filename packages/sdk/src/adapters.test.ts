@@ -36,3 +36,30 @@ test("Node SDK sends customer credential and a valid HMAC",async()=>{
   assert.equal(captured.init.headers["x-nodra-signature"],expected);
  }finally{globalThis.fetch=originalFetch}
 });
+
+
+test("protected tool can wait for approval and then execute", async () => {
+  let runs = 0;
+  let records = 0;
+  const nodra: any = {
+    authorize: async () => { throw new Error("plain authorize should not be used"); },
+    authorizeAndWait: async () => ({
+      decision: "allow",
+      reason: "human_approval_consumed",
+      authorizationEventId: "event-1",
+    }),
+    record: async () => { records++; },
+  };
+
+  const out = await protectTool(
+    nodra,
+    { agentId: "finance-agent", resourceId: "stripe", action: "payments.submit" },
+    async () => { runs++; return "paid"; },
+    { waitForApproval: true },
+  );
+
+  assert.equal(out.executed, true);
+  assert.equal(out.result, "paid");
+  assert.equal(runs, 1);
+  assert.equal(records, 1);
+});
