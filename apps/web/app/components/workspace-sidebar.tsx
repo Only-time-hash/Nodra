@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NodraLogo } from "./nodra-logo";
 import {
   Activity,
   AlertTriangle,
@@ -47,7 +48,7 @@ export function WorkspaceSidebar({ active }: { active: string }) {
   return (
     <aside className="sidebar">
       <Link className="labBrand exactBrand" href="/network" aria-label="Nodra dashboard">
-        <img src="/nodra-logo-approved.svg" alt="Nodra" />
+        <NodraLogo className="workspaceNodraLogo" />
       </Link>
 
       <p className="workspace">AGENT SECURITY CONTROL PLANE</p>
