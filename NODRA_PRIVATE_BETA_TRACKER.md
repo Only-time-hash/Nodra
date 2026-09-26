@@ -27,21 +27,27 @@ Remaining:
 - Publish the first npm beta release after npm publisher credentials are configured.
 - Add automatic approval continuation after blocker #4 is built.
 
-## 2. Public Python SDK — REMAINING
+## 2. Public Python SDK — BUILDING
 
-Existing foundation:
-- Python package skeleton and client implementation exist in `packages/python-sdk`.
-- Python tests already run in CI.
+Implemented:
+- Public `nodra-agent-sdk` distribution with `nodra` import package.
+- HMAC-signed authorization.
+- Protected-agent helper.
+- Event intent/result recording.
+- Human-approved execution parity.
+- Structured `NodraError` with code/status/request ID/retryability.
+- Bounded timeout and retry handling.
+- Automatic retries disabled for one-time approved execution.
+- Dependency-light standard-library HTTP client.
+- Complete package metadata, README and Apache-2.0 license.
+- Wheel + sdist build added to CI.
+- Clean virtual-environment wheel install/import verification added to CI.
+- Expanded Python SDK signing/error/approval tests.
 
 Remaining:
-- Audit feature parity with the JavaScript SDK.
-- Structured exceptions.
-- Timeouts/retries.
-- Approval execution parity.
-- Package metadata/docs.
-- Build wheel/sdist.
-- Clean external-install test.
-- Publish beta package.
+- CI must pass with the Python distribution checks.
+- Publish the first PyPI beta after Trusted Publishing is configured.
+- Add automatic approval continuation after blocker #4 is built.
 
 ## 3. Stable v1 API + Developer Documentation — REMAINING
 
