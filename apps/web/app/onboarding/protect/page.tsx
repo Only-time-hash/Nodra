@@ -82,7 +82,7 @@ function snippetFor(method: IntegrationMethod, agentId: string, workspaceId: str
       'signature = hmac.new(credential.encode(), canonical.encode(), hashlib.sha256).hexdigest()',
       "",
       "response = requests.post(",
-      '    f"{base_url}/api/gateway/authorize",',
+      '    f"{base_url}/api/v1/authorize",',
       "    data=body,",
       "    headers={",
       '        "content-type": "application/json",',
@@ -111,7 +111,7 @@ function snippetFor(method: IntegrationMethod, agentId: string, workspaceId: str
       '# canonical = "v1\\\\n" + timestamp + "\\\\n" + nonce + "\\\\n" + bodyDigest',
       '# signature = HMAC-SHA256(NODRA_CREDENTIAL, canonical)',
       "",
-      "POST /api/gateway/authorize HTTP/1.1",
+      "POST /api/v1/authorize HTTP/1.1",
       "Host: localhost:3000",
       "Content-Type: application/json",
       "x-nodra-credential: $NODRA_CREDENTIAL",
@@ -140,13 +140,13 @@ function snippetFor(method: IntegrationMethod, agentId: string, workspaceId: str
       "  }",
       "}",
       "",
-      "# In your server runtime, initialize @nodra/sdk and use mcpGuard(...)",
+      "# In your server runtime, initialize nodra-agent-sdk and use mcpGuard(...)",
       "# before executing MCP tools so every tool call is authorized and recorded.",
     ].join("\n");
   }
 
   return [
-    'import { Nodra } from "@nodra/sdk";',
+    'import { Nodra } from "nodra-agent-sdk";',
     "",
     "const nodra = new Nodra({",
     "  baseUrl: process.env.NODRA_BASE_URL!,",
@@ -161,6 +161,7 @@ function snippetFor(method: IntegrationMethod, agentId: string, workspaceId: str
     'const decision = await agent.authorize({',
     '  resourceId: "stripe",',
     '  action: "payments.submit",',
+    '  context: { environment: "production" },',
     "});",
   ].join("\n");
 }
