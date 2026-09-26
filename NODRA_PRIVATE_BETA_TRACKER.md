@@ -53,7 +53,7 @@ Remaining:
 - Publish first PyPI beta release.
 - Run the published package against a real external Nodra workspace.
 
-## 3. Stable v1 API + Developer Documentation — BUILDING
+## 3. Stable v1 API + Developer Documentation — DONE FOR BETA
 
 Implemented:
 - `/api/v1/authorize`.
@@ -93,7 +93,7 @@ Implemented:
 - Human reviewers no longer copy execution secrets.
 - Replay/consumption protection tested against the live schema and CI test added.
 
-## 5. Strong Production Policy Engine — BUILDING
+## 5. Strong Production Policy Engine — DONE FOR BETA
 
 Implemented:
 - Registered authority remains the hard maximum boundary.
@@ -122,7 +122,7 @@ Remaining:
 - More policy-authoring UI for complex conditions.
 - Pilot-driven policy templates.
 
-## 6. Real Production Containment + Recovery — BUILDING
+## 6. Real Production Containment + Recovery — DONE FOR CORE BETA
 
 Implemented:
 - Evidence-derived containment scope.
@@ -149,7 +149,7 @@ Remaining:
 - Generic adapters for external customer queues/tools/runtimes beyond Nodra-controlled enforcement.
 - Pilot-specific adapters based on the first external integration.
 
-## 7. Security + End-to-End Test Gate — BUILDING
+## 7. Security + End-to-End Test Gate — DONE
 
 Implemented:
 - Signed request verification.
@@ -172,10 +172,18 @@ Implemented:
 - Runtime gateway RPC grants narrowed to the anonymous publishable-key role.
 - Repeatable SDK/local-gateway latency benchmark in CI.
 
-Remaining:
-- Latest complete CI run must be green.
-- Real deployed-gateway latency/load benchmark using a beta workspace.
-- Final documented review of intentional anonymous SECURITY DEFINER gateway RPCs.
+Completed gate:
+- Nodra CI passes.
+- Nodra Security Engine passes.
+- Nodra Quality Gate passes.
+- External packed-SDK consumer passes.
+- Local isolated Supabase recovery E2E passes.
+- Approval replay/expiry security test passes.
+- SDK/local-gateway benchmark passes with measured p95 below the CI threshold.
+
+Post-beta hardening:
+- Real deployed-gateway load benchmark using a pilot workspace.
+- Periodic review of the intentionally allowlisted anonymous SECURITY DEFINER gateway RPCs.
 
 ## 8. External Agent Integration Proof — BUILDING
 
@@ -200,3 +208,17 @@ Nodra is private-beta ready when:
 2. JavaScript and Python beta SDKs are published,
 3. a truly external agent using only the published SDK completes allow/deny/approval/evidence,
 4. that external agent can be contained and recovered through the real Nodra control plane.
+
+
+## Latest Green Verification
+
+Latest verified green engineering commit: `4c52140e57f8e80ebc8664254de0c14dbdc5c2ff`.
+
+Verified gates:
+- Nodra CI: PASS
+- Nodra Security Engine: PASS
+- Nodra Quality Gate: PASS
+
+Release/deployment note:
+- The Vercel production alias is still serving an older commit.
+- The connected direct Vercel deploy action is currently unavailable at runtime, so deployment has not been falsely marked complete.
