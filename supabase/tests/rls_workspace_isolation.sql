@@ -115,9 +115,19 @@ begin
 end
 $$;
 
--- Privileged SECURITY DEFINER functions must never become anonymously executable.
+-- SECURITY DEFINER RPCs are private by default. The only anonymous
+-- exceptions are the credential-gateway functions called by Nodra's server
+-- routes with the Supabase publishable key. Any new anonymous definer fails CI.
 do $tag$
 declare leaked text[];
+declare allowed text[] := array[
+  'append_high_impact_review_override',
+  'authorize_integration_gateway',
+  'execute_approved_integration_action',
+  'integration_api_access_allowed',
+  'integration_high_impact_review_enabled',
+  'record_integration_gateway_event'
+];
 begin
   select array_agg(p.proname order by p.proname)
   into leaked
@@ -128,10 +138,23 @@ begin
     and (
       has_function_privilege('anon', p.oid, 'execute')
       or has_function_privilege('public', p.oid, 'execute')
-    );
+    )
+    and not (p.proname = any(allowed));
 
   if leaked is not null then
-    raise exception 'SECURITY DEFINER functions exposed to anon/public: %', leaked;
+    raise exception 'unexpected SECURITY DEFINER functions exposed to anon/public: %', leaked;
+  end if;
+
+  if exists (
+    select 1
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname='public'
+      and p.prosecdef
+      and has_function_privilege('public', p.oid, 'execute')
+      and p.proname = any(allowed)
+  ) then
+    raise exception 'gateway SECURITY DEFINER function granted to PUBLIC';
   end if;
 end
 $tag$;
