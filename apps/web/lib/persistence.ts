@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { createClient } from "./supabase/server";
 
 export async function getWorkspaceContext() {
@@ -6,15 +7,22 @@ export async function getWorkspaceContext() {
   const userId = claims?.claims?.sub as string | undefined;
   if (!userId) return null;
 
-  // RLS already limits membership visibility, but keep the ownership predicate
-  // explicit here so workspace selection remains fail-closed if policies evolve.
-  const { data, error } = await supabase
+  const cookieStore = await cookies();
+  const selectedWorkspaceId = cookieStore.get("nodra_workspace_id")?.value;
+  const uuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+  let query = supabase
     .from("workspace_members")
     .select("workspace_id,role")
-    .eq("user_id", userId)
-    .order("workspace_id", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+    .eq("user_id", userId);
+
+  if (selectedWorkspaceId && uuidLike.test(selectedWorkspaceId)) {
+    query = query.eq("workspace_id", selectedWorkspaceId);
+  } else {
+    query = query.order("workspace_id", { ascending: true }).limit(1);
+  }
+
+  const { data, error } = await query.maybeSingle();
 
   if (error || !data) return null;
   return {
