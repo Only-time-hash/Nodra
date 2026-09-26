@@ -5,7 +5,8 @@ export async function GET() {
   const ctx = await getWorkspaceContext();
   if (!ctx) return NextResponse.json({ error: "authentication_or_workspace_required" }, { status: 401 });
 
-  const { data, error } = await ctx.supabase
+  const db = ctx.supabase as any;
+  const { data, error } = await db
     .from("notification_destinations")
     .select("id,kind,label,enabled,event_types,created_at,updated_at")
     .eq("workspace_id", ctx.workspaceId)
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
     ? body.eventTypes.filter((x: unknown) => ["incident", "denial", "recovery"].includes(String(x)))
     : ["incident", "denial", "recovery"];
 
-  const { data, error } = await ctx.supabase.rpc("set_notification_destination", {
+  const { data, error } = await (ctx.supabase as any).rpc("set_notification_destination", {
     p_kind: body.kind,
     p_label: body.label,
     p_endpoint_url: body.endpointUrl,
@@ -54,7 +55,7 @@ export async function DELETE(request: Request) {
   const body = await request.json().catch(() => null);
   if (!body || typeof body.id !== "string") return NextResponse.json({ error: "id_required" }, { status: 400 });
 
-  const { data, error } = await ctx.supabase.rpc("delete_notification_destination", { p_id: body.id } as any);
+  const { data, error } = await (ctx.supabase as any).rpc("delete_notification_destination", { p_id: body.id });
   if (error) return NextResponse.json({ error: "notification_destination_delete_failed" }, { status: 500 });
 
   return NextResponse.json({ removed: data === true });
