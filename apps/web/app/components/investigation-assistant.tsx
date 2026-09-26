@@ -33,6 +33,21 @@ function formatTimestamp(value: unknown) {
       });
 }
 
+function formatEmbeddedTimestamps(value: string) {
+  return value.replace(
+    /\\b\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})\\b/g,
+    (match) => formatTimestamp(match),
+  );
+}
+
+function cleanHypothesis(value: unknown) {
+  return formatEmbeddedTimestamps(
+    String(value ?? "No likely cause was inferred from the available evidence.")
+      .replace(/^\\s*hypothesis\\s*:\\s*/i, "")
+      .trim(),
+  );
+}
+
 function Timeline({ value }: { value: unknown }) {
   const rows = Array.isArray(value) ? value : [];
   if (!rows.length) return <p className="aiReportMuted">No timeline entries were returned.</p>;
@@ -93,9 +108,9 @@ export function InvestigationAssistant({ incidents, enabled }: { incidents: any[
   }
 
   const analysis = result?.analysis ?? null;
-  const evidenceGaps = asList(analysis?.evidenceGaps);
-  const recommendedSteps = asList(analysis?.recommendedInvestigationSteps);
-  const blastRadius = asList(analysis?.blastRadius);
+  const evidenceGaps = asList(analysis?.evidenceGaps).map(formatEmbeddedTimestamps);
+  const recommendedSteps = asList(analysis?.recommendedInvestigationSteps).map(formatEmbeddedTimestamps);
+  const blastRadius = asList(analysis?.blastRadius).map(formatEmbeddedTimestamps);
 
   return (
     <section className="settingsPanel investigationAssistant">
@@ -171,7 +186,7 @@ export function InvestigationAssistant({ incidents, enabled }: { incidents: any[
                 </div>
                 <b className="aiHypothesisBadge">Hypothesis</b>
               </div>
-              <p>{String(analysis.likelyCause ?? "No likely cause was inferred from the available evidence.")}</p>
+              <p>{cleanHypothesis(analysis.likelyCause)}</p>
               <small className="aiReportMuted">
                 Treat this as an investigative hypothesis unless the evidence independently proves causation.
               </small>
@@ -226,15 +241,6 @@ export function InvestigationAssistant({ incidents, enabled }: { incidents: any[
             </section>
           </div>
 
-          <details className="aiTechnicalDetails">
-            <summary>Technical details</summary>
-            <div>
-              <span>Provider <b>{result.provider}</b></span>
-              <span>Model <b>{result.model}</b></span>
-              <span>Incident <b>{String(result.incidentId).slice(0, 8)}…</b></span>
-              <span>Decision engine <b>Unaffected</b></span>
-            </div>
-          </details>
         </div>
       ) : null}
     </section>
