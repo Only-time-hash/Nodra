@@ -1,0 +1,34 @@
+name: Publish Python SDK
+
+on:
+  push:
+    tags:
+      - "python-sdk-v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Build wheel and sdist
+        run: |
+          python -m pip install --disable-pip-version-check build
+          python -m build packages/python-sdk
+      - name: Test built wheel in a clean virtual environment
+        run: |
+          python -m venv /tmp/nodra-python-release-check
+          /tmp/nodra-python-release-check/bin/python -m pip install packages/python-sdk/dist/*.whl
+          cd /tmp
+          /tmp/nodra-python-release-check/bin/python -c "from nodra import Nodra, NodraError; print(Nodra.__name__, NodraError.__name__)"
+      - name: Publish with PyPI Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: packages/python-sdk/dist/
