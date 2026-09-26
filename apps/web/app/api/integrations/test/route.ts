@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
   const { data, error } = await ctx.supabase.rpc(
     "integration_connection_status",
-    { p_agent_external_id: body.agentId },
+    { p_workspace_id: ctx.workspaceId, p_agent_external_id: body.agentId },
   );
 
   if (error) {
