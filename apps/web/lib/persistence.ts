@@ -17,14 +17,14 @@ export async function getWorkspaceContext() {
       .select("workspace_id,role")
       .eq("user_id", userId);
 
-  let data: { workspace_id: string; role: string } | null = null;
+  let data: any = null;
 
   if (selectedWorkspaceId && uuidLike.test(selectedWorkspaceId)) {
     const selected = await baseQuery()
       .eq("workspace_id", selectedWorkspaceId)
       .maybeSingle();
     if (selected.error) return null;
-    data = selected.data as typeof data;
+    data = selected.data;
   }
 
   if (!data) {
@@ -33,7 +33,7 @@ export async function getWorkspaceContext() {
       .limit(1)
       .maybeSingle();
     if (fallback.error) return null;
-    data = fallback.data as typeof data;
+    data = fallback.data;
   }
 
   if (!data) return null;
