@@ -89,27 +89,56 @@ export async function POST(request: Request) {
     evidence,
   ].join("\n");
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(MODEL)}:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
+  const endpoint =
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(MODEL)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const requestBody = JSON.stringify({
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+    generationConfig: {
+      responseMimeType: "application/json",
+    },
+  });
+
+  let response: Response | null = null;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    response = await fetch(endpoint, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          temperature: 0.1,
-        },
-      }),
+      body: requestBody,
       cache: "no-store",
-    },
-  );
+    });
+
+    if (![408, 429, 500, 502, 503, 504].includes(response.status) || attempt === 2) break;
+    await new Promise((resolve) => setTimeout(resolve, 500 * 2 ** attempt));
+  }
+
+  if (!response) {
+    return NextResponse.json({ error: "ai_provider_unreachable" }, { status: 502 });
+  }
 
   const providerBody = await response.json().catch(() => null);
   if (!response.ok) {
+    const providerCode = String(providerBody?.error?.status ?? providerBody?.error?.code ?? "");
+    const providerMessage = String(providerBody?.error?.message ?? "");
+    const safeReason =
+      response.status === 400 ? "invalid_provider_request" :
+      response.status === 401 || response.status === 403 ? "provider_key_or_access_denied" :
+      response.status === 429 ? "provider_quota_or_rate_limit" :
+      response.status >= 500 ? "provider_temporarily_unavailable" :
+      "provider_request_failed";
+
+    console.error("[Nodra] Gemini investigation request failed", {
+      status: response.status,
+      code: providerCode || null,
+      model: MODEL,
+      reason: safeReason,
+      message: providerMessage.slice(0, 300) || null,
+    });
+
     return NextResponse.json({
       error: "ai_provider_request_failed",
+      reason: safeReason,
       providerStatus: response.status,
+      providerCode: providerCode || null,
     }, { status: 502 });
   }
 
