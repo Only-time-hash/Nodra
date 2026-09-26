@@ -19,13 +19,14 @@ type Phase = "ready" | "incident" | "contained" | "recovering" | "resolved";
 type Integrity = {valid:boolean;checkedEvents:number;firstBadSequence:number|null;reason:string|null};
 type ConnectionState = "connecting" | "live" | "offline";
 
-const initialAgents: Agent[] = [
-  { id: "manager", name: "Manager", role: "Orchestrator", status: "healthy", x: 50, y: 18, tools: ["Delegation", "Task Queue"], permissions: ["delegate:task", "read:status"] },
-  { id: "research", name: "Research", role: "Web research", status: "healthy", x: 22, y: 49, tools: ["Sandbox Browser", "Notes"], permissions: ["browser:read", "notes:write"] },
-  { id: "finance", name: "Finance", role: "Financial operations", status: "healthy", x: 35, y: 78, tools: ["Simulated Payments", "Ledger"], permissions: ["ledger:read", "payment:request"] },
-  { id: "support", name: "Support", role: "Communication", status: "healthy", x: 65, y: 78, tools: ["Simulated Email"], permissions: ["email:draft"] },
-  { id: "data", name: "Data", role: "Data operations", status: "healthy", x: 78, y: 49, tools: ["Sandbox Database"], permissions: ["database:read", "database:write"] },
-];
+const initialAgents: Agent[] = [];
+
+function positionAgent(index:number,total:number){
+  if(total<=1)return {x:50,y:22};
+  const angle=-Math.PI/2+(index*Math.PI*2)/total;
+  const radius=total<=4?31:36;
+  return {x:50+Math.cos(angle)*radius,y:50+Math.sin(angle)*radius};
+}
 
 function curvedPath(from: Agent, to: Agent) { const mx=(from.x+to.x)/2, my=(from.y+to.y)/2, dx=to.x-from.x, dy=to.y-from.y, bend=.09; return `M${from.x} ${from.y} Q${mx-dy*bend} ${my+dx*bend} ${to.x} ${to.y}`; }
 
@@ -40,15 +41,11 @@ function AgentGlyph({ id }: { id: string }) {
 const dashboardNav=[["/network","Dashboard"],["/network/map","Network"],["/agents","Agents"],["/incidents","Incidents"],["/activity","Activity"],["/approvals","Approvals"],["/policies","Policies"],["/credentials","Credentials"],["/containment","Containment"],["/recovery","Recovery"],["/reports","Reports"],["/settings","Settings"]];
 function DashboardNavIcon({name}:{name:string}){const p:any={Dashboard:<><path d="M4 11 12 4l8 7"/><path d="M6.5 10v9h11v-9"/></>,Network:<><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h8M6 8v8M18 8v8M8 18h8"/></>,Agents:<><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></>,Incidents:<><path d="M12 4 20 19H4L12 4Z"/></>,Activity:<><path d="M3 8c3-5 5 5 8 0s5 5 10 0M3 13c3-5 5 5 8 0s5 5 10 0M3 18c3-5 5 5 8 0s5 5 10 0"/></>,Approvals:<><path d="M12 3 19 6v5c0 4.5-2.8 7.8-7 10-4.2-2.2-7-5.5-7-10V6l7-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></>,Policies:<><path d="m12 4 7 8-7 8-7-8 7-8Z"/></>,Credentials:<><path d="M5 7h15l-2 10H3L5 7Z"/></>,Containment:<><path d="m12 4 7 4v8l-7 4-7-4V8l7-4Z"/></>,Recovery:<><path d="M6 8a7 7 0 1 1-1 7"/><path d="M6 4v5H2"/></>,Reports:<><path d="M5 5h14v14H5zM8 5v14M11 5v14M14 5v14M17 5v14"/></>,Settings:<><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></>};return <svg viewBox="0 0 24 24" aria-hidden="true">{p[name]}</svg>}
 
-const baseEvents = [
-  { time: "00:00", kind: "system", text: "Laboratory initialized with five isolated agents." },
-  { time: "00:01", kind: "policy", text: "Deterministic policy gateway active." },
-  { time: "00:02", kind: "system", text: "Observable event recording active." },
-];
+const baseEvents: Array<{time:string;kind:string;text:string}> = [];
 
 export function NetworkLab() {
   const [agents, setAgents] = useState(initialAgents);
-  const [selectedId, setSelectedId] = useState("manager");
+  const [selectedId, setSelectedId] = useState("");
   const [phase, setPhase] = useState<Phase>("ready");
   const [events, setEvents] = useState(baseEvents);
   const [incidentId, setIncidentId] = useState<string | null>(null);
@@ -62,7 +59,7 @@ export function NetworkLab() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const selected = useMemo(() => agents.find((agent) => agent.id === selectedId) ?? agents[0], [agents, selectedId]);
+  const selected = useMemo(() => agents.find((agent) => agent.id === selectedId) ?? agents[0] ?? {id:"",name:"No protected agent",role:"Workspace",status:"healthy" as Status,x:50,y:50,tools:[],permissions:[]}, [agents, selectedId]);
   const affected = agents.filter((agent) => agent.status !== "healthy").length;
   const selectedEdges = causalEdges.filter((edge)=>edge.from===selectedId||edge.to===selectedId);
   const hasOpenIncident = Boolean(incidentId && phase !== "resolved");
@@ -74,28 +71,53 @@ export function NetworkLab() {
   const loadState = useCallback(async (showLoading = false) => {
     if (showLoading) setLoading(true);
     try {
-      const res = await fetch("/api/laboratory/state", { cache: "no-store" });
-      if (!res.ok) throw new Error(`State refresh failed (${res.status})`);
+      const res = await fetch("/api/dashboard/overview", { cache: "no-store" });
+      if (!res.ok) throw new Error(`Dashboard refresh failed (${res.status})`);
       const state = await res.json();
-      if (state.agents?.length) setAgents((current) => current.map((agent) => { const saved=state.agents.find((a:any)=>a.external_id===agent.id); return saved ? {...agent,status:saved.status === "at_risk" ? "at-risk" : saved.status} : agent; }));
+      const sourceAgents = Array.isArray(state.agents) ? state.agents : [];
+      const realAgents: Agent[] = sourceAgents.map((agent:any,index:number)=>{
+        const permissions = Array.isArray(agent.authority_scope)
+          ? agent.authority_scope.map(String)
+          : agent.authority_scope && typeof agent.authority_scope === "object"
+            ? Object.keys(agent.authority_scope).filter((key)=>Boolean(agent.authority_scope[key]))
+            : [];
+        const pos=positionAgent(index,sourceAgents.length);
+        return {
+          id: agent.id,
+          name: agent.name || agent.external_id,
+          role: agent.external_id,
+          status: agent.status === "at_risk" ? "at-risk" : agent.status === "paused" ? "restricted" : agent.status,
+          x: pos.x,
+          y: pos.y,
+          tools: permissions,
+          permissions,
+        };
+      });
+      setAgents(realAgents);
+      setSelectedId((current)=>realAgents.some((agent)=>agent.id===current)?current:(realAgents[0]?.id??""));
       setIntegrity(state.integrity ?? null);
-      setCausalEdges((state.causalEdges??[]).map((edge:any)=>({from:edge.from?.external_id,to:edge.to?.external_id,relation:edge.relation})).filter((edge:any)=>edge.from&&edge.to));
-      setForensicTimeline(state.forensicTimeline ?? []);
-      if (state.incident) {
-        setIncidentId(state.incident.id);
-        setPhase(state.incident.state === "resolved" ? "resolved" : state.incident.state === "recovering" ? "recovering" : state.incident.state === "contained" ? "contained" : "incident");
-        setRecovery(state.recovery ?? null);
-      } else {
+      setCausalEdges([]);
+      setForensicTimeline([]);
+      const openIncident=Array.isArray(state.incidents)?state.incidents[0]:null;
+      if(openIncident){
+        setIncidentId(openIncident.id);
+        setPhase(openIncident.state === "resolved" ? "resolved" : openIncident.state === "recovering" ? "recovering" : openIncident.state === "contained" ? "contained" : "incident");
+      }else{
         setIncidentId(null);
         setPhase("ready");
-        setRecovery(null);
       }
-      setEvents(state.events?.length ? [...baseEvents,...state.events.map((e:any)=>({time:new Date(e.occurred_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),kind:e.decision==="deny"?"blocked":"system",text:`${e.event_type}${e.action ? ` · ${e.action}` : ""}${e.payload?.reason ? ` — ${e.payload.reason}` : ""}`}))] : baseEvents);
+      setRecovery(null);
+      const realEvents=(state.events??[]).map((event:any)=>({
+        time:new Date(event.occurred_at).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}),
+        kind:event.decision==="deny"?"blocked":event.decision==="require_approval"?"policy":"system",
+        text:`${event.agents?.name??"Nodra"} · ${event.action??event.event_type}${event.decision?` · ${String(event.decision).replace("_"," ")}`:""}`,
+      }));
+      setEvents(realEvents);
       setConnection("live");
       setErrorMessage(null);
     } catch (error) {
       setConnection("offline");
-      setErrorMessage(error instanceof Error ? error.message : "Nodra could not refresh security state.");
+      setErrorMessage(error instanceof Error ? error.message : "Nodra could not refresh workspace security state.");
     } finally {
       if (showLoading) setLoading(false);
     }
@@ -175,8 +197,8 @@ export function NetworkLab() {
   async function resetLab() {
     const res=await fetch("/api/laboratory/reset",{method:"POST"});
     await requireSuccess(res, "Laboratory reset failed");
-    setAgents(initialAgents);
-    setSelectedId("manager");
+    setAgents([]);
+    setSelectedId("");
     setPhase("ready");
     setEvents(baseEvents);
     setIncidentId(null);
@@ -189,7 +211,7 @@ export function NetworkLab() {
   return (
     <main className="lab">
       <aside className="sidebar">
-        <Link className="labBrand exactBrand" href="/network" aria-label="Nodra dashboard"><img src="/nodra-logo.webp" alt="Nodra — The Shield for Agentic AI"/></Link>
+        <Link className="labBrand exactBrand" href="/network" aria-label="Nodra dashboard"><img src="/nodra-logo-approved.svg" alt="Nodra"/></Link>
         <p className="workspace">AGENTIC AI SHIELD</p>
         <nav className="sideNav" aria-label="Nodra application">
           {dashboardNav.map(([href,label])=><Link key={href} className={href==="/network"?"active":""} href={href}><i><DashboardNavIcon name={label}/></i><span>{label}</span>{label==="Incidents"&&affected>0?<b>{affected}</b>:null}</Link>)}
@@ -205,28 +227,28 @@ export function NetworkLab() {
           <div id="dashboard"><p>NODRA / SECURITY OVERVIEW</p><h1>Your Agentic AI, <span className="accentText">Protected.</span></h1><p className="dashboardSub">Prevent threats. Contain risks. Preserve trusted autonomy.</p></div>
           <div className="headerActions"><Link className="ghostBtn addAgentBtn" href="/onboarding/integrate">+ Add Agent</Link>
             <span className={"phase " + phase}><i />{phase === "ready" ? "All systems healthy" : phase === "incident" ? "Incident active" : phase === "contained" ? "Incident contained" : phase === "recovering" ? "Recovery required" : "Safe restart verified"}</span>
-            <button className="ghostBtn" onClick={resetLab}>Reset</button>
+            
           </div>
         </header>
 
         <section className="shieldStats" aria-label="Nodra security overview">
           <article><span className="statIcon healthy" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 19 10 12 17 5 10 12 3Z"/></svg></span><div><strong>{agents.filter(a=>a.status==="healthy").length}</strong><p>Agents Online</p><small>{agents.length} total registered</small></div></article>
           <article><span className="statIcon danger" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4 20 19H4L12 4Z"/><path d="M12 9V14"/><path d="M12 17.2V17.3"/></svg></span><div><strong>{hasOpenIncident ? 1 : 0}</strong><p>Open Incidents</p><small>{hasOpenIncident ? phase : "No active threats"}</small></div></article>
-          <article><span className="statIcon protectedIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6.5" y="10" width="11" height="9" rx="2"/><path d="M9 10V7.5a3 3 0 0 1 6 0V10"/></svg></span><div><strong>{agents.reduce((n,a)=>n+a.tools.length,0)}</strong><p>Protected Resources</p><small>Tools & runtime surfaces</small></div></article>
+          <article><span className="statIcon protectedIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="6.5" y="10" width="11" height="9" rx="2"/><path d="M9 10V7.5a3 3 0 0 1 6 0V10"/></svg></span><div><strong>{agents.reduce((n,a)=>n+a.tools.length,0)}</strong><p>Protected Permissions</p><small>Explicit authority scopes</small></div></article>
           <article><span className="statIcon events securityEventsIcon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5.5" y="5.5" width="13" height="13" rx="2.25"/><path d="M8.5 4v3M15.5 4v3M8.5 10.5h7M8.5 14h4.5"/></svg></span><div><strong>{Math.max(events.length-baseEvents.length,0)}</strong><p>Security Events</p><small>Last 24 hours</small></div></article>
           <article><span className={"statIcon "+(integrityState === "verified" ? "integrityIcon" : integrityState === "failed" ? "danger" : "events")} aria-hidden="true"><svg viewBox="0 0 24 24">{integrityState === "verified" ? <path d="m5 12 4 4 10-10"/> : integrityState === "failed" ? <><path d="M12 4 20 19H4L12 4Z"/><path d="M12 9V14"/></> : <path d="M12 5v7l4 2"/>}</svg></span><div><strong>{integrityState === "verified" ? "100%" : integrityState === "failed" ? "FAILED" : "—"}</strong><p>Evidence Integrity</p><small>{integrityState === "verified" ? "Hash chain verified" : integrityState === "failed" ? integrity?.reason ?? "Verification failed" : "Verification in progress"}</small></div></article>
         </section>
 
         <section className="dashboardReferenceNetwork">
-          <div className="dashboardNetworkHead"><div><strong>Agent Network</strong><span>Live view of AI agents, connections and security posture</span></div><div className="legend"><i />Healthy <i className="warn" />At risk <i className="isolated" />Quarantined</div></div>
-          <div className="dashboardNetworkGrid"><div className="dashboardOrbital"><svg className="dashboardOrbitalEdges" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="18" className="orbitRing"/><circle cx="50" cy="50" r="28" className="orbitRing"/><circle cx="50" cy="50" r="38" className="orbitRing"/>{agents.map((agent,index)=><path key={agent.id} d={`M50 50 Q${(50+agent.x)/2} ${(50+agent.y)/2-3} ${agent.x} ${agent.y}`} className={"dashPath dashPath-"+agent.id}/>)}</svg><div className="dashboardCore"><img src="/nodra-logo.webp" alt="Nodra"/></div>{agents.map(agent=><button key={agent.id} className={"dashboardOrbAgent dashboardOrbAgent-"+agent.id+" "+agent.status+(selectedId===agent.id?" selected":"")} style={{left:agent.x+"%",top:agent.y+"%"}} onClick={()=>setSelectedId(agent.id)}><span><AgentGlyph id={agent.id}/></span><strong>{agent.name} Agent</strong><small>{agent.status}</small></button>)}</div><aside className="dashboardAgentCard"><div className="identity"><span className={"bigIcon inspectorAgentIcon agentIcon-"+selected.id+" "+selected.status}><AgentGlyph id={selected.id}/></span><div><h2>{selected.name} Agent</h2><p>{selected.role}</p></div></div><div className="agentTrust"><span><small>STATUS</small><strong>{selected.status}</strong></span><span><small>TOOLS</small><strong>{selected.tools.length}</strong></span></div><div className="inspectSection"><p className="label">PERMISSIONS</p>{selected.permissions.map(p=><code key={p}>{p}</code>)}</div><div className="dashboardAgentActions"><Link href="/activity">View Logs</Link><Link href="/agents">Manage Agent</Link></div></aside></div>
+          <div className="dashboardNetworkHead"><div><strong>Protected Agent Network</strong><span>Real customer agents and their current authority</span></div><div className="legend"><i />Healthy <i className="warn" />At risk <i className="isolated" />Quarantined</div></div>
+          <div className="dashboardNetworkGrid"><div className="dashboardOrbital"><svg className="dashboardOrbitalEdges" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="18" className="orbitRing"/><circle cx="50" cy="50" r="28" className="orbitRing"/><circle cx="50" cy="50" r="38" className="orbitRing"/>{agents.map((agent,index)=><path key={agent.id} d={`M50 50 Q${(50+agent.x)/2} ${(50+agent.y)/2-3} ${agent.x} ${agent.y}`} className={"dashPath dashPath-"+agent.id}/>)}</svg><div className="dashboardCore"><img src="/nodra-logo-approved.svg" alt="Nodra"/></div>{agents.map(agent=><button key={agent.id} className={"dashboardOrbAgent dashboardOrbAgent-"+agent.id+" "+agent.status+(selectedId===agent.id?" selected":"")} style={{left:agent.x+"%",top:agent.y+"%"}} onClick={()=>setSelectedId(agent.id)}><span><AgentGlyph id={agent.id}/></span><strong>{agent.name} Agent</strong><small>{agent.status}</small></button>)}</div><aside className="dashboardAgentCard"><div className="identity"><span className={"bigIcon inspectorAgentIcon agentIcon-"+selected.id+" "+selected.status}><AgentGlyph id={selected.id}/></span><div><h2>{selected.name} Agent</h2><p>{selected.role}</p></div></div><div className="agentTrust"><span><small>STATUS</small><strong>{selected.status}</strong></span><span><small>AUTHORITY</small><strong>{selected.permissions.length}</strong></span></div><div className="inspectSection"><p className="label">PERMISSIONS</p>{selected.permissions.map(p=><code key={p}>{p}</code>)}</div><div className="dashboardAgentActions"><Link href="/activity">View Logs</Link><Link href="/agents">Manage Agent</Link></div></aside></div>
         </section>
 
         <section className="controlStrip">
           <article id="credentials"><div><span className="controlIcon">▱</span><p><strong>Credentials</strong><small>Scoped runtime authority</small></p></div><b className={affected ? "warnText" : "okText"}>{affected ? "Review" : "Protected"}</b></article>
           <article id="policy-status"><div><span className="controlIcon">◇</span><p><strong>Policy Gateway</strong><small>Deterministic enforcement</small></p></div><b className={connection === "live" ? "okText" : "warnText"}>{connection === "live" ? "Reachable" : "Unavailable"}</b></article>
           <article id="reports"><div><span className="controlIcon">▥</span><p><strong>Evidence</strong><small>Tamper-evident event chain</small></p></div><b className={integrityState === "verified" ? "okText" : integrityState === "failed" ? "warnText" : "neutralText"}>{integrityState}</b></article>
-          <article id="settings"><div><span className="controlIcon">⚙</span><p><strong>Runtime</strong><small>Five-agent protected environment</small></p></div><b className={connection === "live" ? "okText" : "warnText"}>{connection}</b></article>
+          <article id="settings"><div><span className="controlIcon">⚙</span><p><strong>Runtime</strong><small>Live protected workspace</small></p></div><b className={connection === "live" ? "okText" : "warnText"}>{connection}</b></article>
         </section>
 
         <section className="dashboardLower">
