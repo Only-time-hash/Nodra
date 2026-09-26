@@ -31,10 +31,17 @@ export type NodraConfig = {
   fetch?: typeof globalThis.fetch;
 };
 
+export type AuthorizationContext = {
+  amount?: number;
+  environment?: string;
+  metadata?: Record<string, string | number | boolean>;
+};
+
 export type AuthorizationRequest = {
   agentId: string;
   resourceId: string;
   action: string;
+  context?: AuthorizationContext;
 };
 
 export type AuthorizationDecision = {
@@ -222,7 +229,7 @@ export class Nodra {
     assertNonEmpty(agent.id, "agent.id");
 
     return {
-      authorize: (request: { resourceId: string; action: string }) =>
+      authorize: (request: { resourceId: string; action: string; context?: AuthorizationContext }) =>
         this.authorize({ agentId: agent.id, ...request }),
 
       executeApproved: (request: {
@@ -246,7 +253,7 @@ export class Nodra {
         ),
 
       authorizeAndWait: (
-        request: { resourceId: string; action: string },
+        request: { resourceId: string; action: string; context?: AuthorizationContext },
         options?: ApprovalWaitOptions,
       ) =>
         this.authorizeAndWait(
