@@ -33,7 +33,7 @@ export async function GET() {
         .limit(100),
       ctx.supabase
         .from("policies")
-        .select("id,action,effect,enabled,constraints,created_at,agent_id,resource_id,agents(name,external_id),resources(name,external_id)")
+        .select("id,action,effect,enabled,constraints,priority,starts_at,expires_at,created_at,agent_id,resource_id,agents(name,external_id),resources(name,external_id)")
         .eq("workspace_id", ctx.workspaceId)
         .order("created_at", { ascending: false }),
       ctx.supabase
