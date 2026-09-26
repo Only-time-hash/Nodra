@@ -45,8 +45,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "recovery_action_failed" }, { status: 500 });
   }
 
+  const result =
+    data && typeof data === "object" && !Array.isArray(data)
+      ? (data as Record<string, unknown>)
+      : {};
+
   return NextResponse.json({
-    ...(data ?? {}),
+    ...result,
     ...(issued
       ? {
           secret: issued.secret,
