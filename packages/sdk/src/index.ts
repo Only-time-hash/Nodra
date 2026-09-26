@@ -244,7 +244,7 @@ export class Nodra {
     assertNonEmpty(request.resourceId, "resourceId");
     assertNonEmpty(request.action, "action");
 
-    return this.post<AuthorizationDecision>("/api/gateway/authorize", request, {
+    return this.post<AuthorizationDecision>("/api/v1/authorize", request, {
       retrySafe: true,
       operation: "authorization",
     });
@@ -262,7 +262,7 @@ export class Nodra {
     // Approval tokens are one-time. Do not automatically retry after a request
     // may have reached the server.
     return this.post<ApprovedExecutionDecision>(
-      "/api/gateway/execute-approved",
+      "/api/v1/execute-approved",
       request,
       {
         retrySafe: false,
@@ -284,7 +284,7 @@ export class Nodra {
 
     // Event IDs make record requests idempotency-friendly, but the server still
     // protects nonce replay. A network retry gets a fresh signed request.
-    return this.post("/api/gateway/events", payload, {
+    return this.post("/api/v1/events", payload, {
       retrySafe: true,
       operation: "event recording",
     });
