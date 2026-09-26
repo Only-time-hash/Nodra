@@ -1804,3 +1804,19 @@
  .aiTrustNotice small{white-space:normal}
  .aiTechnicalDetails>div{grid-template-columns:1fr}
 }
+
+
+/* Active workspace selector */
+.workspaceSwitcher{margin:0 12px 12px;min-height:48px;display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 10px;border:1px solid #143650;border-radius:9px;background:#071727;color:#8fb0cc}
+.workspaceSwitcher>svg{color:#56a7df}
+.workspaceSwitcher>div{min-width:0;display:grid;gap:2px}
+.workspaceSwitcher strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#dcecff;font-size:10px;font-weight:650}
+.workspaceSwitcher span{color:#6888a5;font-size:8px;text-transform:capitalize}
+.workspaceSwitcherSingle{grid-template-columns:18px minmax(0,1fr)}
+.workspaceSwitcherLoading{grid-template-columns:18px minmax(0,1fr);font-size:9px}
+.workspaceSwitcherSelect{cursor:pointer}
+.workspaceSwitcherSelect>div>span{display:block;margin-bottom:2px;text-transform:uppercase;letter-spacing:.08em;font-size:7px}
+.workspaceSwitcherSelect select{width:100%;min-width:0;appearance:none;border:0;outline:0;background:transparent;color:#dcecff;font:inherit;font-size:9px;font-weight:650;cursor:pointer}
+.workspaceSwitcherSelect select:disabled{cursor:wait;opacity:.6}
+.workspaceSwitcherSelect option{background:#071727;color:#dcecff}
+.workspaceSwitcherSelect>svg:last-child{color:#6888a5;pointer-events:none}
