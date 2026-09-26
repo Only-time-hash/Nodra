@@ -527,7 +527,7 @@ export function SettingsConsole({ overview }: { overview: any }) {
             <article><Shield /><div><b>Security Decisions</b><small>Authorization decisions remain deterministic and policy-based regardless of this preference.</small></div><em>DETERMINISTIC</em></article>
           </div>
           <button className="settingsSaveWide" disabled={!canEdit || busy === "save"} onClick={() => void saveSettings()}><Save /> Save AI Preferences</button>
-          <InvestigationAssistant incidents={overview?.incidents ?? []} enabled={Boolean(form.ai_config?.investigationAssist)} />
+          <InvestigationAssistant incidents={overview?.allIncidents ?? overview?.incidents ?? []} enabled={Boolean(form.ai_config?.investigationAssist)} />
         </section>
       ) : null}
 
