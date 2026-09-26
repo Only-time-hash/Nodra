@@ -1,0 +1,232 @@
+openapi: 3.1.1
+info:
+  title: Nodra Public Runtime API
+  version: 1.0.0-beta
+  description: Stable runtime API for protecting consequential AI-agent actions.
+servers:
+  - url: https://nodra-kappa.vercel.app
+paths:
+  /api/v1/health:
+    get:
+      operationId: getHealth
+      summary: Check Nodra public API health
+      responses:
+        "200":
+          description: API is available
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [service, version, status]
+                properties:
+                  service: { type: string, const: nodra-api }
+                  version: { type: string, const: v1 }
+                  status: { type: string, const: ok }
+  /api/v1/authorize:
+    post:
+      operationId: authorizeAction
+      summary: Authorize an agent action
+      security:
+        - nodraHmac: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthorizationRequest"
+      responses:
+        "200":
+          description: Authorization decision
+          headers:
+            x-nodra-request-id:
+              schema: { type: string }
+            x-nodra-api-version:
+              schema: { type: string, const: v1 }
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationDecision"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "429":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+  /api/v1/events:
+    post:
+      operationId: recordEvent
+      summary: Record protected runtime evidence
+      security:
+        - nodraHmac: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GatewayEvent"
+      responses:
+        "200":
+          description: Event recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [recorded]
+                properties:
+                  recorded: { type: boolean }
+                  eventId: { type: [string, "null"], format: uuid }
+                  incidentId: { type: [string, "null"], format: uuid }
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "429":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+  /api/v1/execute-approved:
+    post:
+      operationId: executeApprovedAction
+      summary: Consume a one-time approval token
+      security:
+        - nodraHmac: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApprovedExecutionRequest"
+      responses:
+        "200":
+          description: Approved action may execute
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApprovedExecutionDecision"
+        "400":
+          $ref: "#/components/responses/Error"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "409":
+          $ref: "#/components/responses/Error"
+        "413":
+          $ref: "#/components/responses/Error"
+        "503":
+          $ref: "#/components/responses/Error"
+components:
+  securitySchemes:
+    nodraHmac:
+      type: apiKey
+      in: header
+      name: x-nodra-credential
+      description: |
+        Requests also require x-nodra-timestamp, x-nodra-nonce and
+        x-nodra-signature generated from the credential.
+  responses:
+    Error:
+      description: Nodra error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+    AuthorizationRequest:
+      type: object
+      additionalProperties: false
+      required: [agentId, resourceId, action]
+      properties:
+        agentId: { type: string, minLength: 1, maxLength: 128 }
+        resourceId: { type: string, minLength: 1, maxLength: 128 }
+        action: { type: string, minLength: 1, maxLength: 128 }
+    AuthorizationDecision:
+      type: object
+      required:
+        - decision
+        - reason
+        - agentId
+        - resourceId
+        - action
+        - authorizationEventId
+      properties:
+        decision:
+          type: string
+          enum: [allow, deny, require-approval]
+        reason: { type: string }
+        agentId: { type: string }
+        resourceId: { type: string }
+        action: { type: string }
+        authorizationEventId: { type: string, format: uuid }
+    GatewayEvent:
+      type: object
+      additionalProperties: true
+      required: [id, agentId, resourceId, action, decision]
+      properties:
+        id: { type: string, minLength: 1, maxLength: 128 }
+        agentId: { type: string, minLength: 1, maxLength: 128 }
+        resourceId: { type: string, minLength: 1, maxLength: 128 }
+        action: { type: string, minLength: 1, maxLength: 128 }
+        decision:
+          type: string
+          enum: [allow, deny, require-approval]
+        phase:
+          type: string
+          enum: [intent, result]
+        executed: { type: boolean }
+        outcome: { type: ["string", "null"] }
+        reason: { type: ["string", "null"] }
+        causedBy: { type: ["string", "null"] }
+        causedByEventId: { type: ["string", "null"], format: uuid }
+        incidentId: { type: ["string", "null"], format: uuid }
+        occurredAt: { type: ["string", "null"], format: date-time }
+    ApprovedExecutionRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - agentId
+        - resourceId
+        - action
+        - authorizationEventId
+        - executionToken
+      properties:
+        agentId: { type: string, minLength: 1 }
+        resourceId: { type: string, minLength: 1 }
+        action: { type: string, minLength: 1 }
+        authorizationEventId: { type: string, format: uuid }
+        executionToken: { type: string, minLength: 1, maxLength: 256 }
+    ApprovedExecutionDecision:
+      type: object
+      required:
+        - decision
+        - reason
+        - authorizationEventId
+        - agentId
+        - resourceId
+        - action
+      properties:
+        decision: { type: string, const: allow }
+        reason: { type: string, const: human_approval_consumed }
+        authorizationEventId: { type: string, format: uuid }
+        executionEventId: { type: [string, "null"], format: uuid }
+        agentId: { type: string }
+        resourceId: { type: string }
+        action: { type: string }
