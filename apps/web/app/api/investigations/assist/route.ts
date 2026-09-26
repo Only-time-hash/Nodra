@@ -253,54 +253,7 @@ export async function POST(request: Request) {
     return next;
   };
 
-  const normalizeAgentNames = (value: unknown): unknown => {
-    if (Array.isArray(value)) return value.map(normalizeAgentNames);
-    if (value && typeof value === "object") {
-      return Object.fromEntries(
-        Object.entries(value as Record<string, unknown>).map(([key, child]) => [key, normalizeAgentNames(child)]),
-      );
-    }
-    if (typeof value !== "string") return value;
-    let next = value;
-    const labels = [...new Set(agentLabels.values())].sort((a, b) => b.length - a.length);
-    for (const label of labels) {
-      const escaped = label.replace(/[.*+?^$()|[\]\\]/g, "\\  const normalizeAgentNames = (value: unknown): unknown => {
-    if (Array.isArray(value)) return value.map(normalizeAgentNames);
-    if (value && typeof value === "object") {
-      return Object.fromEntries(
-        Object.entries(value as Record<string, unknown>).map(([key, child]) => [key, normalizeAgentNames(child)]),
-      );
-    }
-    if (typeof value !== "string") return value;
-    let next = value;
-    const labels = [...new Set(agentLabels.values())].sort((a, b) => b.length - a.length);
-    for (const label of labels) {
-      const escaped = label.replace(/[.*+?^$()|[\]\\]/g, "\\  const cleanAnalysis = replaceKnownIds(analysis);
-
-  return NextResponse.json({
-    incidentId: incident.id,
-    provider: "gemini",
-    model: usedModel,
-    deterministicSecurityDecisionsUnaffected: true,
-    analysis: cleanAnalysis,
-  });");
-      next = next.replace(new RegExp("\\b" + escaped + "\\b", "gi"), label);
-    }
-    return next;
-  };
-
-  const cleanAnalysis = normalizeAgentNames(replaceKnownIds(analysis));
-
-  return NextResponse.json({
-    deterministicSecurityDecisionsUnaffected: true,
-    analysis: cleanAnalysis,
-  });");
-      next = next.replace(new RegExp("\\b" + escaped + "\\b", "gi"), label);
-    }
-    return next;
-  };
-
-  const cleanAnalysis = normalizeAgentNames(replaceKnownIds(analysis));
+  const cleanAnalysis = replaceKnownIds(analysis);
 
   return NextResponse.json({
     deterministicSecurityDecisionsUnaffected: true,
