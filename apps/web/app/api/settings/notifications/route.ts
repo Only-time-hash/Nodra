@@ -31,6 +31,7 @@ export async function POST(request: Request) {
     : ["incident", "denial", "recovery"];
 
   const { data, error } = await (ctx.supabase as any).rpc("set_notification_destination", {
+    p_workspace_id: ctx.workspaceId,
     p_kind: body.kind,
     p_label: body.label,
     p_endpoint_url: body.endpointUrl,
@@ -55,7 +56,7 @@ export async function DELETE(request: Request) {
   const body = await request.json().catch(() => null);
   if (!body || typeof body.id !== "string") return NextResponse.json({ error: "id_required" }, { status: 400 });
 
-  const { data, error } = await (ctx.supabase as any).rpc("delete_notification_destination", { p_id: body.id });
+  const { data, error } = await (ctx.supabase as any).rpc("delete_notification_destination", { p_workspace_id: ctx.workspaceId, p_id: body.id });
   if (error) return NextResponse.json({ error: "notification_destination_delete_failed" }, { status: 500 });
 
   return NextResponse.json({ removed: data === true });
