@@ -57,20 +57,25 @@ finance.result(
 )
 ```
 
-## Execute a human-approved action
+## Automatic approval continuation
 
-When a reviewer approves a `require-approval` request, the runtime uses the one-time execution token:
+A protected Python runtime can wait for the reviewer and resume without a human copying a token:
 
 ```python
-finance.execute_approved(
+final_decision = finance.authorize_and_wait(
     resource_id="stripe",
     action="payments.submit",
-    authorization_event_id=authorization_event_id,
-    execution_token=execution_token,
+    timeout_seconds=300,
+    poll_interval_seconds=1.5,
 )
+
+if final_decision["decision"] == "allow":
+    submit_payment()
 ```
 
-Approved execution is deliberately not automatically retried because the token is one-time.
+The runtime generates the one-time token locally, claims the approved authorization idempotently, and consumes it through Nodra. Plaintext approval tokens are not stored by Nodra.
+
+Low-level `wait_for_approval()` and `execute_approved()` methods remain available when an application needs explicit control of the workflow.
 
 ## Error handling
 
