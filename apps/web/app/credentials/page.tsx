@@ -16,6 +16,8 @@ import { WorkspaceSidebar } from "../components/workspace-sidebar";
 type Credential = {
   id: string;
   agent_id: string;
+  agent_external_id?: string;
+  agent_name?: string;
   label: string;
   secret_prefix: string;
   status: string;
@@ -217,7 +219,7 @@ export default function CredentialsPage() {
                     <b>{item.label}</b>
                     <small>{item.secret_prefix}••••••••</small>
                   </span>
-                  <span><code>{item.agent_id}</code></span>
+                  <span><b>{item.agent_name || "Protected agent"}</b><small>{item.agent_external_id || item.agent_id}</small></span>
                   <span>{new Date(item.created_at).toLocaleDateString()}</span>
                   <span>
                     {item.last_used_at
