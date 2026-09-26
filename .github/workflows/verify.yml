@@ -35,6 +35,16 @@ jobs:
         run: npm test
       - name: Python SDK tests
         run: PYTHONPATH=packages/python-sdk/src python -m unittest discover -s packages/python-sdk/tests -p "test_*.py"
+      - name: Build Python SDK wheel and sdist
+        run: |
+          python -m pip install --disable-pip-version-check build
+          python -m build packages/python-sdk
+      - name: Verify Python SDK installs outside the source tree
+        run: |
+          python -m venv /tmp/nodra-python-sdk-check
+          /tmp/nodra-python-sdk-check/bin/python -m pip install packages/python-sdk/dist/*.whl
+          cd /tmp
+          /tmp/nodra-python-sdk-check/bin/python -c "from nodra import Nodra, NodraError; print(Nodra.__name__, NodraError.__name__)"
       - name: Coverage measurement
         run: npm run test:coverage
       - name: Migration integrity
