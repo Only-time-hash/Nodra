@@ -2,149 +2,201 @@
 
 Updated: 2026-09-26
 
-This tracker is the source of truth for the eight blockers required before Nodra is offered to external AI companies as a private beta.
+This is the source of truth for the eight blockers required before Nodra is offered to external AI companies as a private beta.
 
 ## 1. Public JavaScript / TypeScript SDK — BUILDING
 
 Implemented:
-- Nodra client with signed HMAC authorization.
+- Publishable `nodra-agent-sdk` package layout.
+- Compiled JavaScript and TypeScript declarations.
+- Explicit package exports.
+- HMAC-signed v1 authorization.
 - Protected-agent helper.
-- Event recording.
-- Human-approved execution.
-- MCP, OpenAI, LangChain, CrewAI, REST and generic tool adapters.
-- Publishable package layout with compiled JavaScript and bundled TypeScript declarations.
-- Explicit Node package exports.
+- Intent/result evidence recording.
+- One-time approved execution.
+- Automatic approval wait/claim/resume.
 - Structured `NodraError`.
-- Request timeout and bounded retry handling.
-- Retry disabled for one-time approval-token execution.
-- Public README, license, engine declaration and package metadata.
-- CI build and `npm pack --dry-run` verification added.
-- Collision-safe npm package name: `nodra-agent-sdk`.
+- Bounded timeout/retry handling.
+- One-time approved execution is deliberately not automatically retried.
+- MCP, OpenAI, LangChain, CrewAI, REST and generic tool adapters.
+- Conditional authorization context for amount/environment/metadata.
+- External clean-install CI verification.
+- Isolated external-consumer fixture.
+- Trusted npm publishing workflow with OIDC/provenance metadata.
+- Repeatable SDK/local-gateway latency benchmark.
 
 Remaining:
-- CI must pass with the new publish bundle.
-- Run package install test from a clean external project.
-- Publish the first npm beta release after npm publisher credentials are configured.
-- Add automatic approval continuation after blocker #4 is built.
+- Latest CI must be fully green.
+- Configure npm Trusted Publishing for the repository/environment.
+- Publish the first npm beta release.
+- Run the published package against a real external Nodra workspace.
 
 ## 2. Public Python SDK — BUILDING
 
 Implemented:
 - Public `nodra-agent-sdk` distribution with `nodra` import package.
-- HMAC-signed authorization.
+- HMAC-signed v1 authorization.
 - Protected-agent helper.
-- Event intent/result recording.
-- Human-approved execution parity.
-- Structured `NodraError` with code/status/request ID/retryability.
-- Bounded timeout and retry handling.
-- Automatic retries disabled for one-time approved execution.
-- Dependency-light standard-library HTTP client.
-- Complete package metadata, README and Apache-2.0 license.
-- Wheel + sdist build added to CI.
-- Clean virtual-environment wheel install/import verification added to CI.
-- Expanded Python SDK signing/error/approval tests.
+- Intent/result evidence recording.
+- Automatic approval wait/claim/resume.
+- Structured `NodraError`.
+- Bounded timeout/retry handling.
+- Approved execution is not automatically retried.
+- Conditional policy context support.
+- Wheel + sdist build.
+- Clean virtual-environment wheel install/import verification.
+- Trusted PyPI publishing workflow.
 
 Remaining:
-- CI must pass with the Python distribution checks.
-- Publish the first PyPI beta after Trusted Publishing is configured.
-- Add automatic approval continuation after blocker #4 is built.
+- Latest CI must be fully green.
+- Configure PyPI Trusted Publishing.
+- Publish first PyPI beta release.
+- Run the published package against a real external Nodra workspace.
 
 ## 3. Stable v1 API + Developer Documentation — BUILDING
 
 Implemented:
-- Versioned runtime endpoints: `/api/v1/authorize`, `/api/v1/events`, `/api/v1/execute-approved`, `/api/v1/health`.
-- Legacy gateway routes preserved for compatibility.
-- Both JavaScript and Python SDKs moved to v1.
-- Stable v1 decision and error contract documented.
-- Request IDs and `x-nodra-api-version` response headers.
-- OpenAPI 3.1.1 contract in `docs/openapi.yaml`.
-- v1 API usage/deprecation guidance in `docs/api-v1.md`.
-- v1 wrapper tests.
+- `/api/v1/authorize`.
+- `/api/v1/events`.
+- `/api/v1/execute-approved`.
+- `/api/v1/approval-status`.
+- `/api/v1/approval-claim`.
+- `/api/v1/health`.
+- Stable v1 version header and request IDs.
+- Legacy gateway compatibility.
+- OpenAPI 3.1 contract.
+- Public web copy of `openapi.yaml`.
+- CI contract validation and drift prevention.
+- v1 API/deprecation documentation.
+- JavaScript external quickstart.
+- Python external quickstart.
 
 Remaining:
-- CI must pass with the v1 surface.
-- Validate the OpenAPI document in CI.
-- Serve/download the OpenAPI document from the product docs.
-- Expand docs into framework-specific external quickstarts.
-- Freeze any additional management endpoints needed for the private beta.
+- Latest CI/OpenAPI validation must be green.
+- Add framework-specific quickstarts where needed for beta partners.
+- Freeze any additional management endpoints required by pilot customers.
 
-## 4. Automatic Approval Continuation — REMAINING
+## 4. Automatic Approval Continuation — DONE
 
-Existing foundation:
-- `require-approval` decisions.
-- Reviewer Approve/Deny.
-- Rationale.
-- One-time five-minute execution token.
-- `executeApproved()` consumption and evidence.
+Implemented:
+- `require-approval` decision.
+- Human Approve/Deny with rationale.
+- Runtime approval polling.
+- Runtime-generated one-time execution token.
+- Only the token hash is stored.
+- Exact agent/resource/action/authorization-event binding.
+- Idempotent claim for the same token.
+- Different-token replacement blocked.
+- Expired/overlong claim lifetimes rejected.
+- Malformed token hashes rejected.
+- Automatic SDK resume through `executeApproved()`.
+- Human reviewers no longer copy execution secrets.
+- Replay/consumption protection tested against the live schema and CI test added.
 
-Remaining:
-- Secure runtime wait/poll/callback mechanism.
-- Automatic token delivery to waiting protected runtime.
-- Resume execution without manual copying.
+## 5. Strong Production Policy Engine — BUILDING
 
-## 5. Strong Production Policy Engine — REMAINING
-
-Existing foundation:
-- Authority scopes.
+Implemented:
+- Registered authority remains the hard maximum boundary.
+- Default restrictive behavior.
 - Allow / deny / require-approval.
-- High-impact review preference.
-- Real policy records.
+- Explicit deny precedence.
+- Policy priorities.
+- Agent-specific and workspace-wide rules.
+- Resource targeting.
+- Wildcard action matching.
+- Amount/value conditions.
+- Environment conditions.
+- UTC time windows.
+- Day-of-week conditions.
+- Metadata equality conditions.
+- Starts-at / expires-at.
+- High-impact review.
+- Runtime policy override evidence.
+- Shared database evaluator for runtime and simulation.
+- Policy simulator API.
+- Policy simulator console.
+- Policy management validation.
 
 Remaining:
-- Conditional rules.
-- Resource constraints.
-- Amount/value limits.
-- Environment/time-window conditions.
-- Delegation/expiry.
-- Policy priorities and conflict handling.
-- Policy simulator/debugger.
+- Explicit delegated-authority model with bounded delegation and expiry.
+- More policy-authoring UI for complex conditions.
+- Pilot-driven policy templates.
 
-## 6. Real Production Containment + Recovery — REMAINING
+## 6. Real Production Containment + Recovery — BUILDING
 
-Existing foundation:
-- Incidents.
-- Agent pause/restricted state.
-- Containment actions.
-- Recovery plans.
-- Remediation evidence.
-- Safe-restart state.
-
-Remaining:
-- Customer-runtime adapters.
-- Credential rotation adapter.
-- Job cancellation adapter.
-- Tool/API isolation adapter.
-- State/memory cleanup adapter.
-- Verified production safe restart.
-
-## 7. Security + End-to-End Test Gate — REMAINING
-
-Existing foundation:
-- Unit tests.
-- Migration verification.
-- Database isolation tests.
-- CI build/typecheck.
-- Replay defenses and signed requests.
+Implemented:
+- Evidence-derived containment scope.
+- Atomic customer-incident containment.
+- Origin-agent quarantine.
+- Descendant authority restriction.
+- Origin credential revocation.
+- Recovery plan with four explicit evidence checks.
+- Real credential rotation with plaintext shown once.
+- Actual rotation timestamp used for safe-restart ordering.
+- Pending Nodra work cancellation.
+- Operator evidence for origin remediation.
+- Memory/state review evidence.
+- Recovery action/evidence ledger.
+- Owner/admin safe-restart approval.
+- Fresh post-containment credential requirement.
+- Only incident-affected agents restored.
+- Safe-restart evidence event.
+- Recovery console wired to real operations.
+- Full live-schema containment -> recovery -> safe-restart E2E passes.
+- The same lifecycle is now a CI database test.
 
 Remaining:
-- Full external E2E:
-  authorize allow -> deny -> approval -> execute -> incident -> containment -> recovery.
-- Cross-workspace attack tests.
-- Token replay/expiry tests.
-- Credential-revocation tests.
-- Load/latency benchmarks.
-- Security-definer RPC audit.
+- Generic adapters for external customer queues/tools/runtimes beyond Nodra-controlled enforcement.
+- Pilot-specific adapters based on the first external integration.
 
-## 8. External Agent Integration Proof — REMAINING
+## 7. Security + End-to-End Test Gate — BUILDING
+
+Implemented:
+- Signed request verification.
+- Body, timestamp and nonce tamper rejection.
+- Expired/future signature rejection.
+- Replay protection.
+- Cross-workspace isolation.
+- Fail-closed behavior.
+- Quarantined-agent enforcement.
+- Policy explicit-deny precedence tests.
+- Approval denial tests.
+- Approval claim replay/expiry/malformed-hash tests.
+- One-time execution consumption tests.
+- Credential revocation as part of recovery E2E.
+- Safe-restart bypass checks.
+- Transactional customer containment/recovery E2E.
+- Database isolation suite.
+- Internal rate-limit tables hardened with explicit deny policies.
+- Missing approval/credential FK indexes added.
+- Runtime gateway RPC grants narrowed to the anonymous publishable-key role.
+- Repeatable SDK/local-gateway latency benchmark in CI.
 
 Remaining:
-- Create a completely separate sample AI-agent repository.
-- Install Nodra as an external dependency.
-- Connect without importing Nodra internals.
-- Prove allow / deny / approval / evidence.
-- Prove containment and recovery.
-- Document a 10-minute quickstart.
+- Latest complete CI run must be green.
+- Real deployed-gateway latency/load benchmark using a beta workspace.
+- Final documented review of intentional anonymous SECURITY DEFINER gateway RPCs.
+
+## 8. External Agent Integration Proof — BUILDING
+
+Implemented:
+- External-consumer fixture imports only `nodra-agent-sdk`.
+- CI copies it into a clean temporary project.
+- CI installs only the packed SDK artifact.
+- No internal Nodra source imports.
+- Proves external authorize -> require approval -> approval claim -> approved execution -> result evidence.
+
+Remaining:
+- Publish beta SDK.
+- Run the same consumer against a real Nodra workspace/credential rather than the CI mock contract.
+- Create a truly separate sample repository once the published SDK exists.
+- Prove real containment/recovery with that external agent.
+- Turn the result into the 10-minute customer onboarding proof.
 
 ## Private Beta Exit Condition
 
-Nodra is private-beta ready when all eight blockers above are marked DONE and an external agent can integrate without access to the Nodra monorepo.
+Nodra is private-beta ready when:
+1. all CI/security/database gates are green,
+2. JavaScript and Python beta SDKs are published,
+3. a truly external agent using only the published SDK completes allow/deny/approval/evidence,
+4. that external agent can be contained and recovered through the real Nodra control plane.
