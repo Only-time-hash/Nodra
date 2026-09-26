@@ -4,6 +4,9 @@ import { getWorkspaceContext } from "../../../../lib/persistence";
 export async function GET() {
   const ctx = await getWorkspaceContext();
   if (!ctx) return NextResponse.json({ error: "authentication_or_workspace_required" }, { status: 401 });
+  if (!["owner", "admin"].includes(ctx.role)) {
+    return NextResponse.json({ error: "insufficient_role" }, { status: 403 });
+  }
 
   const [
     workspace,
