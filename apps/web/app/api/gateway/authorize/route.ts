@@ -25,9 +25,34 @@ export async function POST(request: Request) {
     typeof body.action !== "string" ||
     body.agentId.length > 128 ||
     body.resourceId.length > 128 ||
-    body.action.length > 128
+    body.action.length > 128 ||
+    (body.context !== undefined && (
+      !body.context ||
+      typeof body.context !== "object" ||
+      Array.isArray(body.context)
+    ))
   ) {
     return NextResponse.json({ error: "invalid_authorization_request" }, { status: 400 });
+  }
+
+  const context = body.context ?? {};
+  if (
+    context.amount !== undefined &&
+    (typeof context.amount !== "number" || !Number.isFinite(context.amount))
+  ) {
+    return NextResponse.json({ error: "invalid_authorization_context" }, { status: 400 });
+  }
+  if (
+    context.environment !== undefined &&
+    (typeof context.environment !== "string" || context.environment.length > 64)
+  ) {
+    return NextResponse.json({ error: "invalid_authorization_context" }, { status: 400 });
+  }
+  if (
+    context.metadata !== undefined &&
+    (!context.metadata || typeof context.metadata !== "object" || Array.isArray(context.metadata))
+  ) {
+    return NextResponse.json({ error: "invalid_authorization_context" }, { status: 400 });
   }
 
   const credential = request.headers.get("x-nodra-credential");
@@ -139,7 +164,34 @@ export async function POST(request: Request) {
 
   if (decision === "allow") {
     const secretHash = hashIntegrationSecret(credential);
-    const { data: highImpactReview, error: highImpactError } = await supabase.rpc(
+
+    const { data: policyOverride, error: policyError } = await supabase.rpc(
+      "apply_integration_policy_override",
+      {
+        p_secret_hash: secretHash,
+        p_original_event_id: row.authorization_event_id,
+        p_resource_external_id: body.resourceId,
+        p_action: body.action,
+        p_context: context,
+      },
+    );
+
+    if (policyError) {
+      return NextResponse.json({ error: "policy_evaluation_failed" }, { status: 503 });
+    }
+
+    const policyRow = Array.isArray(policyOverride) ? policyOverride[0] : policyOverride;
+    if (policyRow?.decision) {
+      decision =
+        policyRow.decision === "require_approval"
+          ? "require-approval"
+          : policyRow.decision;
+      reason = policyRow.reason;
+      authorizationEventId = policyRow.authorization_event_id;
+    }
+
+    if (decision === "allow") {
+      const { data: highImpactReview, error: highImpactError } = await supabase.rpc(
       "integration_high_impact_review_enabled",
       {
         p_secret_hash: secretHash,
@@ -169,6 +221,7 @@ export async function POST(request: Request) {
       decision = "require-approval";
       reason = "workspace_high_impact_review";
       authorizationEventId = overrideEventId;
+      }
     }
   }
 
