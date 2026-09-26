@@ -1,17 +1,18 @@
 import Link from "next/link";
 import { NodraLogo } from "./nodra-logo";
 import {
-  Activity,
-  AlertTriangle,
+  BarChart3,
   Bot,
-  FileText,
+  Box,
+  ClipboardCheck,
+  GitBranch,
+  Home,
   KeyRound,
-  LayoutDashboard,
-  Network,
+  Plug,
   RotateCcw,
   Settings,
-  Shield,
-  ShieldCheck,
+  TriangleAlert,
+  Waves,
 } from "lucide-react";
 
 const nav = [
@@ -30,18 +31,20 @@ const nav = [
 ] as const;
 
 function Icon({ name }: { name: string }) {
-  const props = { size: 18, strokeWidth: 1.7 };
-  if (name === "Dashboard") return <LayoutDashboard {...props} />;
-  if (name === "Agent Network") return <Network {...props} />;
+  const props = { size: 16, strokeWidth: 1.8 };
+
+  if (name === "Dashboard") return <Home {...props} />;
   if (name === "Agents") return <Bot {...props} />;
-  if (name === "Incidents") return <AlertTriangle {...props} />;
-  if (name === "Security Events") return <Activity {...props} />;
-  if (name === "Approvals") return <ShieldCheck {...props} />;
-  if (name === "Credentials") return <KeyRound {...props} />;
+  if (name === "Agent Network") return <GitBranch {...props} />;
+  if (name === "Security Events") return <Waves {...props} />;
+  if (name === "Incidents") return <TriangleAlert {...props} />;
+  if (name === "Risk Analysis") return <BarChart3 {...props} />;
+  if (name === "Containment") return <Box {...props} />;
   if (name === "Recovery") return <RotateCcw {...props} />;
-  if (name === "Risk Analysis") return <FileText {...props} />;
-  if (name === "Settings") return <Settings {...props} />;
-  return <Shield {...props} />;
+  if (name === "Approvals") return <ClipboardCheck {...props} />;
+  if (name === "Credentials") return <KeyRound {...props} />;
+  if (name === "Integrations") return <Plug {...props} />;
+  return <Settings {...props} />;
 }
 
 export function WorkspaceSidebar({ active }: { active: string }) {
@@ -49,9 +52,8 @@ export function WorkspaceSidebar({ active }: { active: string }) {
     <aside className="sidebar">
       <Link className="labBrand exactBrand" href="/network" aria-label="Nodra dashboard">
         <NodraLogo className="workspaceNodraLogo" />
+        <span className="consoleBrandWord">Nodra</span>
       </Link>
-
-      <p className="workspace">AGENT SECURITY CONTROL PLANE</p>
 
       <nav className="sideNav" aria-label="Nodra application">
         {nav.map(([href, label]) => (
@@ -62,9 +64,11 @@ export function WorkspaceSidebar({ active }: { active: string }) {
         ))}
       </nav>
 
-      <div className="labScope">
-        <strong>Live workspace</strong>
-        <p>Real customer agents, authority and security evidence.</p>
+      <div className="sidebarSession">
+        <Link href="/settings">
+          <Settings size={16} />
+          <span>Workspace Settings</span>
+        </Link>
       </div>
     </aside>
   );
