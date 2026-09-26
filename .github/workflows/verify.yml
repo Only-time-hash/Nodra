@@ -41,6 +41,10 @@ jobs:
         run: npm run verify:migrations
       - name: TypeScript
         run: npm run typecheck
+      - name: Build public JavaScript SDK
+        run: npm run build:sdk
+      - name: Verify JavaScript SDK publish bundle
+        run: npm run pack:sdk
       - name: Production build
         run: npm run build
         env:
