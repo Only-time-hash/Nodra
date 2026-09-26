@@ -50,7 +50,7 @@ begin
   end if;
 end $$;
 
-do $
+do $workspace_rpc_privileges$
 begin
   if has_function_privilege('authenticated','public.list_workspace_members()','execute')
      or has_function_privilege('authenticated','public.list_integration_credentials()','execute')
@@ -58,17 +58,22 @@ begin
      or has_function_privilege('authenticated','public.delete_notification_destination(uuid)','execute')
      or has_function_privilege('authenticated','public.issue_integration_credential(text,text,text,text)','execute')
      or has_function_privilege('authenticated','public.revoke_integration_credential(uuid)','execute')
-     or has_function_privilege('authenticated','public.rotate_integration_credential(uuid,text,text)','execute') then
+     or has_function_privilege('authenticated','public.rotate_integration_credential(uuid,text,text)','execute')
+     or has_function_privilege('authenticated','public.list_approval_requests()','execute')
+     or has_function_privilege('authenticated','public.integration_connection_status(text)','execute') then
     raise exception 'legacy first-membership RPC remains executable';
   end if;
 
   if not has_function_privilege('authenticated','public.list_workspace_members(uuid)','execute')
-     or not has_function_privilege('authenticated','public.list_integration_credentials(uuid)','execute') then
+     or not has_function_privilege('authenticated','public.list_integration_credentials(uuid)','execute')
+     or not has_function_privilege('authenticated','public.list_approval_requests(uuid)','execute')
+     or not has_function_privilege('authenticated','public.integration_connection_status(uuid,text)','execute') then
     raise exception 'explicit-workspace read RPC is not executable';
   end if;
-end $;
+end;
+$workspace_rpc_privileges$;
 
-do $
+do $workspace_rpc_isolation$
 begin
   begin
     perform * from public.list_workspace_members('e0000000-0000-4000-8000-000000000006');
@@ -85,7 +90,24 @@ begin
     when others then
       if sqlerrm not like '%workspace_access_denied%' then raise; end if;
   end;
-end $;
+
+  begin
+    perform * from public.list_approval_requests('e0000000-0000-4000-8000-000000000006');
+    raise exception 'cross-workspace approval listing unexpectedly succeeded';
+  exception
+    when others then
+      if sqlerrm not like '%workspace_access_denied%' then raise; end if;
+  end;
+
+  begin
+    perform * from public.integration_connection_status('e0000000-0000-4000-8000-000000000006','manager');
+    raise exception 'cross-workspace integration status unexpectedly succeeded';
+  exception
+    when others then
+      if sqlerrm not like '%workspace_access_denied%' then raise; end if;
+  end;
+end;
+$workspace_rpc_isolation$;
 
 reset role;
 
