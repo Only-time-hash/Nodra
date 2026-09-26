@@ -62,7 +62,8 @@ $$;
 
 revoke all on function public.archive_expired_security_events() from public, anon, authenticated;
 
-create extension if not exists pg_net;
+create schema if not exists extensions;
+create extension if not exists pg_net with schema extensions;
 create extension if not exists pg_cron;
 
 create table if not exists public.notification_destinations (
