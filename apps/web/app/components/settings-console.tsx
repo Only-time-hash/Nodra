@@ -30,6 +30,8 @@ import {
   Users,
   WandSparkles,
 } from "lucide-react";
+import { ExternalNotifications } from "./external-notifications";
+import { InvestigationAssistant } from "./investigation-assistant";
 
 type SettingsData = {
   workspace: { id: string; name: string; slug: string; created_at: string; updated_at: string } | null;
@@ -431,12 +433,12 @@ export function SettingsConsole({ overview }: { overview: any }) {
               </div>
               <div className="securitySettingList">
                 <article>
-                  <div><b>Multi-Factor Authentication (MFA)</b><small>Workspace requirement preference. Nodra will not claim MFA enforcement until enrollment and Supabase Auth MFA are configured.</small></div>
+                  <div><b>Multi-Factor Authentication (MFA)</b><small>When required, protected Nodra console routes demand a Supabase AAL2 session. Members are redirected to TOTP enrollment/challenge before access continues.</small><Link className="outlineSmall" href="/auth/mfa?next=/settings">Configure MFA</Link></div>
                   <Toggle checked={Boolean(form.require_mfa)} onChange={(v) => update("require_mfa", v)} disabled={!canEdit} />
                 </article>
                 <article>
-                  <div><b>IP Restrictions</b><small>Workspace preference only. An ingress allow-list/proxy must be connected before this becomes enforced.</small></div>
-                  <Toggle checked={Boolean(form.ip_restrictions)} onChange={(v) => update("ip_restrictions", v)} disabled={!canEdit} />
+                  <div style={{flex:1}}><b>IP Restrictions</b><small>Fail-closed CIDR/IP allow-list enforced at the protected Nodra request boundary.</small><textarea rows={3} placeholder={"203.0.113.10\n198.51.100.0/24"} value={(form.ip_allowlist ?? []).join("\n")} onChange={(e) => update("ip_allowlist", e.target.value.split(/\n|,/).map((v) => v.trim()).filter(Boolean))} disabled={!canEdit} /></div>
+                  <Toggle checked={Boolean(form.ip_restrictions)} onChange={(v) => update("ip_restrictions", v)} disabled={!canEdit || !(form.ip_allowlist ?? []).length} />
                 </article>
                 <article>
                   <div><b>Session Timeout</b><small>Enforced inactivity window for authenticated Nodra console sessions.</small></div>
@@ -448,8 +450,8 @@ export function SettingsConsole({ overview }: { overview: any }) {
                   </select>
                 </article>
                 <article>
-                  <div><b>Require Strong Passwords</b><small>Workspace preference only. Password complexity is enforced by the authentication provider, not by Nodra UI code.</small></div>
-                  <Toggle checked={Boolean(form.require_strong_passwords)} onChange={(v) => update("require_strong_passwords", v)} disabled={!canEdit} />
+                  <div><b>Password Attack Surface</b><small>Nodra currently authenticates workspace users through GitHub OAuth and does not accept or store workspace passwords. Password strength therefore remains the identity provider's responsibility until password auth is introduced.</small></div>
+                  <em>OAUTH ONLY</em>
                 </article>
                 <article>
                   <div><b>Allow API Access</b><small>When disabled, Nodra rejects protected-agent gateway access for this workspace.</small></div>
@@ -525,6 +527,7 @@ export function SettingsConsole({ overview }: { overview: any }) {
             <article><Shield /><div><b>Security Decisions</b><small>Authorization decisions remain deterministic and policy-based regardless of this preference.</small></div><em>DETERMINISTIC</em></article>
           </div>
           <button className="settingsSaveWide" disabled={!canEdit || busy === "save"} onClick={() => void saveSettings()}><Save /> Save AI Preferences</button>
+          <InvestigationAssistant incidents={overview?.incidents ?? []} enabled={Boolean(form.ai_config?.investigationAssist)} />
         </section>
       ) : null}
 
@@ -567,7 +570,7 @@ export function SettingsConsole({ overview }: { overview: any }) {
 
       {tab === "notifications" ? (
         <section className="settingsTabPanel">
-          <div className="settingsTabHero"><Bell /><div><h2>Notifications</h2><p>Persist in-console alert preferences. External email/Slack delivery is not enabled until a notification provider is connected.</p></div></div>
+          <div className="settingsTabHero"><Bell /><div><h2>Notifications</h2><p>Control in-console alerts and encrypted external HTTPS delivery for security events.</p></div></div>
           <div className="settingsControlGrid">
             <article><AlertTriangle /><div><b>Critical Incident Alerts</b><small>Include open incidents in the Nodra in-console notification feed.</small></div><Toggle checked={Boolean(form.notifications?.incidentAlerts)} onChange={(v) => updateNested("notifications", "incidentAlerts", v)} disabled={!canEdit} /></article>
             <article><Shield /><div><b>Policy Denial Alerts</b><small>Include denied gateway actions in the Nodra in-console notification feed.</small></div><Toggle checked={Boolean(form.notifications?.denialAlerts)} onChange={(v) => updateNested("notifications", "denialAlerts", v)} disabled={!canEdit} /></article>
@@ -581,6 +584,7 @@ export function SettingsConsole({ overview }: { overview: any }) {
             </div>
           </section>
           <button className="settingsSaveWide" disabled={!canEdit || busy === "save"} onClick={() => void saveSettings()}><Save /> Save Notification Preferences</button>
+          <ExternalNotifications canEdit={canEdit} />
         </section>
       ) : null}
 
@@ -588,7 +592,7 @@ export function SettingsConsole({ overview }: { overview: any }) {
         <section className="settingsTabPanel">
           <div className="settingsTabHero"><FileClock /><div><h2>Evidence & Retention</h2><p>Control workspace evidence preferences and export verified security records.</p></div></div>
           <div className="settingsControlGrid">
-            <article><FileClock /><div><b>Retention Preference</b><small>Stored workspace retention target. Automatic deletion requires a retention job before it should be treated as enforced.</small></div><div className="inlineDays"><input type="number" min={1} max={3650} value={form.event_retention_days} onChange={(e) => update("event_retention_days", Number(e.target.value))} disabled={!canEdit} /><span>days</span></div></article>
+            <article><FileClock /><div><b>Hot Evidence Retention</b><small>Enforced by the daily retention worker. Expired events are copied into the immutable archive and marked archived instead of being destructively deleted, preserving Nodra's tamper-evident evidence chain.</small></div><div className="inlineDays"><input type="number" min={1} max={3650} value={form.event_retention_days} onChange={(e) => update("event_retention_days", Number(e.target.value))} disabled={!canEdit} /><span>days</span></div></article>
             <article><ShieldCheck /><div><b>Evidence Integrity</b><small>Tamper-evident chain verification across recorded events.</small></div><em>{overview?.integrity?.valid ? "VERIFIED" : "CHECK"}</em></article>
             <article><Download /><div><b>Workspace Export</b><small>Export real workspace state without plaintext credential secrets.</small></div><a className="outlineSmall" href="/api/settings/export"><Download /> Export</a></article>
           </div>
