@@ -60,20 +60,43 @@ const result = await protectTool(
 
 Nodra only executes the supplied tool callback when authorization returns `allow`.
 
-## Approval execution
+## Automatic approval continuation
 
-When authorization returns `require-approval`, the returned `authorizationEventId` identifies the approval request. After an authorized reviewer approves it and a one-time execution token is delivered to the runtime:
+When authorization returns `require-approval`, the SDK can wait for the reviewer and resume without a human copying an execution token:
 
 ```ts
-await finance.executeApproved({
-  resourceId: "stripe",
-  action: "payments.submit",
-  authorizationEventId,
-  executionToken,
-});
+const finalDecision = await finance.authorizeAndWait(
+  {
+    resourceId: "stripe",
+    action: "payments.submit",
+  },
+  {
+    timeoutMs: 5 * 60_000,
+    pollIntervalMs: 1_500,
+  },
+);
+
+if (finalDecision.decision === "allow") {
+  // human approval was consumed and the protected action may proceed
+}
 ```
 
-Execution tokens are one-time and expire.
+For tool wrappers, opt in with `waitForApproval: true`:
+
+```ts
+await protectTool(
+  nodra,
+  {
+    agentId: "finance-agent",
+    resourceId: "stripe",
+    action: "payments.submit",
+  },
+  submitPayment,
+  { waitForApproval: true },
+);
+```
+
+The runtime generates the one-time token locally, claims the approved authorization idempotently, and consumes it with `executeApproved()`. Plaintext approval tokens are not stored by Nodra.
 
 ## Configuration
 
