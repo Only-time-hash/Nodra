@@ -11,7 +11,7 @@ export async function GET() {
     );
   }
 
-  const [{ data: agents, error: agentsError }, { data: allIncidents, error: incidentsError }, { data: events, error: eventsError }, { data: policies, error: policiesError }, integrityResult] =
+  const [{ data: agents, error: agentsError }, { data: allIncidents, error: incidentsError }, { data: events, error: eventsError }, { data: policies, error: policiesError }, { data: settings, error: settingsError }, integrityResult] =
     await Promise.all([
       ctx.supabase
         .from("agents")
@@ -36,16 +36,33 @@ export async function GET() {
         .select("id,action,effect,enabled,constraints,created_at,agent_id,resource_id,agents(name,external_id),resources(name,external_id)")
         .eq("workspace_id", ctx.workspaceId)
         .order("created_at", { ascending: false }),
+      ctx.supabase
+        .from("workspace_settings")
+        .select("agent_health_threshold_minutes,agent_controls,notifications")
+        .eq("workspace_id", ctx.workspaceId)
+        .maybeSingle(),
       ctx.supabase.rpc("verify_security_event_chain", {
         p_workspace_id: ctx.workspaceId,
       }),
     ]);
 
-  if (agentsError || incidentsError || eventsError || policiesError) {
+  if (agentsError || incidentsError || eventsError || policiesError || settingsError) {
     return NextResponse.json({ error: "dashboard_query_failed" }, { status: 500 });
   }
 
-  const customerAgentIds = new Set((agents ?? []).map((agent: any) => agent.id));
+  const thresholdMinutes = Number(settings?.agent_health_threshold_minutes ?? 5);
+  const thresholdMs = Math.max(1, thresholdMinutes) * 60_000;
+  const nowMs = Date.now();
+  const effectiveAgents = (agents ?? []).map((agent: any) => {
+    if (agent.status !== "healthy") return agent;
+    const lastSeen = agent.last_seen_at ? Date.parse(agent.last_seen_at) : NaN;
+    if (!Number.isFinite(lastSeen) || nowMs - lastSeen > thresholdMs) {
+      return { ...agent, status: "offline", health_reason: "stale_or_never_seen" };
+    }
+    return { ...agent, health_reason: "recent_runtime_activity" };
+  });
+
+  const customerAgentIds = new Set(effectiveAgents.map((agent: any) => agent.id));
   const incidents = (allIncidents ?? []).filter(
     (incident: any) =>
       incident.origin_agent_id && customerAgentIds.has(incident.origin_agent_id),
@@ -207,7 +224,7 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    agents: agents ?? [],
+    agents: effectiveAgents,
     incidents,
     events: events ?? [],
     policies: policies ?? [],
@@ -220,9 +237,10 @@ export async function GET() {
     forensicTimeline,
     recovery,
     integrity,
+    workspaceSettings: settings ?? null,
     stats: {
-      registeredAgents: (agents ?? []).length,
-      healthyAgents: (agents ?? []).filter(
+      registeredAgents: effectiveAgents.length,
+      healthyAgents: effectiveAgents.filter(
         (agent: any) => agent.status === "healthy",
       ).length,
       openIncidents: incidents.filter(
