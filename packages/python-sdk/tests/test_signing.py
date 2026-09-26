@@ -100,7 +100,7 @@ class SigningTests(unittest.TestCase):
 
         self.assertEqual(
             calls,
-            ["https://nodra.example/api/gateway/execute-approved"],
+            ["https://nodra.example/api/v1/execute-approved"],
         )
         self.assertEqual(result["decision"], "allow")
 
