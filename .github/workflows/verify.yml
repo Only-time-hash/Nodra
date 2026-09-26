@@ -95,6 +95,12 @@ jobs:
           DB_URL="$(npx supabase@latest status -o env | sed -n 's/^DB_URL=//p' | tr -d '"')"
           test -n "$DB_URL"
           psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls_workspace_isolation.sql
+      - name: Customer containment and recovery E2E
+        shell: bash
+        run: |
+          DB_URL="$(npx supabase@latest status -o env | sed -n 's/^DB_URL=//p' | tr -d '"')"
+          test -n "$DB_URL"
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/customer_recovery_e2e.sql
       - name: Stop local Supabase
         if: always()
         run: npx supabase@latest stop --no-backup
