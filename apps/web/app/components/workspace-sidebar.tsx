@@ -16,30 +16,30 @@ import {
 
 const nav = [
   ["/network", "Dashboard"],
-  ["/network/map", "Network"],
   ["/agents", "Agents"],
+  ["/network/map", "Agent Network"],
+  ["/activity", "Security Events"],
   ["/incidents", "Incidents"],
-  ["/activity", "Activity"],
-  ["/approvals", "Approvals"],
-  ["/policies", "Policies"],
-  ["/credentials", "Credentials"],
+  ["/reports", "Risk Analysis"],
   ["/containment", "Containment"],
   ["/recovery", "Recovery"],
-  ["/reports", "Reports"],
+  ["/approvals", "Approvals"],
+  ["/credentials", "Credentials"],
+  ["/integrations", "Integrations"],
   ["/settings", "Settings"],
 ] as const;
 
 function Icon({ name }: { name: string }) {
   const props = { size: 18, strokeWidth: 1.7 };
   if (name === "Dashboard") return <LayoutDashboard {...props} />;
-  if (name === "Network") return <Network {...props} />;
+  if (name === "Agent Network") return <Network {...props} />;
   if (name === "Agents") return <Bot {...props} />;
   if (name === "Incidents") return <AlertTriangle {...props} />;
-  if (name === "Activity") return <Activity {...props} />;
+  if (name === "Security Events") return <Activity {...props} />;
   if (name === "Approvals") return <ShieldCheck {...props} />;
   if (name === "Credentials") return <KeyRound {...props} />;
   if (name === "Recovery") return <RotateCcw {...props} />;
-  if (name === "Reports") return <FileText {...props} />;
+  if (name === "Risk Analysis") return <FileText {...props} />;
   if (name === "Settings") return <Settings {...props} />;
   return <Shield {...props} />;
 }
