@@ -35,6 +35,7 @@ export default function ApprovalsPage() {
     decision: "approved" | "denied";
   } | null>(null);
   const [reason, setReason] = useState("");
+  const [executionToken, setExecutionToken] = useState("");
 
   async function load() {
     setLoading(true);
@@ -91,6 +92,7 @@ export default function ApprovalsPage() {
       return;
     }
 
+    if (json.executionToken) setExecutionToken(json.executionToken);
     setReview(null);
     setReason("");
     await load();
@@ -142,6 +144,26 @@ export default function ApprovalsPage() {
         </div>
 
         {error ? <div className="credentialError">{error}</div> : null}
+
+        {executionToken ? (
+          <div className="credentialReveal referenceCredentialReveal">
+            <ShieldCheck />
+            <div>
+              <strong>Approved execution token — shown once</strong>
+              <p>
+                This token expires in five minutes. Give it only to the protected runtime
+                that will call <code>executeApproved()</code>.
+              </p>
+              <code>{executionToken}</code>
+            </div>
+            <button onClick={() => navigator.clipboard.writeText(executionToken)}>
+              Copy token
+            </button>
+            <button onClick={() => setExecutionToken("")}>
+              Stored
+            </button>
+          </div>
+        ) : null}
 
         <section className="refMainPanel approvalReferencePanel">
           <div className="refPanelTitle">
