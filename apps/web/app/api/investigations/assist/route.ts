@@ -14,7 +14,12 @@ export async function POST(request: Request) {
     .maybeSingle();
 
   if (settingsError) return NextResponse.json({ error: "settings_query_failed" }, { status: 500 });
-  if (!settings?.ai_config?.investigationAssist) {
+  const aiConfig =
+    settings?.ai_config && typeof settings.ai_config === "object" && !Array.isArray(settings.ai_config)
+      ? (settings.ai_config as Record<string, unknown>)
+      : {};
+
+  if (!aiConfig.investigationAssist) {
     return NextResponse.json({ error: "ai_investigation_assistance_disabled" }, { status: 409 });
   }
 
