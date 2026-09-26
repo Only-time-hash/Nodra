@@ -85,8 +85,14 @@ class Nodra:
         agent_id: str,
         resource_id: str,
         action: str,
+        *,
+        context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        return self.protect(agent_id).authorize(resource_id, action)
+        return self.protect(agent_id).authorize(
+            resource_id,
+            action,
+            context=context,
+        )
 
     def execute_approved(
         self,
@@ -127,12 +133,14 @@ class Nodra:
         resource_id: str,
         action: str,
         *,
+        context: dict[str, Any] | None = None,
         timeout_seconds: float = 300.0,
         poll_interval_seconds: float = 1.5,
     ) -> dict[str, Any]:
         return self.protect(agent_id).authorize_and_wait(
             resource_id,
             action,
+            context=context,
             timeout_seconds=timeout_seconds,
             poll_interval_seconds=poll_interval_seconds,
         )
@@ -267,17 +275,32 @@ class NodraAgent:
         self.client = client
         self.agent_id = agent_id
 
-    def authorize(self, resource_id: str, action: str) -> dict[str, Any]:
+    def authorize(
+        self,
+        resource_id: str,
+        action: str,
+        *,
+        context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         _validate_required(resource_id, "resource_id")
         _validate_required(action, "action")
 
+        payload: dict[str, Any] = {
+            "agentId": self.agent_id,
+            "resourceId": resource_id,
+            "action": action,
+        }
+        if context is not None:
+            if not isinstance(context, dict):
+                raise NodraError(
+                    "context must be a dictionary.",
+                    code="invalid_request",
+                )
+            payload["context"] = context
+
         return self.client._post(
             "/api/v1/authorize",
-            {
-                "agentId": self.agent_id,
-                "resourceId": resource_id,
-                "action": action,
-            },
+            payload,
             retry_safe=True,
             operation="authorization",
         )
@@ -381,10 +404,11 @@ class NodraAgent:
         resource_id: str,
         action: str,
         *,
+        context: dict[str, Any] | None = None,
         timeout_seconds: float = 300.0,
         poll_interval_seconds: float = 1.5,
     ) -> dict[str, Any]:
-        decision = self.authorize(resource_id, action)
+        decision = self.authorize(resource_id, action, context=context)
 
         if decision.get("decision") != "require-approval":
             return decision
