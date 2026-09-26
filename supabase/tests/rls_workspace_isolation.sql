@@ -159,6 +159,34 @@ begin
   ) then
     raise exception 'gateway SECURITY DEFINER function granted to PUBLIC';
   end if;
+
+  if exists (
+    select 1
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname='public'
+      and p.prosecdef
+      and has_function_privilege('authenticated', p.oid, 'execute')
+      and p.proname = any(allowed)
+  ) then
+    raise exception 'runtime gateway SECURITY DEFINER function exposed to authenticated browser role';
+  end if;
+
+  if exists (
+    select 1
+    from unnest(allowed) expected(name)
+    where not exists (
+      select 1
+      from pg_proc p
+      join pg_namespace n on n.oid=p.pronamespace
+      where n.nspname='public'
+        and p.proname=expected.name
+        and p.prosecdef
+        and has_function_privilege('anon',p.oid,'execute')
+    )
+  ) then
+    raise exception 'expected runtime gateway SECURITY DEFINER function missing anon execution';
+  end if;
 end
 $tag$;
 
