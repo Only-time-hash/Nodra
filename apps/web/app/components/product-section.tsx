@@ -141,10 +141,12 @@ if(section==="agents"){
  </div>
 }
  if(section==="incidents"){
- const rows=(state?.incidents??[]).filter((x:any)=>uiTab==="all"||(uiTab==="active"&&x.state!=="resolved")||(uiTab==="resolved"&&x.state==="resolved")).filter((x:any)=>!uiFilter||String(x.title??x.id).toLowerCase().includes(uiFilter.toLowerCase()));
- const activeCount=(state?.incidents??[]).filter((x:any)=>x.state!=="resolved").length;
- const resolvedCount=(state?.incidents??[]).filter((x:any)=>x.state==="resolved").length;
- const criticalCount=(state?.incidents??[]).filter((x:any)=>x.state!=="resolved"&&x.severity==="critical").length;
+ const incidentRows=state?.allIncidents??state?.incidents??[];
+ const rows=incidentRows.filter((x:any)=>uiTab==="all"||(uiTab==="active"&&x.state!=="resolved")||(uiTab==="resolved"&&x.state==="resolved")).filter((x:any)=>!uiFilter||String(x.title??x.id).toLowerCase().includes(uiFilter.toLowerCase()));
+ const activeCount=incidentRows.filter((x:any)=>x.state!=="resolved").length;
+ const resolvedCount=incidentRows.filter((x:any)=>x.state==="resolved").length;
+ const criticalCount=incidentRows.filter((x:any)=>x.state!=="resolved"&&x.severity==="critical").length;
+ const displayIncident=incident??rows[0]??null;
  return <div className="refPage incidentRef">
   <div className="refMetricGrid">
    <article className="metricRed"><AlertTriangle/><div><b>{activeCount}</b><span>Active Incidents</span><small>{activeCount?"Requires attention":"No active incidents"}</small></div></article>
@@ -155,13 +157,13 @@ if(section==="agents"){
   <div className="refTwoCol">
    <section className="refMainPanel"><div className="refTabs"><button className={uiTab==="all"?"active":""} onClick={()=>setUiTab("all")}>All Incidents</button><button className={uiTab==="active"?"active":""} onClick={()=>setUiTab("active")}>Active ({activeCount})</button><button className={uiTab==="resolved"?"active":""} onClick={()=>setUiTab("resolved")}>Resolved ({resolvedCount})</button><label><Search/><input value={uiFilter} onChange={e=>setUiFilter(e.target.value)} placeholder="Search incidents..."/></label></div>
     <div className="refTable"><div className="refTableHead"><span>ID</span><span>Title</span><span>Severity</span><span>Status</span><span>Detected</span><span>Evidence</span><span>Actions</span></div>
-     {rows.map((x:any)=><div className="refTableRow" key={x.id}><span>{String(x.id).slice(0,10)}</span><span>{x.title??"Security incident"}</span><span><em className={"sev "+String(x.severity)}>{x.severity??"security"}</em></span><span>{x.state}</span><span>{x.opened_at?new Date(x.opened_at).toLocaleString():"—"}</span><span>{events.filter((e:any)=>e.incident_id===x.id).length}</span><span><Link href="/reports"><Eye/>Analyze</Link></span></div>)}
-     {!rows.length?<div className="refEmpty">No real customer-agent incidents match this view.</div>:null}
+     {rows.map((x:any)=><div className="refTableRow" key={x.id}><span>{String(x.id).slice(0,10)}</span><span>{x.metadata?.source==="nodra-v0.1-lab"?<><em className="sev medium">LAB</em> {x.title??"Security incident"}</>:x.title??"Security incident"}</span><span><em className={"sev "+String(x.severity)}>{x.severity??"security"}</em></span><span>{x.state}</span><span>{x.opened_at?new Date(x.opened_at).toLocaleString():"—"}</span><span>{events.filter((e:any)=>e.incident_id===x.id).length}</span><span><Link href="/reports"><Eye/>Analyze</Link></span></div>)}
+     {!rows.length?<div className="refEmpty">No incidents match this view.</div>:null}
     </div>
    </section>
    <aside className="refSidePanel">
-    <div className="sideTitle"><h2>Incident Details</h2><span className={incident?"statusRed":"statusGreen"}>{incident?"Active":"Clear"}</span></div>
-    {incident?<><h3>{String(incident.id).slice(0,14)}</h3><h4>{incident.title??"Security incident"}</h4><dl><dt>Severity</dt><dd>{incident.severity??"security"}</dd><dt>Status</dt><dd>{incident.state}</dd><dt>Blast radius</dt><dd>{affected.length}</dd><dt>Evidence</dt><dd>{events.filter((e:any)=>e.incident_id===incident.id).length}</dd></dl><div className="sideActions">{incident.state!=="contained"&&incident.state!=="resolved"?<Link href="/containment">Open Containment</Link>:null}<Link href="/reports">Risk Analysis</Link></div></>:<div className="refEmpty">No active real-agent incident.</div>}
+    <div className="sideTitle"><h2>Incident Details</h2><span className={displayIncident?"statusRed":"statusGreen"}>{displayIncident?"Active":"Clear"}</span></div>
+    {displayIncident?<><h3>{String(displayIncident.id).slice(0,14)}</h3><h4>{displayIncident.title??"Security incident"}</h4>{displayIncident.metadata?.source==="nodra-v0.1-lab"?<p className="settingsNotice ok">Safe Nodra laboratory incident</p>:null}<dl><dt>Severity</dt><dd>{displayIncident.severity??"security"}</dd><dt>Status</dt><dd>{displayIncident.state}</dd><dt>Blast radius</dt><dd>{displayIncident.id===incident?.id?affected.length:"—"}</dd><dt>Evidence</dt><dd>{events.filter((e:any)=>e.incident_id===displayIncident.id).length}</dd></dl><div className="sideActions">{displayIncident.metadata?.source!=="nodra-v0.1-lab"&&displayIncident.state!=="contained"&&displayIncident.state!=="resolved"?<Link href="/containment">Open Containment</Link>:null}<Link href="/reports">Risk Analysis</Link></div></>:<div className="refEmpty">No incident selected.</div>}
    </aside>
   </div>
  </div>
