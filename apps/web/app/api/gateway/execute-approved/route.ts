@@ -55,6 +55,19 @@ export async function POST(request:Request){
     return NextResponse.json({error:"integration_auth_not_configured"},{status:503});
   }
 
+  const accessCheckClient = createClient<any>(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  const { data: apiAllowed, error: apiAccessError } = await accessCheckClient.rpc("integration_api_access_allowed", {
+    p_secret_hash: hashIntegrationSecret(credential),
+  });
+  if (apiAccessError) {
+    return NextResponse.json({ error: "api_access_check_failed" }, { status: 503 });
+  }
+  if (!apiAllowed) {
+    return NextResponse.json({ error: "workspace_api_access_disabled" }, { status: 403 });
+  }
+
   const supabase=createClient<any>(url,key,{
     auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
   });
