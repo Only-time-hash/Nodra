@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -165,7 +165,7 @@ function snippetFor(method: IntegrationMethod, agentId: string, workspaceId: str
   ].join("\n");
 }
 
-export default function ProtectPage() {
+function ProtectPageContent() {
   const searchParams = useSearchParams();
   const validEntry = searchParams.get("entry") === "overview";
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -831,5 +831,14 @@ export default function ProtectPage() {
         {message && <div className="flowMessage">{message}</div>}
       </section>
     </main>
+  );
+}
+
+
+export default function ProtectPage() {
+  return (
+    <Suspense fallback={<main className="flowPage" />}>
+      <ProtectPageContent />
+    </Suspense>
   );
 }
