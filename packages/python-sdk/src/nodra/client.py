@@ -103,6 +103,40 @@ class Nodra:
             execution_token,
         )
 
+    def wait_for_approval(
+        self,
+        agent_id: str,
+        resource_id: str,
+        action: str,
+        authorization_event_id: str,
+        *,
+        timeout_seconds: float = 300.0,
+        poll_interval_seconds: float = 1.5,
+    ) -> dict[str, Any]:
+        return self.protect(agent_id).wait_for_approval(
+            resource_id,
+            action,
+            authorization_event_id,
+            timeout_seconds=timeout_seconds,
+            poll_interval_seconds=poll_interval_seconds,
+        )
+
+    def authorize_and_wait(
+        self,
+        agent_id: str,
+        resource_id: str,
+        action: str,
+        *,
+        timeout_seconds: float = 300.0,
+        poll_interval_seconds: float = 1.5,
+    ) -> dict[str, Any]:
+        return self.protect(agent_id).authorize_and_wait(
+            resource_id,
+            action,
+            timeout_seconds=timeout_seconds,
+            poll_interval_seconds=poll_interval_seconds,
+        )
+
     def _signed_headers(self, body: bytes) -> dict[str, str]:
         timestamp = str(int(time.time()))
         nonce = str(uuid.uuid4())
@@ -273,6 +307,104 @@ class NodraAgent:
             },
             retry_safe=False,
             operation="approved execution",
+        )
+
+    def wait_for_approval(
+        self,
+        resource_id: str,
+        action: str,
+        authorization_event_id: str,
+        *,
+        timeout_seconds: float = 300.0,
+        poll_interval_seconds: float = 1.5,
+    ) -> dict[str, Any]:
+        _validate_required(resource_id, "resource_id")
+        _validate_required(action, "action")
+        _validate_required(authorization_event_id, "authorization_event_id")
+
+        deadline = time.monotonic() + max(1.0, float(timeout_seconds))
+        poll_interval = max(0.25, min(10.0, float(poll_interval_seconds)))
+        execution_token = secrets.token_urlsafe(32)
+
+        status_payload = {
+            "agentId": self.agent_id,
+            "resourceId": resource_id,
+            "action": action,
+            "authorizationEventId": authorization_event_id,
+        }
+
+        while time.monotonic() < deadline:
+            status = self.client._post(
+                "/api/v1/approval-status",
+                status_payload,
+                retry_safe=True,
+                operation="approval status",
+            )
+
+            if status.get("status") == "denied":
+                raise NodraError(
+                    "Human approval was denied.",
+                    code="approval_denied",
+                    status=403,
+                )
+
+            if status.get("status") == "approved":
+                claim = self.client._post(
+                    "/api/v1/approval-claim",
+                    {
+                        **status_payload,
+                        "executionToken": execution_token,
+                    },
+                    retry_safe=True,
+                    operation="approval claim",
+                )
+
+                return {
+                    "executionToken": execution_token,
+                    "reason": status.get("reason"),
+                    "decidedAt": status.get("decidedAt"),
+                    "expiresAt": claim.get("expiresAt"),
+                }
+
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            time.sleep(min(poll_interval, remaining))
+
+        raise NodraError(
+            "Timed out waiting for human approval.",
+            code="approval_wait_timeout",
+        )
+
+    def authorize_and_wait(
+        self,
+        resource_id: str,
+        action: str,
+        *,
+        timeout_seconds: float = 300.0,
+        poll_interval_seconds: float = 1.5,
+    ) -> dict[str, Any]:
+        decision = self.authorize(resource_id, action)
+
+        if decision.get("decision") != "require-approval":
+            return decision
+
+        authorization_event_id = str(decision.get("authorizationEventId") or "")
+        _validate_required(authorization_event_id, "authorization_event_id")
+
+        claim = self.wait_for_approval(
+            resource_id,
+            action,
+            authorization_event_id,
+            timeout_seconds=timeout_seconds,
+            poll_interval_seconds=poll_interval_seconds,
+        )
+
+        return self.execute_approved(
+            resource_id,
+            action,
+            authorization_event_id,
+            claim["executionToken"],
         )
 
     def record(
