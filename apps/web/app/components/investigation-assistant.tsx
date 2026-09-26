@@ -43,7 +43,7 @@ export function InvestigationAssistant({ incidents, enabled }: { incidents: any[
           <select value={incidentId} onChange={(e) => setIncidentId(e.target.value)} disabled={!enabled || busy || !options.length}>
             {options.map((incident) => (
               <option key={incident.id} value={incident.id}>
-                {incident.title || incident.id} · {incident.severity || "unknown"} · {incident.state || "unknown"}
+                {incident.metadata?.source === "nodra-v0.1-lab" ? "[LAB] " : ""}{incident.title || incident.id} · {incident.severity || "unknown"} · {incident.state || "unknown"}
               </option>
             ))}
           </select>
