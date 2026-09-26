@@ -87,7 +87,7 @@ export async function PATCH(request: Request) {
   }
 
   const source = body.settings && typeof body.settings === "object" ? body.settings : {};
-  const patch: Record<string, unknown> = { workspace_id: ctx.workspaceId, updated_at: new Date().toISOString() };
+  const patch: any = { workspace_id: ctx.workspaceId, updated_at: new Date().toISOString() };
 
   const description = cleanText(source.description, 500);
   if (description !== undefined) patch.description = description;
