@@ -1,3 +1,107 @@
-import {createHash} from "node:crypto";import {NextResponse} from "next/server";import {authenticateIntegrationRequest} from "../../../../lib/integration-auth";import {GATEWAY_SIGNATURE_MAX_AGE_SECONDS} from "../../../../lib/gateway-signing";
+import { createHash } from "node:crypto";
+import { createClient } from "@supabase/supabase-js";
+import { NextResponse } from "next/server";
+import { hashIntegrationSecret } from "../../../../lib/integration-credentials";
+import { GATEWAY_SIGNATURE_MAX_AGE_SECONDS, verifyCredentialRequest } from "../../../../lib/gateway-signing";
+
 const hash=(v:string)=>createHash("sha256").update(v).digest("hex");
-export async function POST(request:Request){const raw=await request.text();if(Buffer.byteLength(raw,"utf8")>32768)return NextResponse.json({error:"approval_execution_request_too_large"},{status:413});let body:any;try{body=JSON.parse(raw)}catch{return NextResponse.json({error:"invalid_approval_execution_request"},{status:400})}if(typeof body?.agentId!=="string"||typeof body?.resourceId!=="string"||typeof body?.action!=="string"||typeof body?.authorizationEventId!=="string"||typeof body?.executionToken!=="string"||body.executionToken.length>256)return NextResponse.json({error:"invalid_approval_execution_request"},{status:400});const auth=await authenticateIntegrationRequest(request,raw,body.agentId);if(!auth.ok)return NextResponse.json({error:auth.error},{status:auth.status});if(auth.agent.status!=="healthy")return NextResponse.json({error:"agent_not_healthy"},{status:403});const {error:nonceError}=await auth.admin.from("gateway_request_nonces").insert({workspace_id:auth.workspaceId,agent_id:auth.agentId,nonce:auth.verified.nonce,request_timestamp:new Date(auth.verified.timestamp*1000).toISOString(),expires_at:new Date((auth.verified.timestamp+GATEWAY_SIGNATURE_MAX_AGE_SECONDS)*1000).toISOString()});if(nonceError)return NextResponse.json({error:nonceError.code==="23505"?"gateway_request_replayed":"gateway_replay_protection_unavailable"},{status:nonceError.code==="23505"?409:503});const {data:event,error:eventError}=await auth.admin.from("security_events").select("id,agent_id,action,decision,payload").eq("workspace_id",auth.workspaceId).eq("id",body.authorizationEventId).eq("agent_id",auth.agentId).eq("decision","require_approval").maybeSingle();if(eventError)return NextResponse.json({error:"approval_evidence_unavailable"},{status:503});if(!event)return NextResponse.json({error:"approval_authorization_mismatch"},{status:403});const payload=event.payload&&typeof event.payload==="object"&&!Array.isArray(event.payload)?event.payload as Record<string,unknown>:{};if(event.action!==body.action||payload.resourceId!==body.resourceId)return NextResponse.json({error:"approval_authorization_mismatch"},{status:403});const {data:rows,error:consumeError}=await auth.admin.rpc("consume_approval_execution_token",{p_workspace_id:auth.workspaceId,p_security_event_id:event.id,p_token_hash:hash(body.executionToken)});if(consumeError)return NextResponse.json({error:"approval_execution_unavailable"},{status:503});if(!Array.isArray(rows)||rows.length===0)return NextResponse.json({error:"approval_token_invalid_expired_or_consumed"},{status:403});const {error:evidenceError}=await auth.admin.rpc("append_security_event",{p_workspace_id:auth.workspaceId,p_incident_id:null,p_agent_id:auth.agentId,p_event_type:"approved-execution",p_action:body.action,p_resource_id:null,p_decision:"allow",p_caused_by_event_id:event.id,p_payload:{resourceId:body.resourceId,authorizationEventId:event.id,approvalDecisionId:rows[0].decision_id}});if(evidenceError)return NextResponse.json({error:"approval_execution_evidence_unavailable"},{status:503});return NextResponse.json({decision:"allow",reason:"human_approval_consumed",authorizationEventId:event.id,agentId:auth.agent.external_id,resourceId:body.resourceId,action:body.action})}
+
+export async function POST(request:Request){
+  const raw=await request.text();
+
+  if(Buffer.byteLength(raw,"utf8")>32768){
+    return NextResponse.json({error:"approval_execution_request_too_large"},{status:413});
+  }
+
+  let body:any;
+  try{body=JSON.parse(raw)}catch{
+    return NextResponse.json({error:"invalid_approval_execution_request"},{status:400});
+  }
+
+  if(
+    typeof body?.agentId!=="string"||
+    typeof body?.resourceId!=="string"||
+    typeof body?.action!=="string"||
+    typeof body?.authorizationEventId!=="string"||
+    typeof body?.executionToken!=="string"||
+    body.executionToken.length>256
+  ){
+    return NextResponse.json({error:"invalid_approval_execution_request"},{status:400});
+  }
+
+  const credential=request.headers.get("x-nodra-credential");
+  if(!credential){
+    return NextResponse.json({error:"credential_missing"},{status:401});
+  }
+
+  const verified=verifyCredentialRequest(
+    raw,
+    {
+      timestamp:request.headers.get("x-nodra-timestamp"),
+      nonce:request.headers.get("x-nodra-nonce"),
+      signature:request.headers.get("x-nodra-signature")
+    },
+    credential
+  );
+
+  if(!verified.valid){
+    return NextResponse.json({error:verified.reason},{status:401});
+  }
+
+  const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+  if(!url||!key){
+    return NextResponse.json({error:"integration_auth_not_configured"},{status:503});
+  }
+
+  const supabase=createClient<any>(url,key,{
+    auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
+  });
+
+  const {data,error}=await supabase.rpc("execute_approved_integration_action",{
+    p_secret_hash:hashIntegrationSecret(credential),
+    p_external_agent_id:body.agentId,
+    p_nonce:verified.nonce,
+    p_request_timestamp:new Date(verified.timestamp*1000).toISOString(),
+    p_expires_at:new Date((verified.timestamp+GATEWAY_SIGNATURE_MAX_AGE_SECONDS)*1000).toISOString(),
+    p_authorization_event_id:body.authorizationEventId,
+    p_execution_token_hash:hash(body.executionToken),
+    p_resource_external_id:body.resourceId,
+    p_action:body.action
+  });
+
+  if(error){
+    const message=String(error.message||"");
+
+    if(message.includes("invalid_credential")){
+      return NextResponse.json({error:"invalid_credential"},{status:401});
+    }
+    if(message.includes("agent_not_healthy")){
+      return NextResponse.json({error:"agent_not_healthy"},{status:403});
+    }
+    if(message.includes("gateway_request_replayed")){
+      return NextResponse.json({error:"gateway_request_replayed"},{status:409});
+    }
+    if(message.includes("approval_authorization_mismatch")){
+      return NextResponse.json({error:"approval_authorization_mismatch"},{status:403});
+    }
+    if(message.includes("approval_token_invalid_expired_or_consumed")){
+      return NextResponse.json({error:"approval_token_invalid_expired_or_consumed"},{status:403});
+    }
+
+    return NextResponse.json({error:"approval_execution_unavailable"},{status:503});
+  }
+
+  const row=Array.isArray(data)?data[0]:data;
+
+  return NextResponse.json({
+    decision:"allow",
+    reason:"human_approval_consumed",
+    authorizationEventId:row?.authorization_event_id??body.authorizationEventId,
+    executionEventId:row?.execution_event_id??null,
+    agentId:row?.agent_external_id??body.agentId,
+    resourceId:body.resourceId,
+    action:body.action
+  });
+}
