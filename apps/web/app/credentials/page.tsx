@@ -139,7 +139,7 @@ export default function CredentialsPage() {
           </div>
           <div className="headerActions">
             <Link className="ghostBtn addAgentBtn" href="/onboarding/welcome">
-              + Create Credential
+              + Protect Agent
             </Link>
           </div>
         </header>
