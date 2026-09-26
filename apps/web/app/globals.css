@@ -1656,3 +1656,11 @@
 .settingsExactLoading{padding:40px;text-align:center;color:#7891aa}
 @media(max-width:1050px){.settingsTopGrid,.settingsMidGrid,.settingsBottomGrid{grid-template-columns:1fr}.settingsControlGrid{grid-template-columns:1fr}.settingsMemberList article{grid-template-columns:28px 1fr 90px 50px 24px}}
 @media(max-width:650px){.workspaceInfoGrid{grid-template-columns:1fr}.settingsFormRows .settingsField{grid-template-columns:1fr}.settingsExactTabs button span{display:none}.settingsMemberList article{grid-template-columns:28px 1fr 80px}.memberActive,.memberRemove{display:none}}
+
+.notificationPreview{overflow:hidden}
+.notificationPreviewList article{display:grid;grid-template-columns:70px minmax(0,1fr) 130px;gap:9px;align-items:center;padding:8px 10px;border-top:1px solid #102a40}
+.notificationPreviewList article>span{font-size:6.5px;color:#6fbfff;text-transform:uppercase;letter-spacing:.06em}
+.notificationPreviewList b{display:block;font-size:8px;color:#dce9f6}
+.notificationPreviewList small{display:block;font-size:6px;color:#6f879f;margin-top:2px}
+.notificationPreviewList time{font-size:6px;color:#6c849c;text-align:right}
+@media(max-width:650px){.notificationPreviewList article{grid-template-columns:60px 1fr}.notificationPreviewList time{display:none}}
