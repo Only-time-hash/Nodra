@@ -1461,3 +1461,12 @@
 .workspaceBrandLogo{width:30px;height:30px;object-fit:contain;display:block}
 .dashPathHealthy{stroke:#25e7bc}
 .dashPathRisk{stroke:#ff9b45}
+
+.workspaceNodraLogo{display:block;width:72px;height:72px;filter:drop-shadow(0 0 14px rgba(19,184,255,.22))}
+.labBrand.exactBrand{min-height:96px}
+.labBrand.exactBrand>.workspaceNodraLogo{width:72px;height:72px;max-width:none;max-height:none}
+.dashboardCoreLogo{width:58px;height:58px;filter:drop-shadow(0 0 16px rgba(19,184,255,.35))}
+.dashboardCore>.dashboardCoreLogo{width:58px;height:58px;max-width:none;max-height:none}
+@media(max-width:1050px){
+  .labBrand.exactBrand>.workspaceNodraLogo{width:44px;height:44px}
+}
