@@ -212,7 +212,7 @@ export function NetworkLab() {
   return (
     <main className="lab">
       <aside className="sidebar">
-        <Link className="labBrand exactBrand" href="/network" aria-label="Nodra dashboard"><NodraLogo className="workspaceNodraLogo"/></Link>
+        <Link className="labBrand exactBrand" href="/network" aria-label="Nodra dashboard"><NodraLogo className="workspaceNodraLogo"/><span className="consoleBrandWord">Nodra</span></Link>
         <p className="workspace">AGENTIC AI SHIELD</p>
         <nav className="sideNav" aria-label="Nodra application">
           {dashboardNav.map(([href,label])=><Link key={href} className={href==="/network"?"active":""} href={href}><i><DashboardNavIcon name={label}/></i><span>{label}</span>{label==="Incidents"&&affected>0?<b>{affected}</b>:null}</Link>)}
