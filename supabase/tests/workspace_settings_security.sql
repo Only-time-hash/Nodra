@@ -10,6 +10,15 @@ values ('e0000000-0000-4000-8000-000000000005','50000000-0000-4000-8000-00000000
 insert into public.workspace_members(workspace_id,user_id,role)
 values ('e0000000-0000-4000-8000-000000000005','50000000-0000-4000-8000-000000000005','owner');
 
+insert into auth.users (id,aud,role,email,encrypted_password,email_confirmed_at)
+values ('50000000-0000-4000-8000-000000000006','authenticated','authenticated','other-workspace@nodra.invalid','',now());
+
+insert into public.workspaces (id,owner_id,name,slug)
+values ('e0000000-0000-4000-8000-000000000006','50000000-0000-4000-8000-000000000006','Other Workspace','other-workspace-test');
+
+insert into public.workspace_members(workspace_id,user_id,role)
+values ('e0000000-0000-4000-8000-000000000006','50000000-0000-4000-8000-000000000006','owner');
+
 insert into public.workspace_settings(
   workspace_id,ip_restrictions,ip_allowlist,event_retention_days,
   external_notifications_enabled,notifications
@@ -40,6 +49,43 @@ begin
     raise exception 'disallowed IPv6 address accepted';
   end if;
 end $$;
+
+do $
+begin
+  if has_function_privilege('authenticated','public.list_workspace_members()','execute')
+     or has_function_privilege('authenticated','public.list_integration_credentials()','execute')
+     or has_function_privilege('authenticated','public.set_notification_destination(text,text,text,text[])','execute')
+     or has_function_privilege('authenticated','public.delete_notification_destination(uuid)','execute')
+     or has_function_privilege('authenticated','public.issue_integration_credential(text,text,text,text)','execute')
+     or has_function_privilege('authenticated','public.revoke_integration_credential(uuid)','execute')
+     or has_function_privilege('authenticated','public.rotate_integration_credential(uuid,text,text)','execute') then
+    raise exception 'legacy first-membership RPC remains executable';
+  end if;
+
+  if not has_function_privilege('authenticated','public.list_workspace_members(uuid)','execute')
+     or not has_function_privilege('authenticated','public.list_integration_credentials(uuid)','execute') then
+    raise exception 'explicit-workspace read RPC is not executable';
+  end if;
+end $;
+
+do $
+begin
+  begin
+    perform * from public.list_workspace_members('e0000000-0000-4000-8000-000000000006');
+    raise exception 'cross-workspace member listing unexpectedly succeeded';
+  exception
+    when others then
+      if sqlerrm not like '%workspace_access_denied%' then raise; end if;
+  end;
+
+  begin
+    perform * from public.list_integration_credentials('e0000000-0000-4000-8000-000000000006');
+    raise exception 'cross-workspace credential listing unexpectedly succeeded';
+  exception
+    when others then
+      if sqlerrm not like '%workspace_access_denied%' then raise; end if;
+  end;
+end $;
 
 reset role;
 
