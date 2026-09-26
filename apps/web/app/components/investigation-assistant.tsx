@@ -22,7 +22,17 @@ export function InvestigationAssistant({ incidents, enabled }: { incidents: any[
     const json = await res.json();
     setBusy(false);
     if (!res.ok) {
-      setMessage(json.error ?? "Investigation assistance failed.");
+      const reason =
+        json.reason === "provider_temporarily_unavailable"
+          ? "Gemini is temporarily overloaded. Nodra tried its configured fallback models too."
+          : json.reason === "provider_quota_or_rate_limit"
+            ? "Gemini quota or rate limit was reached. Try again shortly."
+            : json.reason === "provider_key_or_access_denied"
+              ? "Gemini rejected the API key or project access."
+              : json.reason === "invalid_provider_request"
+                ? "Gemini rejected the request format."
+                : null;
+      setMessage(reason ?? json.error ?? "Investigation assistance failed.");
       return;
     }
     setResult(json);
