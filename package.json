@@ -14,7 +14,8 @@
     "test:python": "PYTHONPATH=packages/python-sdk/src python -m unittest discover -s packages/python-sdk/tests -p \"test_*.py\"",
     "test:agent": "node scripts/test-finance-agent.mjs",
     "build:sdk": "npm --workspace packages/sdk run build",
-    "pack:sdk": "npm --workspace packages/sdk pack --dry-run"
+    "pack:sdk": "npm --workspace packages/sdk pack --dry-run",
+    "benchmark:sdk": "npm run build:sdk && node scripts/benchmark-sdk.mjs"
   },
   "workspaces": [
     "apps/*",
