@@ -134,6 +134,7 @@ export async function POST(request: Request) {
     "Your job is to summarize evidence; you never make authorization, containment, recovery, or restart decisions.",
     "Use only the supplied incident and security-event evidence. Do not invent facts.",
     "Use the human-readable agent names supplied in the evidence. Never output database UUIDs or internal record identifiers.",
+    "Whenever you refer to a named agent, preserve its exact display-name capitalization from the evidence.",
     "Clearly separate observed facts from hypotheses and unknowns.",
     "Return JSON with keys: summary, timeline, likelyCause, blastRadius, evidenceGaps, recommendedInvestigationSteps.",
     "timeline must be an array of objects with timestamp and event.",
@@ -252,12 +253,34 @@ export async function POST(request: Request) {
     return next;
   };
 
-  const cleanAnalysis = replaceKnownIds(analysis);
+  const normalizeAgentNames = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(normalizeAgentNames);
+    if (value && typeof value === "object") {
+      return Object.fromEntries(
+        Object.entries(value as Record<string, unknown>).map(([key, child]) => [key, normalizeAgentNames(child)]),
+      );
+    }
+    if (typeof value !== "string") return value;
+    let next = value;
+    const labels = [...new Set(agentLabels.values())].sort((a, b) => b.length - a.length);
+    for (const label of labels) {
+      const escaped = label.replace(/[.*+?^$()|[\]\\]/g, "\\  const cleanAnalysis = replaceKnownIds(analysis);
 
   return NextResponse.json({
     incidentId: incident.id,
     provider: "gemini",
     model: usedModel,
+    deterministicSecurityDecisionsUnaffected: true,
+    analysis: cleanAnalysis,
+  });");
+      next = next.replace(new RegExp("\\b" + escaped + "\\b", "gi"), label);
+    }
+    return next;
+  };
+
+  const cleanAnalysis = normalizeAgentNames(replaceKnownIds(analysis));
+
+  return NextResponse.json({
     deterministicSecurityDecisionsUnaffected: true,
     analysis: cleanAnalysis,
   });
