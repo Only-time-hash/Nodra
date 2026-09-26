@@ -1681,3 +1681,18 @@
 .policySimResult.deny,.policySimResult.error{border-color:#6b2b3a;background:#251016}.policySimResult.deny>b,.policySimResult.error>b{color:#ff7288}
 .policyTableAdvanced .policyTableRow>span:nth-child(5),.policyTableAdvanced .policyTableRow>span:nth-child(6){display:grid;gap:2px}
 .policyTableAdvanced .policyTableRow small{font-size:5.5px;color:#68819b}
+
+/* Production recovery actions */
+.recoveryActionNotice{border:1px solid #205575;border-radius:6px;background:#071c2c;color:#9ed4ff;padding:9px 11px;font-size:9px}
+.recoveryCredentialReveal{display:grid;grid-template-columns:32px minmax(0,1fr) auto auto;gap:9px;align-items:center;border:1px solid #20644f;border-radius:7px;background:#08241c;padding:11px}
+.recoveryCredentialReveal>svg{width:20px;color:#3fdfa9}
+.recoveryCredentialReveal b{display:block;font-size:9px;color:#dff8ef}
+.recoveryCredentialReveal p{margin:3px 0 6px;font-size:7px;color:#86aa9d;line-height:1.45}
+.recoveryCredentialReveal code{display:block;max-width:100%;overflow:auto;border:1px solid #1f5746;border-radius:4px;background:#061611;color:#8ff1cc;padding:6px;font-size:7px}
+.recoveryCredentialReveal button,.recoveryStepAction{display:inline-flex;align-items:center;justify-content:center;gap:4px;border:1px solid #1e6a91;border-radius:5px;background:#08253b;color:#bfe8ff;padding:7px 9px;font-size:7px;cursor:pointer}
+.recoveryCredentialReveal button svg{width:11px}
+.recoveryStepAction{min-width:112px}
+.recoveryStepAction:disabled,.restartControl:disabled{opacity:.45;cursor:not-allowed}
+.recoveryOps article div>code{font-size:5.5px;color:#66819e}
+.restartExplain{display:block;margin-top:9px;color:#6f879f;font-size:6.5px;line-height:1.45}
+@media(max-width:700px){.recoveryCredentialReveal{grid-template-columns:28px 1fr}.recoveryCredentialReveal button{grid-column:auto}.recoveryStepAction{min-width:90px}}
