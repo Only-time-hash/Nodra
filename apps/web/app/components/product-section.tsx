@@ -3,7 +3,7 @@ import Link from "next/link";
 import { NodraLogo } from "./nodra-logo";
 import { SettingsConsole } from "./settings-console";
 import { useEffect,useMemo,useState } from "react";
-import { AlertTriangle, ShieldCheck, Clock3, Target, Activity, CheckCircle2, XCircle, FileText, Download, Search, Filter, KeyRound, Shield, LockKeyhole, RotateCcw, Play, BookOpen, Settings2, Bell, Palette, Link2, Plus, Eye, MoreHorizontal, Database, Server, Network, SlidersHorizontal, Radio, ListFilter, FileDown, RefreshCcw, Check, ChevronRight, LogOut, Home, Bot, GitBranch, TriangleAlert, BarChart3, Box, ClipboardCheck, Plug, Settings, Waves } from "lucide-react";
+import { AlertTriangle, ShieldCheck, Clock3, Target, Activity, CheckCircle2, XCircle, FileText, Download, Copy, Search, Filter, KeyRound, Shield, LockKeyhole, RotateCcw, Play, BookOpen, Settings2, Bell, Palette, Link2, Plus, Eye, MoreHorizontal, Database, Server, Network, SlidersHorizontal, Radio, ListFilter, FileDown, RefreshCcw, Check, ChevronRight, LogOut, Home, Bot, GitBranch, TriangleAlert, BarChart3, Box, ClipboardCheck, Plug, Settings, Waves } from "lucide-react";
 import { createClient } from "../../lib/supabase/client";
 
 function NavIcon({name}:{name:string}) {
