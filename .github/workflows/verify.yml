@@ -55,6 +55,8 @@ jobs:
         run: npm run build:sdk
       - name: Verify JavaScript SDK publish bundle
         run: npm run pack:sdk
+      - name: Benchmark SDK authorization overhead
+        run: node scripts/benchmark-sdk.mjs
       - name: Verify JavaScript SDK installs outside the monorepo
         run: |
           cd packages/sdk
