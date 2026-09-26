@@ -11,20 +11,32 @@ export async function getWorkspaceContext() {
   const selectedWorkspaceId = cookieStore.get("nodra_workspace_id")?.value;
   const uuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-  let query = supabase
-    .from("workspace_members")
-    .select("workspace_id,role")
-    .eq("user_id", userId);
+  const baseQuery = () =>
+    supabase
+      .from("workspace_members")
+      .select("workspace_id,role")
+      .eq("user_id", userId);
+
+  let data: { workspace_id: string; role: string } | null = null;
 
   if (selectedWorkspaceId && uuidLike.test(selectedWorkspaceId)) {
-    query = query.eq("workspace_id", selectedWorkspaceId);
-  } else {
-    query = query.order("workspace_id", { ascending: true }).limit(1);
+    const selected = await baseQuery()
+      .eq("workspace_id", selectedWorkspaceId)
+      .maybeSingle();
+    if (selected.error) return null;
+    data = selected.data as typeof data;
   }
 
-  const { data, error } = await query.maybeSingle();
+  if (!data) {
+    const fallback = await baseQuery()
+      .order("workspace_id", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (fallback.error) return null;
+    data = fallback.data as typeof data;
+  }
 
-  if (error || !data) return null;
+  if (!data) return null;
   return {
     supabase,
     workspaceId: data.workspace_id as string,
