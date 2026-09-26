@@ -1,30 +1,123 @@
 import Link from "next/link";
-const sections=[
-["quickstart","Quickstart","Choose an integration path and connect your first agent action to Nodra."],
-["javascript","JavaScript / TypeScript","Use the repository SDK workspace while the public npm distribution is being prepared."],
-["python","Python SDK","Integrate Python agents with the repository Python SDK and Nodra gateway."],
-["rest-api","REST API","Call the Nodra authorization gateway directly from services that do not use an SDK."],
-["authentication","Authentication & credentials","Keep credentials server-side and associate requests with the correct Nodra workspace."],
-["policies","Policies & authorization","Define explicit authority boundaries and decide whether an action is allowed, blocked, or requires approval."],
-["events","Events & provenance","Record consequential actions and preserve evidence about authority and downstream effects."],
-["containment","Containment","Isolate affected agents or branches without unnecessarily stopping unaffected systems."],
-["recovery","Recovery","Review incident state, credentials, jobs, and affected resources before safe restart."],
-["security","Security model","Understand the control plane, workspace isolation, evidence, and recovery boundaries."]
+import {
+  ArrowRight,
+  BookOpen,
+  Code2,
+  KeyRound,
+  Network,
+  ShieldCheck,
+} from "lucide-react";
+import { WorkspaceSidebar } from "../components/workspace-sidebar";
+
+const sections = [
+  {
+    title: "JavaScript / TypeScript",
+    text: "Use the Nodra SDK workspace to authorize consequential agent actions before execution.",
+    href: "/integrations/javascript",
+    icon: Code2,
+  },
+  {
+    title: "Python",
+    text: "Sign requests server-side and call the protected authorization gateway from Python runtimes.",
+    href: "/integrations/python",
+    icon: Code2,
+  },
+  {
+    title: "REST API",
+    text: "Integrate any backend capable of SHA-256 and HMAC-SHA256 without depending on a language-specific SDK.",
+    href: "/integrations/rest",
+    icon: Network,
+  },
+  {
+    title: "MCP Guard",
+    text: "Protect consequential MCP tool calls at the execution boundary instead of relying only on prompt inspection.",
+    href: "/integrations/mcp",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Credentials",
+    text: "Issue, rotate and revoke server-side runtime identities without exposing plaintext secrets in the browser.",
+    href: "/credentials",
+    icon: KeyRound,
+  },
 ];
-export default function DocsPage(){return <main className="docsPage"><header className="docsTop"><Link href="/" className="docsLogo"><img src="/nodra-logo.png" alt="Nodra"/></Link><div>Documentation</div><Link href="/" className="docsBack">← Back to Nodra</Link></header><div className="docsLayout"><aside className="docsSide"><strong>GET STARTED</strong><a href="#quickstart">Quickstart</a><strong>INTEGRATIONS</strong><a href="#javascript">JavaScript / TypeScript</a><a href="#python">Python</a><a href="#rest-api">REST API</a><strong>PLATFORM</strong><a href="#authentication">Authentication</a><a href="#policies">Policies & authorization</a><a href="#events">Events & provenance</a><a href="#containment">Containment</a><a href="#recovery">Recovery</a><a href="#security">Security</a></aside><article className="docsContent"><div className="docsEyebrow">NODRA DOCUMENTATION</div><h1>Secure agent actions with explicit boundaries.</h1><p className="docsLead">Nodra sits between autonomous agents and consequential tools. These docs describe the product interfaces that developers integrate with; they do not require access to Nodra's internal platform source.</p><section id="quickstart"><h2>Quickstart</h2><p>1. Create or select a Nodra workspace. 2. Register the agent that will request authorization. 3. Configure its allowed actions and resources. 4. Send consequential actions through Nodra before execution. 5. Review resulting evidence and security events in the console.</p><div className="docsNotice"><strong>Distribution status</strong><span>Nodra's SDK workspaces exist in the product repository. Public npm/PyPI packages are not advertised as released until their registry publication is complete.</span></div></section>{sections.slice(1).map(([id,title,body])=><section id={id} key={id}><h2>{title}</h2><p>{body}</p>{id==="rest-api"&&<pre><code>{`POST /api/gateway/authorize
-Content-Type: application/json
-x-nodra-credential: <agent integration credential>
-x-nodra-timestamp: <unix seconds>
-x-nodra-nonce: <uuid>
-x-nodra-signature: v1=<hmac-sha256>
 
-{
-  "agentId": "finance-agent",
-  "resourceId": "payments",
-  "action": "send_payment"
+export default function DocsPage() {
+  return (
+    <main className="lab">
+      <WorkspaceSidebar active="Integrations" />
+      <section className="labMain">
+        <div className="commandTopbar">
+          <div className="commandSearch integrationBreadcrumb">
+            <span>NODRA / DOCUMENTATION</span>
+          </div>
+          <div className="topbarStatus">
+            <span className="liveIndicator live"><i /> DOCS</span>
+            <span>V0.1</span>
+          </div>
+        </div>
+
+        <div className="consoleDocs">
+          <header className="consoleDocsHero">
+            <span>NODRA DOCUMENTATION</span>
+            <h1>Secure agent actions with explicit boundaries.</h1>
+            <p>
+              Developer guidance for connecting real autonomous agents to Nodra’s
+              authority, evidence, containment and recovery control plane.
+            </p>
+          </header>
+
+          <section className="refMainPanel docsQuickstart">
+            <div className="refPanelTitle">
+              <div>
+                <h3>Quickstart</h3>
+                <small>From unprotected agent to verified protected runtime.</small>
+              </div>
+              <BookOpen />
+            </div>
+            <div className="docsSteps">
+              {[
+                "Create or select a Nodra workspace.",
+                "Register the agent that will request authorization.",
+                "Define the agent’s explicit authority scope.",
+                "Issue and store the integration credential server-side.",
+                "Route consequential actions through Nodra before execution.",
+                "Verify the signed runtime evidence in Security Events.",
+              ].map((step, index) => (
+                <article key={step}>
+                  <span>{index + 1}</span>
+                  <b>{step}</b>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <div className="consoleDocsGrid">
+            {sections.map(({ title, text, href, icon: Icon }) => (
+              <Link key={title} href={href}>
+                <span><Icon /></span>
+                <div>
+                  <h3>{title}</h3>
+                  <p>{text}</p>
+                </div>
+                <ArrowRight />
+              </Link>
+            ))}
+          </div>
+
+          <section className="docsSecurityBoundary">
+            <ShieldCheck />
+            <div>
+              <b>Security model</b>
+              <p>
+                Nodra authenticates protected requests, evaluates authority,
+                records ordered evidence and keeps secrets outside browser code.
+              </p>
+            </div>
+            <Link href="/activity">Open Security Events</Link>
+          </section>
+        </div>
+      </section>
+    </main>
+  );
 }
-
-// Signature canonical form:
-// v1\\n<timestamp>\\n<nonce>\\n<sha256(body)>`}</code></pre>}{id==="javascript"&&<pre><code>{`// Public npm distribution is being prepared.
-// The SDK currently lives in packages/sdk.`}</code></pre>}{id==="python"&&<pre><code>{`# Python SDK distribution is being prepared.
-# Use the repository SDK during development.`}</code></pre>}</section>)}</article><aside className="docsToc"><strong>ON THIS PAGE</strong>{sections.map(([id,title])=><a href={"#"+id} key={id}>{title}</a>)}</aside></div></main>}
