@@ -71,7 +71,7 @@ export async function updateSession(request: NextRequest) {
 
     let timeoutMinutes = 30;
     if (membership?.workspace_id) {
-      const { data: settings } = await supabase
+      const { data: settings } = await (supabase as any)
         .from("workspace_settings")
         .select("session_timeout_minutes,require_mfa,ip_restrictions,ip_allowlist")
         .eq("workspace_id", membership.workspace_id)
@@ -92,7 +92,7 @@ export async function updateSession(request: NextRequest) {
           request.headers.get("x-forwarded-for") ??
           "";
         const clientIp = forwarded.split(",")[0]?.trim() ?? "";
-        const { data: ipAllowed, error: ipError } = await supabase.rpc("workspace_ip_allowed", {
+        const { data: ipAllowed, error: ipError } = await (supabase as any).rpc("workspace_ip_allowed", {
           p_workspace_id: membership.workspace_id,
           p_ip: clientIp,
         } as any);
