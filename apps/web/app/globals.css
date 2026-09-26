@@ -1696,3 +1696,56 @@
 .recoveryOps article div>code{font-size:5.5px;color:#66819e}
 .restartExplain{display:block;margin-top:9px;color:#6f879f;font-size:6.5px;line-height:1.45}
 @media(max-width:700px){.recoveryCredentialReveal{grid-template-columns:28px 1fr}.recoveryCredentialReveal button{grid-column:auto}.recoveryStepAction{min-width:90px}}
+
+
+/* Incident console polish */
+.incidentRef .refMainPanel{overflow:hidden}
+.incidentRef .refTable{overflow-x:auto;scrollbar-width:thin;scrollbar-color:#31506e transparent}
+.incidentRef .refTable::-webkit-scrollbar{height:8px}
+.incidentRef .refTable::-webkit-scrollbar-track{background:transparent}
+.incidentRef .refTable::-webkit-scrollbar-thumb{background:#31506e;border-radius:999px}
+.incidentRef .refTableHead,.incidentRef .refTableRow{grid-template-columns:120px minmax(260px,1.8fr) 100px 120px 170px 95px 130px;min-width:995px}
+.incidentRef .refTableHead{padding:12px 16px;font-size:10px;letter-spacing:.02em}
+.incidentRef .incidentTableRow{min-height:76px;padding:14px 16px;font-size:10px;line-height:1.35}
+.incidentRef .incidentIdCell{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#7ea6cf}
+.incidentTitleCell{display:flex;flex-direction:column;gap:6px;min-width:0}
+.incidentTitleTop{display:flex;align-items:center;gap:9px;min-width:0;flex-wrap:wrap}
+.incidentTitleTop strong{min-width:0;color:#dceaff;font-size:11px;line-height:1.35;font-weight:650;overflow-wrap:anywhere}
+.incidentTitleCell>small{color:#6f8eae;font-size:8px}
+.incidentLabBadge{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;height:22px;padding:0 8px;border:1px solid #d6ab2f;border-radius:999px;background:#2b2108;color:#ffd45d;font-size:8px;font-style:normal;font-weight:800;letter-spacing:.08em}
+.incidentStatusCell{display:flex;align-items:center;gap:7px;text-transform:capitalize;color:#b7c8da}
+.incidentStatusDot{width:7px;height:7px;border-radius:50%;background:#6e8cab;box-shadow:0 0 8px #6e8cab55}
+.incidentStatusDot.open,.incidentStatusDot.active{background:#ff6077;box-shadow:0 0 9px #ff607777}
+.incidentStatusDot.contained,.incidentStatusDot.recovering{background:#ffc357;box-shadow:0 0 9px #ffc35777}
+.incidentStatusDot.resolved{background:#31df9a;box-shadow:0 0 9px #31df9a77}
+.incidentDetectedCell{color:#8ca5bf;white-space:normal}
+.incidentEvidenceCell{display:flex;flex-direction:column;gap:2px}
+.incidentEvidenceCell b{font-size:12px;color:#dceaff}
+.incidentEvidenceCell small{font-size:8px;color:#6f8eae}
+.incidentActionCell a{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:94px;padding:7px 10px;border:1px solid #1d5f97;border-radius:7px;background:#07182a;color:#8ed0ff;text-decoration:none;white-space:nowrap}
+.incidentActionCell a svg{width:14px;height:14px}
+.incidentDetailsPanel{display:flex;flex-direction:column;gap:16px;padding:18px}
+.incidentDetailsPanel .sideTitle{align-items:flex-start;padding-bottom:13px;border-bottom:1px solid #102a44}
+.incidentDetailsPanel .sideTitle>div{display:grid;gap:3px}
+.incidentDetailsPanel .sideTitle h2{font-size:14px;color:#dceaff}
+.incidentEyebrow{font-size:7px;letter-spacing:.12em;color:#5f83aa}
+.incidentDetailsHeader{display:grid;gap:8px}
+.incidentDetailsHeader code{width:max-content;max-width:100%;color:#7da7d2;font-size:9px;overflow-wrap:anywhere}
+.incidentDetailsHeader h3{margin:0;font-size:13px;line-height:1.35;color:#f2f7ff}
+.incidentSafeChip{display:inline-flex;width:max-content;max-width:100%;align-items:center;padding:7px 10px;border:1px solid #1d6c51;border-radius:7px;background:#08281f;color:#55e0aa;font-size:8px;line-height:1.2}
+.incidentMetaList{display:grid!important;grid-template-columns:1fr!important;margin:0!important;border-top:1px solid #102a44!important}
+.incidentMetaList>div{display:grid;grid-template-columns:110px minmax(0,1fr);align-items:center;gap:12px;border-bottom:1px solid #102a44}
+.incidentMetaList dt,.incidentMetaList dd{border:0!important;padding:10px 0!important}
+.incidentMetaList dt{color:#728eaa!important}
+.incidentMetaList dd{margin:0!important;text-align:right!important;color:#d8e7f7;overflow-wrap:anywhere}
+.incidentMetaStatus{text-transform:capitalize}
+.incidentDetailsActions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:0}
+.incidentDetailsActions a{min-height:38px}
+.incidentEmptyState{display:grid!important;justify-items:center;gap:8px;padding:34px 18px!important}
+.incidentEmptyState svg{width:28px;color:#31df9a}
+.incidentEmptyState strong{color:#dceaff}
+.incidentEmptyState span{color:#7894b2;font-size:9px;text-align:center;line-height:1.5}
+@media(max-width:1150px){
+ .incidentRef .refTableHead,.incidentRef .refTableRow{min-width:940px}
+ .incidentDetailsPanel{min-height:auto}
+}
