@@ -26,7 +26,7 @@ export async function GET() {
     ctx.supabase.from("policies").select("id,action,effect,enabled,constraints,agent_id,resource_id,created_at").eq("workspace_id", ctx.workspaceId),
     ctx.supabase.from("incidents").select("*").eq("workspace_id", ctx.workspaceId),
     ctx.supabase.from("security_events").select("id,incident_id,agent_id,event_type,action,resource_id,decision,payload,sequence_no,prev_hash,event_hash,occurred_at,recorded_at").eq("workspace_id", ctx.workspaceId).order("sequence_no"),
-    ctx.supabase.rpc("list_integration_credentials", { p_workspace_id: ctx.workspaceId }),
+    (ctx.supabase as any).rpc("list_integration_credentials", { p_workspace_id: ctx.workspaceId }),
     ctx.supabase.from("containment_actions").select("*").eq("workspace_id", ctx.workspaceId),
     ctx.supabase.from("recovery_plans").select("*").eq("workspace_id", ctx.workspaceId),
     ctx.supabase.from("recovery_steps").select("*").eq("workspace_id", ctx.workspaceId),
