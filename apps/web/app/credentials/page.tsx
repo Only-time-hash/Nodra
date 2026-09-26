@@ -1,18 +1,268 @@
 "use client";
-import {useEffect,useState} from "react";
+
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Check,
+  Copy,
+  EyeOff,
+  KeyRound,
+  RefreshCw,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
 import { WorkspaceSidebar } from "../components/workspace-sidebar";
-import {Check,Copy,EyeOff,KeyRound,LockKeyhole,RefreshCw,ShieldCheck,Sparkles,Trash2} from "lucide-react";
-type Credential={id:string;agent_id:string;label:string;secret_prefix:string;status:string;created_at:string;last_used_at:string|null;revoked_at:string|null};
-export default function CredentialsPage(){
- const [items,setItems]=useState<Credential[]>([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState<string|null>(null),[secret,setSecret]=useState(""),[error,setError]=useState("");
- async function load(){setLoading(true);setError("");const r=await fetch("/api/integrations/credentials",{cache:"no-store"});if(r.status===401){location.href="/auth?intent=signin";return}const j=await r.json();if(!r.ok){setError(j.error??"Could not load credentials")}else setItems(j.credentials??[]);setLoading(false)}
- useEffect(()=>{void load()},[]);
- async function rotate(id:string){setBusy(id);setError("");const r=await fetch("/api/integrations/credentials",{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({credentialId:id})});const j=await r.json();setBusy(null);if(!r.ok){setError(j.error??"Credential rotation failed");return}setSecret(j.secret);await load()}
- async function revoke(id:string){if(!confirm("Revoke this credential? The connected agent will no longer authenticate with it."))return;setBusy(id);setError("");const r=await fetch("/api/integrations/credentials",{method:"DELETE",headers:{"content-type":"application/json"},body:JSON.stringify({credentialId:id})});const j=await r.json();setBusy(null);if(!r.ok){setError(j.error??"Credential revocation failed");return}await load()}
- const active=items.filter(x=>x.status==="active").length,revoked=items.filter(x=>x.status!=="active").length,used=items.filter(x=>x.last_used_at).length;return <main className="lab"><WorkspaceSidebar active="Credentials"/><section className="labMain"><section className="credentialPage"><section className="credentialShell"><div className="credentialHero"><div><span><Sparkles/> CREDENTIAL VAULT</span><h1>Runtime Credentials</h1><p>Control the cryptographic identities your agents use to authenticate signed requests at Nodra’s enforcement boundary.</p></div><div className="credentialHeroMark"><LockKeyhole/><i/></div></div><div className="credentialStats"><div><KeyRound/><span><strong>{active}</strong>Active credentials</span></div><div><RefreshCw/><span><strong>{used}</strong>Used by runtime</span></div><div><EyeOff/><span><strong>{revoked}</strong>Revoked</span></div></div><div className="credentialHeading credentialSectionHeading"><div><span>WORKSPACE SECRETS</span><h2>Integration credentials</h2><p>Secret metadata only. Plaintext is never recoverable after issuance.</p></div><Link className="credentialAdd" href="/onboarding/integrate"><KeyRound/> Issue through onboarding</Link></div>
- {secret&&<div className="credentialReveal"><ShieldCheck/><div><strong>Rotated secret — shown once</strong><p>Store this server-side now. Nodra will not return it again.</p><code>{secret}</code></div><button onClick={()=>navigator.clipboard.writeText(secret)}><Copy/> Copy</button><button onClick={()=>setSecret("")}><Check/> Stored</button></div>}
- {error&&<div className="credentialError">{error}</div>}
- <div className="credentialTableWrap"><div className="credentialTable"><div className="credentialRow head"><span>Credential</span><span>Status</span><span>Created</span><span>Last used</span><span>Actions</span></div>{loading?<div className="credentialEmpty">Loading credentials…</div>:items.length===0?<div className="credentialEmpty"><KeyRound/><strong>No integration credentials yet</strong><p>Register an agent and issue its first credential through onboarding.</p><Link href="/onboarding/integrate">Protect an agent</Link></div>:items.map(x=><div className="credentialRow" key={x.id}><span><b>{x.label}</b><small>{x.secret_prefix}••••••••</small></span><span><i className={x.status==="active"?"active":"revoked"}/>{x.status}</span><span>{new Date(x.created_at).toLocaleDateString()}</span><span>{x.last_used_at?new Date(x.last_used_at).toLocaleString():"Never"}</span><span className="credentialActions">{x.status==="active"&&<><button disabled={busy===x.id} onClick={()=>rotate(x.id)}><RefreshCw/> Rotate</button><button className="danger" disabled={busy===x.id} onClick={()=>revoke(x.id)}><Trash2/> Revoke</button></>}</span></div>)}</div></div>
- <aside className="credentialSafety"><ShieldCheck/><div><strong>Credential safety</strong><p>Nodra stores only a one-way hash of each secret. Plaintext secrets are returned only at issuance or rotation and should remain in your server-side secret manager.</p></div></aside></section></section></section></main>
+
+type Credential = {
+  id: string;
+  agent_id: string;
+  label: string;
+  secret_prefix: string;
+  status: string;
+  created_at: string;
+  last_used_at: string | null;
+  revoked_at: string | null;
+};
+
+export default function CredentialsPage() {
+  const [items, setItems] = useState<Credential[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [secret, setSecret] = useState("");
+  const [error, setError] = useState("");
+
+  async function load() {
+    setLoading(true);
+    setError("");
+
+    const response = await fetch("/api/integrations/credentials", { cache: "no-store" });
+
+    if (response.status === 401) {
+      location.href = "/auth?intent=signin";
+      return;
+    }
+
+    const json = await response.json();
+
+    if (!response.ok) setError(json.error ?? "Could not load credentials");
+    else setItems(json.credentials ?? []);
+
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    void load();
+  }, []);
+
+  async function rotate(id: string) {
+    setBusy(id);
+    setError("");
+
+    const response = await fetch("/api/integrations/credentials", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ credentialId: id }),
+    });
+
+    const json = await response.json();
+    setBusy(null);
+
+    if (!response.ok) {
+      setError(json.error ?? "Credential rotation failed");
+      return;
+    }
+
+    setSecret(json.secret);
+    await load();
+  }
+
+  async function revoke(id: string) {
+    if (!confirm("Revoke this credential? The connected agent will no longer authenticate with it.")) {
+      return;
+    }
+
+    setBusy(id);
+    setError("");
+
+    const response = await fetch("/api/integrations/credentials", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ credentialId: id }),
+    });
+
+    const json = await response.json();
+    setBusy(null);
+
+    if (!response.ok) {
+      setError(json.error ?? "Credential revocation failed");
+      return;
+    }
+
+    await load();
+  }
+
+  const stats = useMemo(
+    () => ({
+      active: items.filter((x) => x.status === "active").length,
+      used: items.filter((x) => x.last_used_at).length,
+      revoked: items.filter((x) => x.status !== "active").length,
+      total: items.length,
+    }),
+    [items],
+  );
+
+  return (
+    <main className="lab">
+      <WorkspaceSidebar active="Credentials" />
+
+      <section className="labMain">
+        <div className="commandTopbar">
+          <label className="commandSearch">
+            <span>⌕</span>
+            <input placeholder="Search credentials..." readOnly />
+          </label>
+          <div className="topbarStatus">
+            <span className="liveIndicator live"><i /> LIVE</span>
+            <span>V0.1</span>
+          </div>
+        </div>
+
+        <header className="labHeader">
+          <div>
+            <p>NODRA / CREDENTIALS</p>
+            <h1>Credentials</h1>
+            <p className="dashboardSub">
+              Manage server-side integration identities for protected agents.
+            </p>
+          </div>
+          <div className="headerActions">
+            <Link className="ghostBtn addAgentBtn" href="/onboarding/welcome">
+              + Create Credential
+            </Link>
+          </div>
+        </header>
+
+        <div className="refMetricGrid">
+          <article className="metricGreen">
+            <KeyRound />
+            <div><b>{stats.active}</b><span>Active</span><small>Usable credentials</small></div>
+          </article>
+          <article className="metricBlue">
+            <RefreshCw />
+            <div><b>{stats.used}</b><span>Runtime Used</span><small>Seen by gateway</small></div>
+          </article>
+          <article className="metricRed">
+            <Trash2 />
+            <div><b>{stats.revoked}</b><span>Revoked</span><small>No longer accepted</small></div>
+          </article>
+          <article className="metricBlue">
+            <ShieldCheck />
+            <div><b>{stats.total}</b><span>Total</span><small>Workspace identities</small></div>
+          </article>
+        </div>
+
+        {secret ? (
+          <div className="credentialReveal referenceCredentialReveal">
+            <ShieldCheck />
+            <div>
+              <strong>Rotated secret — shown once</strong>
+              <p>Store this server-side now. Nodra will not return it again.</p>
+              <code>{secret}</code>
+            </div>
+            <button onClick={() => navigator.clipboard.writeText(secret)}>
+              <Copy /> Copy
+            </button>
+            <button onClick={() => setSecret("")}>
+              <Check /> Stored
+            </button>
+          </div>
+        ) : null}
+
+        {error ? <div className="credentialError">{error}</div> : null}
+
+        <section className="refMainPanel credentialReferencePanel">
+          <div className="refPanelTitle">
+            <div>
+              <h3>Runtime Credentials</h3>
+              <small>Secret metadata only. Plaintext is never recoverable after issuance.</small>
+            </div>
+            <button className="referenceRefresh" type="button" onClick={() => void load()}>
+              Refresh
+            </button>
+          </div>
+
+          <div className="credentialReferenceTable">
+            <div className="credentialReferenceRow head">
+              <span>Credential</span>
+              <span>Agent</span>
+              <span>Created</span>
+              <span>Last Used</span>
+              <span>Status</span>
+              <span>Actions</span>
+            </div>
+
+            {loading ? (
+              <div className="refEmpty">Loading credentials…</div>
+            ) : items.length === 0 ? (
+              <div className="refEmpty credentialReferenceEmpty">
+                <KeyRound />
+                <strong>No integration credentials yet</strong>
+                <p>Protect an agent to issue its first server-side credential.</p>
+                <Link href="/onboarding/welcome">Protect Agent</Link>
+              </div>
+            ) : (
+              items.map((item) => (
+                <div className="credentialReferenceRow" key={item.id}>
+                  <span>
+                    <b>{item.label}</b>
+                    <small>{item.secret_prefix}••••••••</small>
+                  </span>
+                  <span><code>{item.agent_id}</code></span>
+                  <span>{new Date(item.created_at).toLocaleDateString()}</span>
+                  <span>
+                    {item.last_used_at
+                      ? new Date(item.last_used_at).toLocaleString()
+                      : "Never"}
+                  </span>
+                  <span>
+                    <i className={item.status === "active" ? "dot" : "dot active"} />
+                    {item.status}
+                  </span>
+                  <span className="credentialReferenceActions">
+                    {item.status === "active" ? (
+                      <>
+                        <button disabled={busy === item.id} onClick={() => void rotate(item.id)}>
+                          <RefreshCw /> Rotate
+                        </button>
+                        <button
+                          className="danger"
+                          disabled={busy === item.id}
+                          onClick={() => void revoke(item.id)}
+                        >
+                          <Trash2 /> Revoke
+                        </button>
+                      </>
+                    ) : (
+                      <small>Revoked</small>
+                    )}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+
+        <aside className="referenceSecurityNotice">
+          <EyeOff />
+          <div>
+            <b>Credential safety</b>
+            <p>
+              Nodra stores only one-way hashes of integration secrets. Plaintext is
+              returned only at issuance or rotation and should remain server-side.
+            </p>
+          </div>
+        </aside>
+      </section>
+    </main>
+  );
 }
