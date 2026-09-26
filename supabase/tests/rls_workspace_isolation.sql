@@ -123,6 +123,8 @@ declare leaked text[];
 declare allowed text[] := array[
   'append_high_impact_review_override',
   'authorize_integration_gateway',
+  'claim_integration_approval_token',
+  'get_integration_approval_status',
   'execute_approved_integration_action',
   'integration_api_access_allowed',
   'integration_high_impact_review_enabled',
