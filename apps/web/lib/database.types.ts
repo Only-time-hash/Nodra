@@ -298,6 +298,8 @@ export type Database = {
       gateway_outbox: {
         Row: {
           agent_id: string | null
+          cancel_reason: string | null
+          cancelled_at: string | null
           created_at: string
           delivered_at: string | null
           id: string
@@ -309,6 +311,8 @@ export type Database = {
         }
         Insert: {
           agent_id?: string | null
+          cancel_reason?: string | null
+          cancelled_at?: string | null
           created_at?: string
           delivered_at?: string | null
           id?: string
@@ -320,6 +324,8 @@ export type Database = {
         }
         Update: {
           agent_id?: string | null
+          cancel_reason?: string | null
+          cancelled_at?: string | null
           created_at?: string
           delivered_at?: string | null
           id?: string
@@ -785,6 +791,7 @@ export type Database = {
       }
       recovery_steps: {
         Row: {
+          check_key: string | null
           completed_at: string | null
           id: string
           reason: string
@@ -795,6 +802,7 @@ export type Database = {
           workspace_id: string
         }
         Insert: {
+          check_key?: string | null
           completed_at?: string | null
           id?: string
           reason: string
@@ -805,6 +813,7 @@ export type Database = {
           workspace_id: string
         }
         Update: {
+          check_key?: string | null
           completed_at?: string | null
           id?: string
           reason?: string
@@ -1381,6 +1390,10 @@ export type Database = {
           retry_after_seconds: number
         }[]
       }
+      contain_customer_incident: {
+        Args: { p_incident_id: string }
+        Returns: Json
+      }
       containment_scope: {
         Args: { p_incident_id: string }
         Returns: {
@@ -1606,6 +1619,16 @@ export type Database = {
           status: string
         }[]
       }
+      run_customer_recovery_action: {
+        Args: {
+          p_action_type: string
+          p_evidence_note?: string
+          p_incident_id: string
+          p_secret_hash?: string
+          p_secret_prefix?: string
+        }
+        Returns: Json
+      }
       run_laboratory_remediation: {
         Args: { p_action_type: string; p_incident_id: string; p_target: string }
         Returns: Json
@@ -1646,6 +1669,10 @@ export type Database = {
           matched_policy_id: string
           reason: string
         }[]
+      }
+      start_customer_recovery: {
+        Args: { p_incident_id: string }
+        Returns: Json
       }
       sync_recovery_steps_for_incident: {
         Args: { p_action_type: string; p_incident_id: string }
