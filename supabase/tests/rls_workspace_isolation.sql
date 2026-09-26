@@ -122,6 +122,7 @@ do $tag$
 declare leaked text[];
 declare allowed text[] := array[
   'append_high_impact_review_override',
+  'apply_integration_policy_override',
   'authorize_integration_gateway',
   'claim_integration_approval_token',
   'get_integration_approval_status',
