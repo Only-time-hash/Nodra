@@ -1,4 +1,4 @@
-import type {Nodra} from "./index";
+import type { Nodra } from "./index.js";
 
 export type ProtectedToolInput={agentId:string;resourceId:string;action:string;input?:unknown};
 export async function protectTool<T>(nodra:Nodra,request:ProtectedToolInput,execute:()=>Promise<T>){
