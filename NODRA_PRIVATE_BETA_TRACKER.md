@@ -49,15 +49,24 @@ Remaining:
 - Publish the first PyPI beta after Trusted Publishing is configured.
 - Add automatic approval continuation after blocker #4 is built.
 
-## 3. Stable v1 API + Developer Documentation — REMAINING
+## 3. Stable v1 API + Developer Documentation — BUILDING
+
+Implemented:
+- Versioned runtime endpoints: `/api/v1/authorize`, `/api/v1/events`, `/api/v1/execute-approved`, `/api/v1/health`.
+- Legacy gateway routes preserved for compatibility.
+- Both JavaScript and Python SDKs moved to v1.
+- Stable v1 decision and error contract documented.
+- Request IDs and `x-nodra-api-version` response headers.
+- OpenAPI 3.1.1 contract in `docs/openapi.yaml`.
+- v1 API usage/deprecation guidance in `docs/api-v1.md`.
+- v1 wrapper tests.
 
 Remaining:
-- Freeze public v1 routes and schemas.
-- Stable error-code catalog.
-- OpenAPI specification.
-- Backward-compatibility/deprecation rules.
-- API request IDs/tracing.
-- Complete external integration documentation.
+- CI must pass with the v1 surface.
+- Validate the OpenAPI document in CI.
+- Serve/download the OpenAPI document from the product docs.
+- Expand docs into framework-specific external quickstarts.
+- Freeze any additional management endpoints needed for the private beta.
 
 ## 4. Automatic Approval Continuation — REMAINING
 
