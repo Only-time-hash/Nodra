@@ -10,6 +10,7 @@ const defaults = {
   theme: "dark",
   require_mfa: false,
   ip_restrictions: false,
+  ip_allowlist: [],
   session_timeout_minutes: 30,
   require_strong_passwords: true,
   allow_api_access: true,
@@ -22,6 +23,7 @@ const defaults = {
     recoveryAlerts: true,
   },
   evidence_config: { exportFormat: "json" },
+  external_notifications_enabled: false,
 };
 
 function cleanText(value: unknown, max: number) {
@@ -111,6 +113,22 @@ export async function PATCH(request: Request) {
     if (source[key] !== undefined) {
       if (typeof source[key] !== "boolean") return NextResponse.json({ error: "invalid_" + key }, { status: 400 });
       patch[key] = source[key];
+    }
+  }
+
+  if (source.ip_allowlist !== undefined) {
+    if (!Array.isArray(source.ip_allowlist) || source.ip_allowlist.length > 100) {
+      return NextResponse.json({ error: "invalid_ip_allowlist" }, { status: 400 });
+    }
+    const allowlist = source.ip_allowlist
+      .map((value: unknown) => typeof value === "string" ? value.trim() : "")
+      .filter(Boolean);
+    if (allowlist.some((value: string) => value.length > 64 || !/^[0-9a-fA-F:./]+$/.test(value))) {
+      return NextResponse.json({ error: "invalid_ip_allowlist" }, { status: 400 });
+    }
+    patch.ip_allowlist = allowlist;
+    if (source.ip_restrictions === true && allowlist.length === 0) {
+      return NextResponse.json({ error: "ip_allowlist_required_when_restrictions_enabled" }, { status: 400 });
     }
   }
 
