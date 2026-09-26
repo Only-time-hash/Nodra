@@ -26,10 +26,22 @@ export async function GET(request: Request) {
     memberships[0] ??
     null;
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     workspace: active,
     workspaces: memberships,
   });
+
+  if (active?.workspace_id && active.workspace_id !== selectedWorkspaceId) {
+    response.cookies.set("nodra_workspace_id", active.workspace_id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+    });
+  }
+
+  return response;
 }
 
 export async function POST(request: Request) {
