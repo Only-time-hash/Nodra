@@ -65,6 +65,8 @@ jobs:
           npm init -y >/dev/null 2>&1
           npm install "$GITHUB_WORKSPACE/packages/sdk/$TARBALL"
           node --input-type=module -e "import {Nodra,NodraError} from 'nodra-agent-sdk'; console.log(Nodra.name,NodraError.name)"
+          cp "$GITHUB_WORKSPACE/examples/external-agent-consumer/finance-agent.mjs" ./finance-agent.mjs
+          node ./finance-agent.mjs
       - name: Validate OpenAPI v1 contract
         run: npx --yes @redocly/cli@2.12.6 lint docs/openapi.yaml
       - name: Production build
