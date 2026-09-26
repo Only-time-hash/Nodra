@@ -46,7 +46,7 @@ export async function GET() {
         .select("*")
         .eq("workspace_id", ctx.workspaceId)
         .maybeSingle(),
-      ctx.supabase.rpc("list_workspace_members", { p_workspace_id: ctx.workspaceId }),
+      (ctx.supabase as any).rpc("list_workspace_members", { p_workspace_id: ctx.workspaceId }),
     ]);
 
   if (workspaceError || settingsError || membersResult.error) {
